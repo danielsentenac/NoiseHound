@@ -1,6 +1,6 @@
 # NOISEHOUND
 
-A toolkit for investigating long-lived periodic broadband glitches in Virgo. It replaces one-by-one coherence browsing with a repeatable multi-step workflow based on 1 Hz trend GWF files staged from the CC-IN2P3 HPSS tape archive.
+A toolkit for investigating long-lived periodic broadband glitches typically seen in Virgo. It replaces one-by-one coherence browsing with a repeatable multi-step workflow based on 1 Hz trend GWF files staged from the CC-IN2P3 HPSS tape archive.
 
 ## Workflow overview
 
