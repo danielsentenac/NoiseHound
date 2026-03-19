@@ -81,7 +81,20 @@ Output: `outputs/detect_{GPS_START}_{GPS_END}/triggers.csv`
 
 ### Step 2 — Rank auxiliary channels
 
-Stages one daily trend GWF from HPSS and ranks all 1 Hz channels by z-score, hit fraction, and cross-correlation lag over ±5 s windows around each trigger:
+Ranks all 1 Hz channels by z-score, hit fraction, and cross-correlation lag over ±5 s windows around each trigger.
+
+Local (trend GWF already staged):
+
+```bash
+python -m noisehound.cli rank \
+    --triggers  outputs/detect_.../triggers.csv \
+    --include   "V1:(ENV|TCS|INF|SBE).*" \
+    --top       50 \
+    --output    outputs/ranking.csv \
+    /path/to/V-trend-{GPS}-86400.gwf
+```
+
+Via SLURM (stages the trend GWF from HPSS then ranks):
 
 ```bash
 HPSS_TREND=/hpss/in2p3.fr/group/virgo/DATA/trend/{YEAR}/V-trend-{GPS}-86400.gwf \
@@ -89,24 +102,17 @@ TRIGGERS=$HOME/NOISEHOUND/outputs/detect_.../triggers.csv \
 sbatch slurm/noisehound_rank_trend.slurm
 ```
 
-Optional overrides (all have sensible defaults):
-
-```bash
-INCLUDE="V1:(ENV|TCS|INF|SBE).*" \   # channel name regex filter
-TOP=50 \                               # number of top channels to save
-WINDOW_BEFORE_S=60 \                   # context window around each trigger
-sbatch slurm/noisehound_rank_trend.slurm
-```
-
 Output: `outputs/rank_trend_{JOBID}/ranking.csv`
 
 ### Step 3 — Causality analysis
 
-Applied to the top-ranked channels from Step 2. Methods: Granger causality (VAR F-test) and Transfer Entropy (Schreiber 2000) over ±5 s windows around each trigger.
+Granger causality (VAR F-test) and Transfer Entropy (Schreiber 2000) applied to the top-ranked channels from Step 2, over ±5 s windows around each trigger.
+
+Local:
 
 ```bash
 python scripts/causality_analysis.py \
-    --trend     /tmp/V-trend-{GPS}-86400.gwf \
+    --trend     /path/to/V-trend-{GPS}-86400.gwf \
     --hrec-dir  /path/to/hoftonline_frames/ \
     --triggers  outputs/detect_.../triggers.csv \
     --ranking   outputs/rank_trend_.../ranking.csv \
@@ -115,14 +121,29 @@ python scripts/causality_analysis.py \
     --output    outputs/causality/
 ```
 
+No dedicated SLURM script — runs in a few minutes on the login node for a short epoch.
+
 Output: `outputs/causality/causality_summary.csv` and `causality_report.txt`.
 
 ### Step 4 — Rate correlation (1-hour bins, full baseline)
 
-Pearson and Spearman correlation between the hourly glitch rate and each slow channel, plus a cross-correlation lag scan over ±7 days. SLURM array job: 12 tasks × 3-month blocks, 33 slow channels, 1-hour bins.
+Pearson and Spearman correlation between the hourly glitch rate and each slow channel, plus a cross-correlation lag scan over ±7 days.
+
+Local (single time block, trend GWF already staged):
 
 ```bash
-cd ~/NOISEHOUND
+python scripts/rate_correlation_direct.py \
+    --triggers   data/full_25min_glitches_ER16-O4b.csv \
+    --gps-start  1364774400 \
+    --gps-end    1372636800 \
+    --output     outputs/rate_correlation/partial_0.csv \
+    --hpss-base  cchpss0:/hpss/in2p3.fr/group/virgo/DATA/trend \
+    --bin-size-s 3600
+```
+
+Via SLURM (12 tasks × 3-month blocks, stages GWFs from HPSS):
+
+```bash
 sbatch --array=0-11 slurm/noisehound_rate_correlation.slurm
 ```
 
@@ -134,25 +155,36 @@ rsync -av sentenac@cca.in2p3.fr:~/NOISEHOUND/outputs/rate_correlation/ \
 
 python scripts/rate_correlation_direct.py \
     --merge-only \
-    --triggers data/full_25min_glitches_ER16-O4b.csv \
+    --triggers   data/full_25min_glitches_ER16-O4b.csv \
     --output-dir outputs/rate_correlation
 ```
 
-To restrict to a subset of channels (e.g. for a follow-up run):
-
-```bash
-sbatch --array=0-11 slurm/noisehound_rate_corr_3ch.slurm   # 3 logbook channels
-```
+Output: `outputs/rate_correlation/binned_summary.csv`, `rate_correlation_table.csv`, plots.
 
 ### Step 5 — Lag refinement (15-minute bins)
 
-Same pipeline as Step 4, 15-minute bins on the priority channels identified in Step 4:
+Same pipeline as Step 4, 15-minute bins on the priority channels identified in Step 4.
+
+Local (single time block):
+
+```bash
+python scripts/rate_correlation_direct.py \
+    --triggers   data/full_25min_glitches_ER16-O4b.csv \
+    --gps-start  1364774400 \
+    --gps-end    1372636800 \
+    --output     outputs/rate_correlation_step4/partial_0.csv \
+    --hpss-base  cchpss0:/hpss/in2p3.fr/group/virgo/DATA/trend \
+    --bin-size-s 900 \
+    --channels   ni_bottom_te1 wi_bottom_te1 ni_co2_env_te wi_co2_env_te
+```
+
+Via SLURM:
 
 ```bash
 sbatch --array=0-11 slurm/noisehound_rate_corr_step4.slurm
 ```
 
-After completion:
+After all tasks finish, pull and merge:
 
 ```bash
 rsync -av sentenac@cca.in2p3.fr:~/NOISEHOUND/outputs/rate_correlation_step4/ \
@@ -160,10 +192,12 @@ rsync -av sentenac@cca.in2p3.fr:~/NOISEHOUND/outputs/rate_correlation_step4/ \
 
 python scripts/rate_correlation_direct.py \
     --merge-only \
-    --triggers data/full_25min_glitches_ER16-O4b.csv \
+    --triggers   data/full_25min_glitches_ER16-O4b.csv \
     --output-dir outputs/rate_correlation_step4 \
-    --channels ni_bottom_te1 wi_bottom_te1 ni_co2_env_te wi_co2_env_te
+    --channels   ni_bottom_te1 wi_bottom_te1 ni_co2_env_te wi_co2_env_te
 ```
+
+Output: `outputs/rate_correlation_step4/binned_summary.csv`, lag scan at 15-min resolution.
 
 ## Key scripts
 
