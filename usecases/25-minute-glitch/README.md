@@ -32,9 +32,9 @@ See Appendix A for the full chronological logbook history.
 
 ## 3 — Investigation roadmap
 
-### Step 1 — Trigger collection  [completed, external]
+### Step 1 — Trigger collection  [completed]
 
-Glitch times provided by BruCo online monitoring (Virgo detector characterisation tool). No `noisehound detect` run was needed: the glitch family was already identified and catalogued before this investigation began. Trigger CSV covers ER16 + full O4b (Apr 2023 – Jan 2026, 24 212 events). → Trigger files: Appendix B.
+The full trigger catalog (ER16 + O4b, Apr 2023 – Jan 2026, 24 212 events) was provided by BruCo online monitoring. `noisehound detect` was additionally run on a short Hrec_hoft epoch (2025-01-01, GPS 1419724818–1419735618) to cross-check detection and validate the trigger times used for the ranking step. → Detailed results: Section 4.1; trigger files: Appendix B.
 
 ### Step 2 — Per-event NOISEHOUND ranking on 1 Hz trend data  [completed]
 
@@ -104,7 +104,11 @@ Re-run the rate-correlation pipeline on Jan–Mar 2026 (glitch-free period) to c
 
 ### 4.1 — Step 1: trigger collection
 
-Triggers provided by BruCo online monitoring. No NOISEHOUND detect step was run for this glitch family, which was already catalogued before this investigation. See Appendix B for the trigger CSV files.
+The full trigger catalog (ER16 + O4b, 24 212 events) was provided by BruCo online monitoring. In addition, `noisehound detect` was run on a short Hrec_hoft epoch (2025-01-01, GPS 1419724818–1419735618) to cross-check the detection and validate the trigger times used for the ranking step.
+
+![Glitch times detected by noisehound detect on the 3-hour Hrec_hoft epoch (p95 threshold)](detect_1419724818_1419735618_triggers_p95_auto.png)
+
+See Appendix B for the full trigger CSV files.
 
 ### 4.2 — Step 2: per-event NOISEHOUND ranking
 
@@ -114,8 +118,6 @@ Triggers provided by BruCo online monitoring. No NOISEHOUND detect step was run 
 - Glitches: 7, z-score range 28–44
 - Channels ranked: 9161 (1 Hz trend)
 - Window: ±5 s around each glitch peak
-
-![Detected glitch times in the 3-hour ranking epoch (p95 threshold, auto)](detect_1419724818_1419735618_triggers_p95_auto.png)
 
 #### Top channels
 
