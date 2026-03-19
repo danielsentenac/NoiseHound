@@ -18,7 +18,7 @@ Recurring broadband glitches in Hrec_hoft with SNR ~400, peak frequency 40–50 
 
 ### Established conclusions
 
-Best correlator: V1:INF_NI_BOTTOM_TE1 (NI tower bottom temperature), Pearson r = −0.72 with glitch rate (logbook #67414, direnzo, Aug 2025) — significantly stronger than any mirror temperature channel. The seasonal variation of the recurrence period tracks ambient temperature and this channel. Source location is suspected near the North Input (NI) tower; the CEB area and UPS mains line have also been suspected.
+Best correlator reported in the logbook: V1:INF_NI_BOTTOM_TE1 (NI tower bottom temperature), Pearson r = −0.72 with glitch *period* (logbook #66142, direnzo, Feb 2025) — significantly stronger than any mirror temperature channel. The seasonal variation of the recurrence period tracks ambient temperature and this channel. Source location is suspected near the North Input (NI) tower; the CEB area and UPS mains line have also been suspected. The NOISEHOUND full-baseline rate correlation (Step 3, Section 4.3) finds that the WI/NI CO2 bench ambient temperatures are the strongest statistical correlators over the full O4b dataset (|r| ~ 0.14–0.18), with NI_BOTTOM_TE1 at rank 7 (r = +0.074 at zero lag, peaking at r = +0.099 with a physically motivated +4 h lead time).
 
 What is ruled out: NE mirror replacement, SWEB controls, SDB2_B1 channels (UPV analysis). V1:Sc_WI_FF50HZ_P_ERR is flagged 'Danger' in the ER16 channel safety study (#66923) — its correlation with the glitches is non-causal (feedforward reacting to the loud strain transient).
 
@@ -42,7 +42,7 @@ Three methods applied to the top 40 ranked channels: cross-correlation lag sign,
 
 ### Step 3 — Glitch rate correlation with slow sensors over full O4b  [done]
 
-Pearson and Spearman correlation of the hourly glitch rate against 30 slow channels over the full O4b dataset (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). → Detailed results: Section 4.3.
+Pearson and Spearman correlation of the hourly glitch rate against 33 slow channels over the full O4b dataset (Apr 2023 – Apr 2026, 25 512 one-hour bins, 12 879 bins with ≥1 trigger). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). Top result: WI/NI CO2 bench ambient temperatures (|r| ~ 0.14–0.18); NI_BOTTOM_TE1 at rank 7 with a +4 h physical lag. → Detailed results: Section 4.3.
 
 The 33 channels and their selection rationale:
 
