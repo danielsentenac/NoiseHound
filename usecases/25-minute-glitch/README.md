@@ -4,9 +4,9 @@
 
 The 25-minute glitches are a persistent family of broadband noise transients in the Virgo strain channel (Hrec_hoft): SNR ~400, peak frequency 40–50 Hz, recurrence interval ~25–32 min (seasonal). First documented before the O4b run start, they survived every hardware intervention through early 2026 and their origin remained unidentified until this investigation. Around March 2026 the BruCo online monitoring was disabled for this family as the glitches appear to have disappeared.
 
-An independent cross-check is provided by the EXCAVATor tool (Swinkels, Nikhef), which ran on a 10-hour epoch in April 2023 (GPS 1366750818–1366786818, 26 triggers, 11 807 channels on 1 Hz trend). EXCAVATor independently confirms that LSC/DARM channels dominate (BPC_Y_COUPLING rank 1, IMC_LINE rank 2), fully consistent with the NOISEHOUND Jan 2025 ranking. Two additional pointers emerge from EXCAVATor not present in the NOISEHOUND top 20: (a) V1:ENV_CEB_UPS_CURR_R_mean (CEB UPS current, rank 15) — first per-event evidence for a CEB electrical coupling, consistent with the logbook suspicion; (b) V1:SBE_SNEB_GEO_GRWE_raw_mean (Suspended North End Bench geophone W-E, rank 5) and GRNS (rank 20) — seismic/mechanical activity at the North End bench correlates with the glitches. Both channels have been added to the slow-sensor rate-correlation campaign (Step 3), together with the SWEB counterparts as controls. The EXCAVATor report is in Appendix C.
+An independent cross-check is provided by the EXCAVATor tool (Swinkels, Nikhef), which ran on a 10-hour epoch in April 2023 (GPS 1366750818–1366786818, 26 triggers, 11 807 channels on 1 Hz trend). EXCAVATor independently confirms that LSC/DARM channels dominate (BPC_Y_COUPLING rank 1, IMC_LINE rank 2), fully consistent with the NOISEHOUND Jan 2025 ranking. Two additional pointers emerge from EXCAVATor not present in the NOISEHOUND top 20: (a) V1:ENV_CEB_UPS_CURR_R_mean (CEB UPS current, rank 15) — first per-event evidence for a CEB electrical coupling, consistent with the logbook suspicion; (b) V1:SBE_SNEB_GEO_GRWE_raw_mean (Suspended North End Bench geophone W-E, rank 5) and GRNS (rank 20) — seismic/mechanical activity at the North End bench correlates with the glitches. Both channels have been added to the slow-sensor rate-correlation campaign (Step 4), together with the SWEB counterparts as controls. The EXCAVATor report is in Appendix C.
 
-This document reports the NOISEHOUND investigation. Section 2 summarises prior knowledge from the Virgo logbook. Section 3 outlines the investigation roadmap (Steps 1–6). Section 4 gives the detailed results for each step. The full logbook history is in Appendix A; trigger CSV files in Appendix B; the EXCAVATor cross-check in Appendix C.
+This document reports the NOISEHOUND investigation. Section 2 summarises prior knowledge from the Virgo logbook. Section 3 outlines the investigation roadmap (Steps 1–7). Section 4 gives the detailed results for each step. The full logbook history is in Appendix A; trigger CSV files in Appendix B; the EXCAVATor cross-check in Appendix C.
 
 ---
 
@@ -18,7 +18,7 @@ Recurring broadband glitches in Hrec_hoft with SNR ~400, peak frequency 40–50 
 
 ### Established conclusions
 
-Best correlator reported in the logbook: V1:INF_NI_BOTTOM_TE1 (NI tower bottom temperature), Pearson r = −0.72 with glitch *period* (logbook #66142, direnzo, Feb 2025) — significantly stronger than any mirror temperature channel. The seasonal variation of the recurrence period tracks ambient temperature and this channel. Source location is suspected near the North Input (NI) tower; the CEB area and UPS mains line have also been suspected. The NOISEHOUND full-baseline rate correlation (Step 3, Section 4.3) finds that the WI/NI CO2 bench ambient temperatures are the strongest statistical correlators over the full O4b dataset (|r| ~ 0.14–0.18), with NI_BOTTOM_TE1 at rank 7 (r = +0.074 at zero lag, peaking at r = +0.099 with a physically motivated +4 h lead time).
+Best correlator reported in the logbook: V1:INF_NI_BOTTOM_TE1 (NI tower bottom temperature), Pearson r = −0.72 with glitch *period* (logbook #66142, direnzo, Feb 2025) — significantly stronger than any mirror temperature channel. The seasonal variation of the recurrence period tracks ambient temperature and this channel. Source location is suspected near the North Input (NI) tower; the CEB area and UPS mains line have also been suspected. The NOISEHOUND full-baseline rate correlation (Step 4, Section 4.4) finds that the WI/NI CO2 bench ambient temperatures are the strongest statistical correlators over the full O4b dataset (|r| ~ 0.14–0.18), with NI_BOTTOM_TE1 at rank 7 (r = +0.074 at zero lag, peaking at r = +0.099 with a physically motivated +4 h lead time).
 
 What is ruled out: NE mirror replacement, SWEB controls, SDB2_B1 channels (UPV analysis). V1:Sc_WI_FF50HZ_P_ERR is flagged 'Danger' in the ER16 channel safety study (#66923) — its correlation with the glitches is non-causal (feedforward reacting to the loud strain transient).
 
@@ -32,17 +32,21 @@ See Appendix A for the full chronological logbook history.
 
 ## 3 — Investigation roadmap
 
-### Step 1 — Per-event NOISEHOUND ranking on 1 Hz trend data  [completed]
+### Step 1 — Trigger collection  [completed, external]
 
-Applied the NOISEHOUND ranking pipeline to a 3-hour epoch on 2025-01-01 (GPS 1419724818–1419735618, 7 glitches, z-score 28–44). Extracted ±5 s windows from 9161 1 Hz trend channels; ranked by z-score, hit fraction, and cross-correlation lag. Result: LSC/DARM channels dominate (IMC line, PSTAB0, SIB1, lag +1.5–2 s). Top non-DARM channel Sc_WI_FF50HZ_P_ERR is non-causal (positive lag, 'Danger' flag). → Detailed results: Section 4.1.
+Glitch times provided by BruCo online monitoring (Virgo detector characterisation tool). No `noisehound detect` run was needed: the glitch family was already identified and catalogued before this investigation began. Trigger CSV covers ER16 + full O4b (Apr 2023 – Jan 2026, 24 212 events). → Trigger files: Appendix B.
 
-### Step 2 — Causality analysis on the 3-hour epoch  [completed]
+### Step 2 — Per-event NOISEHOUND ranking on 1 Hz trend data  [completed]
 
-Three methods applied to the top 40 ranked channels: cross-correlation lag sign, Granger causality (VAR F-test), and Transfer Entropy (Schreiber 2000). All 40 channels show positive lag and TE direction ←hrec: strain drives auxiliary in every case. The ±5 s window is blind to the actual causal mechanism, which operates on thermal timescales. → Detailed results: Section 4.2.
+Applied the NOISEHOUND ranking pipeline to a 3-hour epoch on 2025-01-01 (GPS 1419724818–1419735618, 7 glitches, z-score 28–44). Extracted ±5 s windows from 9161 1 Hz trend channels; ranked by z-score, hit fraction, and cross-correlation lag. Result: LSC/DARM channels dominate (IMC line, PSTAB0, SIB1, lag +1.5–2 s). Top non-DARM channel Sc_WI_FF50HZ_P_ERR is non-causal (positive lag, 'Danger' flag). → Detailed results: Section 4.2.
 
-### Step 3 — Glitch rate correlation with slow sensors over full O4b  [done]
+### Step 3 — Causality analysis on the 3-hour epoch  [completed]
 
-Pearson and Spearman correlation of the hourly glitch rate against 33 slow channels over the full O4b dataset (Apr 2023 – Apr 2026, 25 512 one-hour bins, 12 879 bins with ≥1 trigger). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). Top result: WI/NI CO2 bench ambient temperatures (|r| ~ 0.14–0.18); NI_BOTTOM_TE1 at rank 7 with a +4 h physical lag. → Detailed results: Section 4.3.
+Three methods applied to the top 40 ranked channels: cross-correlation lag sign, Granger causality (VAR F-test), and Transfer Entropy (Schreiber 2000). All 40 channels show positive lag and TE direction ←hrec: strain drives auxiliary in every case. The ±5 s window is blind to the actual causal mechanism, which operates on thermal timescales. → Detailed results: Section 4.3.
+
+### Step 4 — Glitch rate correlation with slow sensors over full O4b  [done]
+
+Pearson and Spearman correlation of the hourly glitch rate against 33 slow channels over the full O4b dataset (Apr 2023 – Apr 2026, 25 512 one-hour bins, 12 879 bins with ≥1 trigger). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). Top result: WI/NI CO2 bench ambient temperatures (|r| ~ 0.14–0.18); NI_BOTTOM_TE1 at rank 7 with a +4 h physical lag. → Detailed results: Section 4.4.
 
 The 33 channels and their selection rationale:
 
@@ -82,23 +86,27 @@ The 33 channels and their selection rationale:
 | SBE_SWEB_GEO_GRWE_raw_mean | SWEB geophone W-E [counts] | West End Bench counterpart; control channel (remote from NI). |
 | SBE_SWEB_GEO_GRNS_raw_mean | SWEB geophone N-S [counts] | SWEB N-S control channel. |
 
-### Step 4 — Lag refinement with 15-minute bins  [ongoing]
+### Step 5 — Lag refinement with 15-minute bins  [ongoing]
 
-Same 1 Hz trend GWFs as Step 3, re-run with 15-minute bins on the four priority thermal channels to refine the lag from ±1 h to ±15 min resolution. → Results: Section 4.4.
+Same 1 Hz trend GWFs as Step 4, re-run with 15-minute bins on the four priority thermal channels to refine the lag from ±1 h to ±15 min resolution. → Results: Section 4.5.
 
-### Step 5 — Convergent Cross Mapping  [planned, if needed]
+### Step 6 — Convergent Cross Mapping  [planned, if needed]
 
-If Granger/TE remain inconclusive due to nonlinearity, CCM (Sugihara et al. 2012, Science 338:496) will be applied. → Results: Section 4.5.
+If Granger/TE remain inconclusive due to nonlinearity, CCM (Sugihara et al. 2012, Science 338:496) will be applied. → Results: Section 4.6.
 
-### Step 6 — Control epoch: 2026 glitch-free period  [planned]
+### Step 7 — Control epoch: 2026 glitch-free period  [planned]
 
-Re-run the rate-correlation pipeline on Jan–Mar 2026 (glitch-free period) to cross-validate the thermal correlation and characterise the disappearance. → Results: Section 4.6.
+Re-run the rate-correlation pipeline on Jan–Mar 2026 (glitch-free period) to cross-validate the thermal correlation and characterise the disappearance. → Results: Section 4.7.
 
 ---
 
 ## 4 — Detailed results
 
-### 4.1 — Step 1: per-event NOISEHOUND ranking
+### 4.1 — Step 1: trigger collection
+
+Triggers provided by BruCo online monitoring. No NOISEHOUND detect step was run for this glitch family, which was already catalogued before this investigation. See Appendix B for the trigger CSV files.
+
+### 4.2 — Step 2: per-event NOISEHOUND ranking
 
 #### Run parameters
 
@@ -152,7 +160,7 @@ Re-run the rate-correlation pipeline on Jan–Mar 2026 (glitch-free period) to c
 
 All top-ranked channels belong to LSC/DARM control loops, with positive lags of +1.5–2 s (strain leads auxiliary). The top non-DARM channel (Sc_WI_FF50HZ_P_ERR) carries a 'Danger' flag and is confirmed non-causal (feedforward reacting to the loud strain transient). No slow environmental or thermal channel ranks in the top 40 — consistent with a causal mechanism operating on timescales much longer than the ±5 s ranking window.
 
-### 4.2 — Step 2: causality analysis
+### 4.3 — Step 3: causality analysis
 
 All 40 top-ranked channels were tested with three methods over the same 3-hour epoch (GPS 1419724818–1419735618):
 
@@ -164,7 +172,7 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 
 **Overall conclusion**: the per-event ranking approach correctly identifies channels that couple to the glitch, but cannot identify its origin because the causal mechanism operates on timescales much longer than the ±5 s window.
 
-### 4.3 — Step 3: glitch rate correlation
+### 4.4 — Step 4: glitch rate correlation
 
 **Dataset**: 25 512 hourly bins, Apr 2023 – Apr 2026; 12 879 bins with ≥1 trigger (50.5% duty cycle). 33 slow channels from 1 Hz trend GWF files staged from HPSS.
 
@@ -211,19 +219,19 @@ All other channels with apparent best lags > 100 h (WI CO2 laser at +165 h, CEB 
 
 5. **Geophones (SNEB, SWEB) show negligible correlation** (|r| < 0.026), ruling out seismic/mechanical coupling as a rate driver at hourly timescales despite EXCAVATor flagging them per-event.
 
-**Step 4 priority channels**: V1:INF_NI_BOTTOM_TE1 (+4 h lag, physically motivated), V1:ENV_TCS_CO2_WI_TE and V1:ENV_TCS_CO2_NI_TE (strongest correlators, near-zero lag requires sub-hour characterisation). Also V1:INF_WI_BOTTOM_TE1 as NI counterpart control.
+**Step 5 priority channels**: V1:INF_NI_BOTTOM_TE1 (+4 h lag, physically motivated), V1:ENV_TCS_CO2_WI_TE and V1:ENV_TCS_CO2_NI_TE (strongest correlators, near-zero lag requires sub-hour characterisation). Also V1:INF_WI_BOTTOM_TE1 as NI counterpart control.
 
-### 4.4 — Step 4: lag refinement  [ongoing]
+### 4.5 — Step 5: lag refinement  [ongoing]
 
-Same 1 Hz trend GWFs as Step 3, but with 15-minute bins instead of 1-hour bins. This improves lag resolution from ±1 h to ±15 min. Four channels: V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_CO2_NI_TE, V1:ENV_TCS_CO2_WI_TE. SLURM array job running on CC-IN2P3.
+Same 1 Hz trend GWFs as Step 4, but with 15-minute bins instead of 1-hour bins. This improves lag resolution from ±1 h to ±15 min. Four channels: V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_CO2_NI_TE, V1:ENV_TCS_CO2_WI_TE. SLURM array job running on CC-IN2P3.
 
-### 4.5 — Step 5: Convergent Cross Mapping  [pending Step 3]
+### 4.6 — Step 6: Convergent Cross Mapping  [pending Step 4]
 
-To be performed if Granger/TE results in Step 3 are inconclusive.
+To be performed if Granger/TE results in Step 4 are inconclusive.
 
-### 4.6 — Step 6: 2026 control epoch  [planned]
+### 4.7 — Step 7: 2026 control epoch  [planned]
 
-To be run after Step 3 completes, using the same pipeline on Jan–Mar 2026 data.
+To be run after Step 4 completes, using the same pipeline on Jan–Mar 2026 data.
 
 ---
 
@@ -300,10 +308,10 @@ Report URL: https://scientists.virgo-gw.eu/DataAnalysis/Excavator/test/half_hour
 | 5 ★ | V1:SBE_SNEB_GEO_GRWE_raw_mean | 4.61 | 0.962 | 0.579 |
 | 15 ★ | V1:ENV_CEB_UPS_CURR_R_mean | 2.41 | 0.962 | 0.696 |
 
-★ Non-DARM channels of particular interest added to Step 3 channel list.
+★ Non-DARM channels of particular interest added to Step 4 channel list.
 
 ### Comparison with NOISEHOUND results
 
 Both tools independently identify the same LSC/DARM family as the dominant per-event correlators across different epochs (Apr 2023 vs Jan 2025) and different algorithms. BPC_Y_COUPLING tops EXCAVATor while IMC_LINE tops NOISEHOUND — both are DARM channels from the same control loop; the ordering difference reflects the different ranking metrics (gain vs z-score).
 
-Two channels appear in EXCAVATor but not in the NOISEHOUND top 20: ENV_CEB_UPS_CURR_R (CEB electrical supply — first per-event evidence for a mains coupling) and SBE_SNEB_GEO_GRWE/GRNS (North End Bench geophones — mechanical activity at the NE suspension). Both have been added to the Step 3 channel list (`rate_correlation_direct.py`), together with SWEB equivalents as arm-asymmetry controls.
+Two channels appear in EXCAVATor but not in the NOISEHOUND top 20: ENV_CEB_UPS_CURR_R (CEB electrical supply — first per-event evidence for a mains coupling) and SBE_SNEB_GEO_GRWE/GRNS (North End Bench geophones — mechanical activity at the NE suspension). Both have been added to the Step 4 channel list (`rate_correlation_direct.py`), together with SWEB equivalents as arm-asymmetry controls.
