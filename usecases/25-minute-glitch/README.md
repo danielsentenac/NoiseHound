@@ -115,6 +115,8 @@ Triggers provided by BruCo online monitoring. No NOISEHOUND detect step was run 
 - Channels ranked: 9161 (1 Hz trend)
 - Window: ±5 s around each glitch peak
 
+![Detected glitch times in the 3-hour ranking epoch (p95 threshold, auto)](detect_1419724818_1419735618_triggers_p95_auto.png)
+
 #### Top channels
 
 ![Overlay of top auxiliary channels around 25-minute glitch events](overlay_aux_channels.png)
