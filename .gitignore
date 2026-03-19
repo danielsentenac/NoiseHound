@@ -30,3 +30,4 @@ slurm/slurm-*.err
 # Misc
 .DS_Store
 *.swp
+.claude
