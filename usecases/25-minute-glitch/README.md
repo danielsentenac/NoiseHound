@@ -181,10 +181,10 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 | 7 | V1:INF_NI_BOTTOM_TE1 ★ | NI tower bottom TE1 [°C] | +0.074 | +0.057 | Logbook champion; peaks r=+0.099 at +4 h lag |
 | 8 | V1:LSC_Etalon_WI_RH_SET_mean | WI ring heater setpoint [W] | −0.074 | −0.081 | |
 | 9 | V1:INF_NI_MIR_COIL_UL_TE | NI mirror coil TE [°C] | −0.063 | −0.067 | |
-| 10–25 | — | Electrical, geophones, RH channels | \|r\| < 0.06 | | |
-| — | V1:INF_TCS_NI_RH_TE | NI ring heater thermistor [°C] | −0.035 | −0.043 | New channel; weak |
-| — | V1:ENV_CEB_N_TE | CEB north ambient temp [°C] | −0.048 | −0.107 | New channel; weak |
-| — | V1:INF_TCS_WI_RH_TE | WI ring heater thermistor [°C] | −0.078 | −0.062 | New channel; weak |
+| 10 | V1:INF_TCS_WI_RH_TE | WI ring heater thermistor [°C] | −0.078 | −0.062 | |
+| 11 | V1:ENV_CEB_N_TE | CEB north ambient temp [°C] | −0.048 | −0.107 | |
+| 12 | V1:INF_TCS_NI_RH_TE | NI ring heater thermistor [°C] | −0.035 | −0.043 | |
+| 13–33 | — | Electrical, geophones, other RH channels | \|r\| < 0.05 | | |
 
 #### Lag scan
 
