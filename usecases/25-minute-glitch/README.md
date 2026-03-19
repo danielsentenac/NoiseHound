@@ -189,7 +189,7 @@ Entries retrieved from logbook.virgo-gw.eu, search keyword '25-minute', listed c
 | #59766 | 12 Apr 2023 | andrew.lundgren | Notes similarity to LLO chiller glitch (electrical transient at power line frequency from AC chiller cycling on/off), consistent with a ~50 Hz short glitch. |
 | #59791 | 14 Apr 2023 | direnzo | Histogram of trigger spacings; brute-force correlation with rms and derivative trend channels. Best correlator: LSC_DARM_PSTAB0_COUPLING_100Hz_rms (Pearson r=38%), inconclusive. Top-100 channel list attached to logbook entry. |
 | #59826 | 17 Apr 2023 | robinet | Omicron running online on LSC_DARM; glitches clearly visible in VIM. Peak frequency ~70 Hz, jumped suddenly to 85 Hz around 05:00 UTC — possible ON/OFF switch event. |
-| #61837 | 2023 (pre-O4b) | — | Confirmed presence before run start; interval ~26 min |
+| #61837 | 29 Sep 2023 | direnzo, fiori, nardecchia, tringali | Switch-off test of NI and WI heating belt power supplies (TCS room, 10:36–10:44 UTC). Glitch rate was known to anticorrelate with INF_NI_BOTTOM_TE1 (logbook #60599), suggesting heating belt controls as noise source. Glitch occurred nonetheless at 10:42:12 UTC — heating belt power supply **ruled out** as direct cause. |
 | #66292 | Mar 2025 | Paoletti | Omicron trigger CSV files published; SNR∈[100,500], freq∈[30,50] Hz, sep>15 min |
 | #66628 | Apr 2025 | narnaud | Post-intervention DQ overview: 25-min glitches confirmed still present |
 | #66923 | May 2025 | bersanetti | Sc_WI_FF50HZ_* flagged as glitchy/Danger in ER16 channel safety study; correlation likely non-causal |
