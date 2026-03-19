@@ -82,9 +82,9 @@ The 33 channels and their selection rationale:
 | SBE_SWEB_GEO_GRWE_raw_mean | SWEB geophone W-E [counts] | West End Bench counterpart; control channel (remote from NI). |
 | SBE_SWEB_GEO_GRNS_raw_mean | SWEB geophone N-S [counts] | SWEB N-S control channel. |
 
-### Step 4 — Lag refinement with high-frequency frames  [planned]
+### Step 4 — Lag refinement with 15-minute bins  [ongoing]
 
-Once Step 3 identifies the leading channel(s) and approximate lag, the lag will be refined to sub-second precision using raw Virgo frames from HPSS. → Results: Section 4.4.
+Same 1 Hz trend GWFs as Step 3, re-run with 15-minute bins on the four priority thermal channels to refine the lag from ±1 h to ±15 min resolution. → Results: Section 4.4.
 
 ### Step 5 — Convergent Cross Mapping  [planned, if needed]
 
@@ -210,11 +210,11 @@ All other channels with apparent best lags > 100 h (WI CO2 laser at +165 h, CEB 
 
 5. **Geophones (SNEB, SWEB) show negligible correlation** (|r| < 0.026), ruling out seismic/mechanical coupling as a rate driver at hourly timescales despite EXCAVATor flagging them per-event.
 
-**Step 4 priority channels**: NI_BOTTOM_TE1 (+4 h lag, physically motivated), NI/WI CO2 bench ambient (strongest correlators, require sub-hour lag characterisation).
+**Step 4 priority channels**: V1:INF_NI_BOTTOM_TE1 (+4 h lag, physically motivated), V1:ENV_TCS_CO2_WI_TE and V1:ENV_TCS_CO2_NI_TE (strongest correlators, near-zero lag requires sub-hour characterisation). Also V1:INF_WI_BOTTOM_TE1 as NI counterpart control.
 
-### 4.4 — Step 4: lag refinement  [pending]
+### 4.4 — Step 4: lag refinement  [ongoing]
 
-Step 3 identified NI_BOTTOM_TE1 (+4 h) and the CO2 bench ambient channels as priority targets. Lag will be refined to sub-hour precision using raw Virgo frames from HPSS.
+Same 1 Hz trend GWFs as Step 3, but with 15-minute bins instead of 1-hour bins. This improves lag resolution from ±1 h to ±15 min. Four channels: V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_CO2_NI_TE, V1:ENV_TCS_CO2_WI_TE. SLURM array job running on CC-IN2P3.
 
 ### 4.5 — Step 5: Convergent Cross Mapping  [pending Step 3]
 
