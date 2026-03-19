@@ -198,7 +198,7 @@ Entries retrieved from logbook.virgo-gw.eu, search keyword '25-minute', listed c
 | #68110 | Nov 2025 | bersanetti | DeepExtractor ML waveform clustering on Jun 11 data; confirms multiple glitch families co-existing |
 | #68210 | Nov 2025 | direnzo | After HVAC failure in CEB (Sep 2025): etalon disruption; NI tower bottom temp remains best predictor; now called ~30-min glitches |
 | #68511 | Jan 2026 | narnaud | New 15-min glitch family found (SNR 220-270, ~100 Hz); 25-min family: SNR~400, 40-50 Hz, longer waveform |
-| #68511 | 17 Jan 2026 | narnaud | From this night onwards, Online BruCo requires ITF_LOCK to be in LOW_NOISE_3_ALIGNED to run on a data segment. In addition, the check assuming the possible presence of 25-minute glitches in BruCo segments of interest has been disabled given that those glitches seem to have disappeared. |
+| #68511 | 17 Jan 2026 | narnaud | BruCo check for 25-minute glitches disabled: those glitches seem to have disappeared. |
 
 ## Appendix B — Trigger CSV files (direnzo)
 
