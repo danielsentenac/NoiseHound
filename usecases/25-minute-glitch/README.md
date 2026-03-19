@@ -187,18 +187,35 @@ Entries retrieved from logbook.virgo-gw.eu, search keyword '25-minute', listed c
 |---|---|---|---|
 | #59763 | 12 Apr 2023 | direnzo | First report of periodic loud glitches in Hrec_hoft and LSC_DARM during Apr 7–11 long locks. Omicron characterisation: median spacing 28m 32s (range 26m 40s – 29m 20s), peak frequency ~47.6 Hz. Brute-force correlation with 10k rms trend channels inconclusive; best Pearson r=38% on LSC_DARM_PSTAB0_COUPLING_100Hz_rms. |
 | #59766 | 12 Apr 2023 | andrew.lundgren | Notes similarity to LLO chiller glitch (electrical transient at power line frequency from AC chiller cycling on/off), consistent with a ~50 Hz short glitch. |
-| #59791 | 14 Apr 2023 | direnzo | Histogram of trigger spacings; brute-force correlation with rms and derivative trend channels. Best correlator: LSC_DARM_PSTAB0_COUPLING_100Hz_rms (Pearson r=38%), inconclusive. Top-100 channel list attached to logbook entry. |
-| #59826 | 17 Apr 2023 | robinet | Omicron running online on LSC_DARM; glitches clearly visible in VIM. Peak frequency ~70 Hz, jumped suddenly to 85 Hz around 05:00 UTC — possible ON/OFF switch event. |
-| #61837 | 29 Sep 2023 | direnzo, fiori, nardecchia, tringali | Switch-off test of NI and WI heating belt power supplies (TCS room, 10:36–10:44 UTC). Glitch rate was known to anticorrelate with INF_NI_BOTTOM_TE1 (logbook #60599), suggesting heating belt controls as noise source. Glitch occurred nonetheless at 10:42:12 UTC — heating belt power supply **ruled out** as direct cause. |
-| #66292 | Mar 2025 | Paoletti | Omicron trigger CSV files published; SNR∈[100,500], freq∈[30,50] Hz, sep>15 min |
-| #66628 | Apr 2025 | narnaud | Post-intervention DQ overview: 25-min glitches confirmed still present |
-| #66923 | May 2025 | bersanetti | Sc_WI_FF50HZ_* flagged as glitchy/Danger in ER16 channel safety study; correlation likely non-causal |
-| #66972 | Jun 2025 | direnzo | Despite other glitch families disappearing after maintenance, 25-min remain (SNR~400, 40-50 Hz) |
-| #66975 | Jun 2025 | direnzo, mwas | Dec 2024 high-rate period survey; 25-min glitches are the constant background family |
-| #67414 | Aug 2025 | direnzo | Pearson r=−0.72 between glitch rate and INF_NI_BOTTOM_TE1; stronger than mirror temperature |
-| #67431 | Aug 2025 | direnzo | Full O4b glitch population survey; 25-min visible as continuous 40-50 Hz band throughout run |
-| #68110 | Nov 2025 | bersanetti | DeepExtractor ML waveform clustering on Jun 11 data; confirms multiple glitch families co-existing |
-| #68210 | Nov 2025 | direnzo | After HVAC failure in CEB (Sep 2025): etalon disruption; NI tower bottom temp remains best predictor; now called ~30-min glitches |
+| #59791 | 14 Apr 2023 | direnzo | Histogram of trigger spacings; brute-force correlation with rms and derivative trend channels inconclusive. Top-100 channel list attached. |
+| #59826 | 17 Apr 2023 | robinet | Omicron running online on LSC_DARM; glitches clearly visible in VIM. Peak frequency ~70 Hz, jumped suddenly to 85 Hz around 05:00 UTC. |
+| #60143 | 8 May 2023 | direnzo | First thermal origin hypothesis: rate anticorrelates with INF_TCS_NI_RH_TE (Pearson −40%) over 20 days. Brute-force correlation with all temperature trend channels. CEB ambient temperature partially correlated but out of phase — TCS subsystem appears to witness the noise source. |
+| #60599 | 19 Jun 2023 | direnzo | Clear anticorrelation between glitch distance series and INF_NI_BOTTOM_TE1, including NI heating belt voltage. WI correlation weaker. Source affected by temperature near NI heating belt. |
+| #61597 | 12 Sep 2023 | Paoletti | Glitches still present at ~23 min spacing. Magnetometers installed in CEB: no correlation. Mains monitors: no correlation. BNS range drops up to ~2 Mpc. BrmsMonHrec_85-95 Hz identified as a useful online flag. |
+| #61837 | 29 Sep 2023 | direnzo, fiori, nardecchia, tringali | Switch-off test of NI and WI heating belt power supplies (10:36–10:44 UTC). Glitch occurred at 10:42:12 UTC regardless — heating belt power supply **ruled out** as direct cause. |
+| #61944/61945 | Oct 2023 | fiori, dal canton, direnzo, mwas | Waveform stacking of 1000 glitches: all share the same phase ("elbow" shape), confirming a deterministic source. Glitches GPS-locked (multiples of ~25 min survive unlocks). |
+| #62672 | 7 Dec 2023 | fiori, tringali | CEB electronic room temperature increased by 2–4°C (DAQ, DER, EER, IER): glitch rate unchanged — **CEB electronics room temperature ruled out**. |
+| #62965 | 15 Jan 2024 | direnzo | mini-ER trigger dataset (441 → 431 glitches, Dec 24 – Jan 1). GPS-locked behaviour confirmed. Median spacing 24m 21s with ±2.5 min fluctuations. |
+| #62992 | 16 Jan 2024 | direnzo | Correlation of glitch distance series with all etalon and temperature channels (1310 channels). NI Ring Heater temperature among top correlators; NI etalon setpoint step of −0.3°C → +1'40" in glitch distance. |
+| #63006 | 18 Jan 2024 | direnzo, dal canton | "Elbow glitch" waveform: steep upward kink in raw Hrec. Glitch synchronous in DARM and Hrec (114.5 ms apparent delay due to whitening filter). mwas estimates ~50 pF capacitor discharging as consistent model. |
+| #63147 | 1 Feb 2024 | direnzo | Monthly report Jan 2024: NI Ring Heater best thermal correlator; NI_BOTTOM_TE1 8h-shifted. Step of −0.3°C → +1'40" in median glitch distance confirmed. |
+| #63310 | 18 Feb 2024 | direnzo | Etalon NI temp step +0.3°C (Feb 16–17): glitch period decreased from ~28 min to ~24 min (−4 min). Confirms −2 min/+0.3°C relationship. |
+| #63517 | 7 Mar 2024 | Paoletti, Fiori, Tringali, et al. | NI DSP boards (Sa/Sc) tested: fan speed varied, board temperature changed by ~5°C — glitch rate unchanged. **NI Sa/Sc DSP boards ruled out**. |
+| #64512 | 15 Jun 2024 | direnzo | Automated daily trigger catalogue published: SNR∈[100,500], freq∈[30,50] Hz, sep>15 min. CSV files updated daily. |
+| #65016 | 26 Aug 2024 | direnzo | 50 Hz tail confirmed as feedforward artefact: glitch during Feb 2024 feedforward-off period shows no tail; feedforward-on shows tail. Not intrinsic to the glitch. |
+| #65705 | 3 Dec 2024 | direnzo | After Dec 2024 maintenance: other glitch families disappear; 25-min glitches (SNR~400, 40–50 Hz) persist unchanged. Rate returns to O4b median of 0.1/min. |
+| #66142 | 5 Feb 2025 | direnzo | Pearson r=−0.72 between glitch rate and INF_NI_BOTTOM_TE1 (Jan 2025 data); stronger than mirror temperature (r=−0.09) or NI coil (r=−0.14). 1°C CEB drop anticorrelated with NI_BOTTOM jump: indirect thermal coupling. |
+| #66275 | 1 Mar 2025 | Paoletti, Mantovani | Interval 1600±60 s (~26 min); seasonal variation 23 min (winter) to 32 min (summer), tracking NI tower temperature. Source suspected near NI tower, possibly connected to UPS mains line. |
+| #66292 | 4 Mar 2025 | Paoletti | IPS mains failure test (Sep 2): global IPS went down 07:04, diesels started 07:05. Glitches continued with same timing (1700s±30s) through the 40s blackout. **IPS mains line ruled out** as glitch source. |
+| #66628 | 25 Apr 2025 | narnaud | Post-NE-mirror-replacement DQ: 25-min glitches still present. Comment (#66629, salvador): a second glitch appearing ~1 min before/after the main one more frequently than before WE mirror replacement. |
+| #66923 | May 2025 | bersanetti | Sc_WI_FF50HZ_* flagged 'Danger' in ER16 channel safety study; correlation with 25-min glitches is non-causal (feedforward reacting to loud strain transient). |
+| #66972 | 12 Jun 2025 | direnzo | Waveform clustering (hierarchical, Pearson distance) on 891 glitches SNR>100: 25-min family is Cluster 3 (4.86%), distinct from step-glitch clusters. |
+| #66975 | 12 Jun 2025 | direnzo, mwas | Step glitches confirmed as strain discontinuities (analytical derivation). 25-min glitches are a separate class with broadband symmetric waveform. |
+| #67414 | 1 Aug 2025 | direnzo | Glitch rate and population update Jun–Jul 2025: 25-min glitches (Cluster 3) clearly identified; rate shows weak decreasing trend. Pstab intervention on Jul 29 possibly mitigated one contributing source. |
+| #67431 | 4 Aug 2025 | direnzo | Erratum: trigger duplication bug caused artificially doubled rates in plots before Aug 2025. Corrected plots attached. |
+| #67746 | 19 Sep 2025 | direnzo, paoletti | Post-CEB-HVAC-failure correlation analysis: CEB temperature oscillations since Sep 13 not directly correlated with NI_BOTTOM or glitch rate. NI_BOTTOM remains the best rate predictor; source thermally coupled to NI tower. Glitches now called "~30-min glitches". |
+| #68110 | 6 Nov 2025 | bersanetti | DeepExtractor ML waveform clustering on Jun 11 data confirms multiple co-existing glitch families. |
+| #68210 | 21 Nov 2025 | direnzo | New 15-min glitch family found (SNR 220–270, ~100 Hz, shorter waveform). 25-min family distinct (SNR~400, 40–50 Hz, longer waveform). |
 | #68511 | 17 Jan 2026 | narnaud | BruCo check for 25-minute glitches disabled: those glitches seem to have disappeared. |
 
 ## Appendix B — Trigger CSV files (direnzo)
