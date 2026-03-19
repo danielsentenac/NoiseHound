@@ -39,6 +39,10 @@ CHANNELS = [
     ("V1:SBE_SNEB_GEO_GRNS_raw_mean", "sneb_geo_ns"),
     ("V1:SBE_SWEB_GEO_GRWE_raw_mean", "sweb_geo_we"),
     ("V1:SBE_SWEB_GEO_GRNS_raw_mean", "sweb_geo_ns"),
+    # Logbook-backed channels confirmed in GWF (Apr 2023 trend file)
+    ("V1:INF_TCS_NI_RH_TE",          "ni_rh_te"),
+    ("V1:INF_TCS_WI_RH_TE",          "wi_rh_te"),
+    ("V1:ENV_CEB_N_TE",              "ceb_n_te"),
 ]
 
 

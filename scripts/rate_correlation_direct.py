@@ -71,6 +71,10 @@ CHANNELS = [
     ("V1:SBE_SNEB_GEO_GRNS_raw_mean", "sneb_geo_ns"),     # North End Bench N-S
     ("V1:SBE_SWEB_GEO_GRWE_raw_mean", "sweb_geo_we"),     # West End Bench W-E (control)
     ("V1:SBE_SWEB_GEO_GRNS_raw_mean", "sweb_geo_ns"),     # West End Bench N-S (control)
+    # Ring heater thermistor temperatures (logbook-backed, GWF-confirmed)
+    ("V1:INF_TCS_NI_RH_TE",          "ni_rh_te"),        # NI ring heater thermistor °C
+    ("V1:INF_TCS_WI_RH_TE",          "wi_rh_te"),        # WI ring heater thermistor °C
+    ("V1:ENV_CEB_N_TE",              "ceb_n_te"),         # CEB north ambient temp °C
 ]
 
 CH_LABELS = {
@@ -104,6 +108,9 @@ CH_LABELS = {
     "sneb_geo_ns":    "SNEB geophone N-S [counts]  (Excavator #20)",
     "sweb_geo_we":    "SWEB geophone W-E [counts] (control)",
     "sweb_geo_ns":    "SWEB geophone N-S [counts] (control)",
+    "ni_rh_te":      "NI ring heater thermistor [°C]",
+    "wi_rh_te":      "WI ring heater thermistor [°C]",
+    "ceb_n_te":      "CEB north ambient temp [°C]",
 }
 
 
