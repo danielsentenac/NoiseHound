@@ -414,6 +414,12 @@ def parse_args():
                    help="Skip extraction, just merge partial CSVs and plot")
     p.add_argument("--channels",    nargs="+", metavar="LABEL",
                    help="Restrict to these channel short-labels (default: all)")
+    p.add_argument("--source-dir",  help="Read binned_summary.csv or partial_*.csv from here "
+                   "(merge-only mode); write analysis outputs to --output-dir")
+    p.add_argument("--epoch-start", type=float,
+                   help="GPS start of analysis epoch (filter binned data, merge-only mode)")
+    p.add_argument("--epoch-end",   type=float,
+                   help="GPS end of analysis epoch (filter binned data, merge-only mode)")
     return p.parse_args()
 
 
@@ -431,14 +437,30 @@ def main():
     # ── Merge + plot mode ──────────────────────────────────────────────────────
     if args.merge_only:
         out_dir = Path(args.output_dir)
-        partials = sorted(out_dir.glob("partial_*.csv"))
-        if not partials:
-            sys.exit(f"No partial_*.csv found in {out_dir}")
-        df = pd.concat([pd.read_csv(f) for f in partials], ignore_index=True)
-        df = df.sort_values("gps_bin").drop_duplicates("gps_bin")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        src_dir = Path(args.source_dir) if args.source_dir else out_dir
+        # Prefer an already-merged binned_summary.csv to avoid re-merging
+        summary_csv = src_dir / "binned_summary.csv"
+        if summary_csv.exists():
+            df = pd.read_csv(summary_csv)
+            print(f"Loaded {len(df)} bins from {summary_csv}")
+        else:
+            partials = sorted(src_dir.glob("partial_*.csv"))
+            if not partials:
+                sys.exit(f"No partial_*.csv or binned_summary.csv found in {src_dir}")
+            df = pd.concat([pd.read_csv(f) for f in partials], ignore_index=True)
+            df = df.sort_values("gps_bin").drop_duplicates("gps_bin")
+            print(f"Merged {len(partials)} partials → {len(df)} bins")
+        # Optional epoch filter
+        if args.epoch_start:
+            df = df[df["gps_bin"] >= args.epoch_start]
+        if args.epoch_end:
+            df = df[df["gps_bin"] < args.epoch_end]
+        if args.epoch_start or args.epoch_end:
+            print(f"Epoch filter: {len(df)} bins remaining")
         merged_csv = out_dir / "binned_summary.csv"
         df.to_csv(merged_csv, index=False, float_format="%.6g")
-        print(f"Merged {len(partials)} partials → {len(df)} bins → {merged_csv}")
+        print(f"Saved {len(df)} bins → {merged_csv}")
         run_analysis(df, args.triggers, out_dir, args.bin_size_s)
         return
 

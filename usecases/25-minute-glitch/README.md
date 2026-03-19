@@ -94,9 +94,9 @@ Same 1 Hz trend GWFs as Step 4. The ~25-min glitch recurrence makes 15-minute bi
 
 If Granger/TE remain inconclusive due to nonlinearity, CCM (Sugihara et al. 2012, Science 338:496) will be applied. → Results: Section 4.6.
 
-### Step 7 — Control epoch: 2026 glitch-free period  [planned]
+### Step 7 — Control epoch: Oct 2025 – Apr 2026  [done]
 
-Re-run the rate-correlation pipeline on Jan–Mar 2026 (glitch-free period) to cross-validate the thermal correlation and characterise the disappearance. → Results: Section 4.7.
+Re-run the rate-correlation pipeline on the disappearance epoch (GPS 1443657600–1459468800) to cross-validate the thermal correlators and characterise the glitch dropout. Extracted from existing Step 4 merged data; no new SLURM jobs. → Results: Section 4.7.
 
 ---
 
@@ -244,9 +244,37 @@ Four priority channels (V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_C
 
 To be performed if Granger/TE results in Step 4 are inconclusive.
 
-### 4.7 — Step 7: 2026 control epoch  [planned]
+### 4.7 — Step 7: control epoch (Oct 2025 – Apr 2026)  [done]
 
-To be run after Step 4 completes, using the same pipeline on Jan–Mar 2026 data.
+**Dataset**: GPS 1443657600–1459468800 (Oct 2025 – Apr 2026), extracted from the existing Step 4 merged data. 3912 hourly bins total; 1059 bins with ≥1 trigger (glitches disappear ~Jan 2026, logbook #68511). The `rate > 0` filter retains only the pre-disappearance glitchy period for correlation.
+
+#### Correlation table (zero-lag, Pearson r, n = 1059 bins with triggers)
+
+| Rank | Channel | Description | Pearson r | Spearman r | Notes |
+|------|---------|-------------|-----------|------------|-------|
+| 1 | V1:INF_WI_MIR_COIL_DR_TE | WI mirror coil TE [°C] | +0.207 | +0.159 | Step 4 rank 6 (r=−0.086); sign flipped, now strongest |
+| 2 | V1:INF_NI_MIR_COIL_UL_TE | NI mirror coil TE [°C] | +0.183 | +0.081 | Step 4 rank 9 (r=−0.063); same flip |
+| 3 | V1:LSC_Etalon_WI_RH_SET_mean | WI ring heater setpoint [W] | +0.172 | +0.150 | Step 4 rank 8 (r=−0.074); sign flipped |
+| 4 | V1:LSC_Etalon_NI_RH_SET_mean | NI ring heater setpoint [W] | +0.172 | +0.150 | Step 4 rank 12 (r=−0.035); sign flipped |
+| 5 | V1:TCS_NI_CO2_PWRLAS_mean | NI CO2 laser power [W] | +0.166 | +0.138 | |
+| 6 | V1:LSC_Etalon_NI_RH_IN_mean | NI ring heater input [W] | −0.146 | −0.111 | |
+| 7 | V1:INF_NI_BOTTOM_TE1 ★ | NI tower bottom TE1 [°C] | +0.131 | +0.093 | Consistent with Step 4; lag refined to +3.3 h |
+| 8 | V1:INF_WI_BOTTOM_TE1 | WI tower bottom TE1 [°C] | +0.130 | +0.088 | Stronger than in Step 4 (r=+0.037) |
+| — | V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient [°C] | +0.044 | +0.037 | Step 4 rank 1 (r=−0.175); nearly zero and sign-flipped |
+| — | V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient [°C] | +0.035 | +0.015 | Step 4 rank 2 (r=−0.137); same |
+| — | V1:TCS_WI_TE_CO2Laser / V1:TCS_NI_TE_CO2Laser | CO2 laser body [°C] | NaN | NaN | Channel flat or unavailable in this epoch |
+
+#### Key findings
+
+1. **CO2 bench ambient temperatures collapse to near-zero correlation** in the final epoch (r ~ +0.04 vs r ~ −0.18 over the full baseline). Their dominant role in Step 4 was driven by slow seasonal co-variation with the glitch rate over the full 3-year dataset, not by a direct physical coupling. This is a negative-control confirmation.
+
+2. **Mirror coil temperatures and ring heater setpoints become the leading correlators** (r ~ 0.17–0.21). The sign flip relative to Step 4 suggests the thermal state of the mirrors in this final period differs from the long-term baseline trend (winter 2025–2026 vs the full O4b mean).
+
+3. **NI_BOTTOM_TE1 remains consistently correlated** (r = +0.131, lag ~3 h) across both the full baseline and the final epoch — the only channel stable across both analyses. This reinforces it as the most physically relevant thermal correlator.
+
+4. **CO2 laser body temperatures are unavailable** (flat channel) in this epoch, explaining the NaN.
+
+5. **The disappearance itself** (rate → 0 after ~Jan 2026) is not captured by the correlation analysis (rate=0 bins are excluded). A dedicated time-series plot of rate + NI_BOTTOM_TE1 + mirror coil temperatures around the dropout would complete the picture.
 
 ---
 
