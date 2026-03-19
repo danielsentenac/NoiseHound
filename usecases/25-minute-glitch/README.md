@@ -44,7 +44,7 @@ Three methods applied to the top 40 ranked channels: cross-correlation lag sign,
 
 Pearson and Spearman correlation of the hourly glitch rate against 30 slow channels over the full O4b dataset (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). → Detailed results: Section 4.3.
 
-The 30 channels and their selection rationale:
+The 33 channels and their selection rationale:
 
 | Channel (V1:...) | Description | Selection rationale / source |
 |---|---|---|
@@ -166,7 +166,7 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 
 ### 4.3 — Step 3: glitch rate correlation  [results pending]
 
-SLURM array job running on CC-IN2P3. This section will be updated with the correlation table, scatter plots, and lag-scan results once the job completes. Expected key output: Pearson r and optimal lag for INF_NI_BOTTOM_TE1 and the 29 other slow channels over the full O4b baseline (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins).
+SLURM array job running on CC-IN2P3. This section will be updated with the correlation table, scatter plots, and lag-scan results once the job completes. Expected key output: Pearson r and optimal lag for INF_NI_BOTTOM_TE1 and the 32 other slow channels over the full O4b baseline (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins).
 
 ### 4.4 — Step 4: lag refinement  [pending Step 3]
 
