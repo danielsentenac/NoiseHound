@@ -274,7 +274,7 @@ To be performed if Granger/TE results in Step 4 are inconclusive.
 
 4. **CO2 laser body temperatures are unavailable** (flat channel) in this epoch, explaining the NaN.
 
-5. **The disappearance itself** is visible in the time-series plot below. NI_BOTTOM_TE1 drops by ~8°C in early January 2026, coinciding with the glitch dropout. The CO2 bench ambient temperatures drop sharply only in February–March 2026, *after* the glitches are gone — confirming they were not driving the disappearance. Mirror coil temperatures show isolated spikes but no coherent transition.
+5. **The disappearance itself** is visible in the time-series plot below. The vertical red dashed line marks the last trigger before a 27-day gap (2025-12-12, computed from the trigger catalog), which is the data-derived disappearance time. NI_BOTTOM_TE1 drops by ~8°C precisely at this marker. The CO2 bench ambient temperatures drop sharply only in February–March 2026, weeks *after* the glitches are gone — confirming they were not driving the disappearance. Mirror coil temperatures show isolated spikes but no coherent transition at the dropout.
 
 ![Glitch rate and thermal channel time series around the disappearance (Oct 2025 – Apr 2026)](disappearance_timeseries.png)
 
