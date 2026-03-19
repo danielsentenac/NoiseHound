@@ -102,7 +102,7 @@ Output: `outputs/rank_trend_{JOBID}/ranking.csv`
 
 ### Step 3 — Causality analysis
 
-Run from the `usecases/` post-processing notebooks or scripts after Step 2. Applies Granger causality (VAR F-test) and Transfer Entropy (Schreiber 2000) to the top-ranked channels.
+Applied to the top-ranked channels from Step 2. Methods: Granger causality (VAR F-test) and Transfer Entropy (Schreiber 2000) over ±5 s windows around each trigger.
 
 ### Step 4 — Rate correlation (1-hour bins, full baseline)
 
