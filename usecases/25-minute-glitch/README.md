@@ -170,30 +170,31 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 
 #### Correlation table (zero-lag, Pearson r, n = 12 879 bins with triggers)
 
-| Rank | Channel | Pearson r | Spearman r | Notes |
-|------|---------|-----------|------------|-------|
-| 1 | WI CO2 bench ambient [°C] | −0.175 | −0.170 | Zero-lag peak; rate leads temp by ~1 h |
-| 2 | NI CO2 bench ambient [°C] | −0.137 | −0.143 | Same |
-| 3 | CEB UPS current R [A] | +0.123 | +0.119 | EXCAVATor rank 15 confirmed |
-| 4 | WI CO2 laser body [°C] | +0.101 | +0.093 | |
-| 5 | NI CO2 laser body [°C] | −0.100 | −0.099 | |
-| 6 | WI mirror coil TE [°C] | −0.086 | −0.072 | |
-| 7 | NI tower bottom TE1 [°C] ★ | +0.074 | +0.057 | Logbook champion; peaks r=+0.099 at +4 h lag |
-| 8 | WI ring heater setpoint [W] | −0.074 | −0.081 | |
-| 9 | NI mirror coil TE [°C] | −0.063 | −0.067 | |
-| 10–25 | Electrical, geophones, RH channels | \|r\| < 0.06 | | |
-| — | NI ring heater thermistor [°C] | −0.035 | −0.043 | New channel; weak |
-| — | CEB north ambient temp [°C] | −0.048 | −0.107 | New channel; weak |
-| — | WI ring heater thermistor [°C] | −0.078 | −0.062 | New channel; weak |
+| Rank | Channel | Description | Pearson r | Spearman r | Notes |
+|------|---------|-------------|-----------|------------|-------|
+| 1 | V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient [°C] | −0.175 | −0.170 | Zero-lag peak; rate leads temp by ~1 h |
+| 2 | V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient [°C] | −0.137 | −0.143 | Same |
+| 3 | V1:ENV_CEB_UPS_CURR_R_mean | CEB UPS current R [A] | +0.123 | +0.119 | EXCAVATor rank 15 confirmed |
+| 4 | V1:TCS_WI_TE_CO2Laser | WI CO2 laser body [°C] | +0.101 | +0.093 | |
+| 5 | V1:TCS_NI_TE_CO2Laser | NI CO2 laser body [°C] | −0.100 | −0.099 | |
+| 6 | V1:INF_WI_MIR_COIL_DR_TE | WI mirror coil TE [°C] | −0.086 | −0.072 | |
+| 7 | V1:INF_NI_BOTTOM_TE1 ★ | NI tower bottom TE1 [°C] | +0.074 | +0.057 | Logbook champion; peaks r=+0.099 at +4 h lag |
+| 8 | V1:LSC_Etalon_WI_RH_SET_mean | WI ring heater setpoint [W] | −0.074 | −0.081 | |
+| 9 | V1:INF_NI_MIR_COIL_UL_TE | NI mirror coil TE [°C] | −0.063 | −0.067 | |
+| 10–25 | — | Electrical, geophones, RH channels | \|r\| < 0.06 | | |
+| — | V1:INF_TCS_NI_RH_TE | NI ring heater thermistor [°C] | −0.035 | −0.043 | New channel; weak |
+| — | V1:ENV_CEB_N_TE | CEB north ambient temp [°C] | −0.048 | −0.107 | New channel; weak |
+| — | V1:INF_TCS_WI_RH_TE | WI ring heater thermistor [°C] | −0.078 | −0.062 | New channel; weak |
 
 #### Lag scan
 
 Physically meaningful lags (< 10 h, sensor leads glitch rate):
 
-| Channel | Best lag | Best r |
-|---------|----------|--------|
-| NI tower bottom TE1 | **+4 h** | +0.099 |
-| WI/NI CO2 bench ambient | −1 h | −0.18 / −0.15 |
+| Channel | Description | Best lag | Best r |
+|---------|-------------|----------|--------|
+| V1:INF_NI_BOTTOM_TE1 | NI tower bottom TE1 | **+4 h** | +0.099 |
+| V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient | −1 h | −0.183 |
+| V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient | −1 h | −0.145 |
 
 All other channels with apparent best lags > 100 h (WI CO2 laser at +165 h, CEB UPS current at +166 h, mirror coils at ±163 h, etc.) are driven by seasonal co-variation and are not physically interpretable as causal leads.
 
