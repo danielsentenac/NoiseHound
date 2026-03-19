@@ -252,6 +252,50 @@ def run_analysis(df: pd.DataFrame, triggers_csv: str, out_dir: Path,
     print("\nLag scan (positive = sensor leads rate):")
     print(lag_df.to_string(index=False))
 
+    # ── Parabolic lag refinement ────────────────────────────────────────────────
+    # For channels with |integer lag| < 10 h, fit a parabola to the three-point
+    # neighbourhood of the cross-correlation peak to refine the lag to sub-bin
+    # precision.  Formula: fractional offset = (y_{-1} - y_{+1}) /
+    # (2*(y_{-1} - 2*y_0 + y_{+1})) in units of one bin step.
+    refine_rows = []
+    for col in available:
+        x = df[col].values
+        y = df["rate"].values
+        mask = np.isfinite(x) & np.isfinite(y)
+        if mask.sum() < 10:
+            continue
+        xn = (x - np.nanmean(x)) / (np.nanstd(x) + 1e-12)
+        yn = (y - np.nanmean(y)) / (np.nanstd(y) + 1e-12)
+        xn[~mask] = 0; yn[~mask] = 0
+        cc = correlate(yn, xn, mode="full") / mask.sum()
+        lags = correlation_lags(len(yn), len(xn), mode="full")
+        m = np.abs(lags) <= max_lag
+        cc_m = cc[m]; lags_m = lags[m]
+        best = np.argmax(np.abs(cc_m))
+        int_lag_bins = int(lags_m[best])
+        int_lag_h = int_lag_bins * bin_h
+        best_r = float(cc_m[best])
+        # Only refine physically motivated lags (< 10 h)
+        if abs(int_lag_h) < 10 and 0 < best < len(cc_m) - 1:
+            y0, ym1, yp1 = cc_m[best], cc_m[best - 1], cc_m[best + 1]
+            denom = ym1 - 2 * y0 + yp1
+            frac = (ym1 - yp1) / (2 * denom) if abs(denom) > 1e-12 else 0.0
+            refined_lag_h = (int_lag_bins + frac) * bin_h
+        else:
+            refined_lag_h = int_lag_h
+        refine_rows.append(dict(channel=col,
+                                int_lag_h=int_lag_h,
+                                refined_lag_h=refined_lag_h,
+                                best_r=best_r))
+
+    refine_df = (pd.DataFrame(refine_rows)
+                 .sort_values("best_r", key=abs, ascending=False))
+    refine_df.to_csv(out_dir / "lag_scan_refined.csv", index=False,
+                     float_format="%.4f")
+    print("\nParabolic lag refinement (|int lag| < 10 h only):")
+    phys = refine_df[refine_df["int_lag_h"].abs() < 10]
+    print(phys.to_string(index=False))
+
     # ── Plot 1: time series overview ───────────────────────────────────────────
     dt = gps_to_dt(df["gps_bin"].values)
 

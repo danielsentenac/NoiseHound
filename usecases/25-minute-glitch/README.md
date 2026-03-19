@@ -233,12 +233,12 @@ Four priority channels (V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_C
 
 | Channel | Description | Integer lag | Refined lag | Peak r |
 |---------|-------------|-------------|-------------|--------|
-| V1:INF_NI_BOTTOM_TE1 | NI tower bottom TE1 | +4 h | **+3.84 h (+3 h 50 min)** | +0.099 |
-| V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient | −1 h | **−1.06 h (−1 h 4 min)** | −0.183 |
-| V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient | −1 h | **−1.07 h (−1 h 4 min)** | −0.145 |
+| V1:INF_NI_BOTTOM_TE1 | NI tower bottom TE1 | +4 h | **+4.16 h (+4 h 10 min)** | +0.099 |
+| V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient | −1 h | **−0.94 h (−56 min)** | −0.183 |
+| V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient | −1 h | **−0.93 h (−56 min)** | −0.145 |
 | V1:INF_WI_BOTTOM_TE1 | WI tower bottom TE1 | — | no significant peak | — |
 
-**Interpretation**: The CO2 bench ambient channels peak at −1.06/−1.07 h (rate leads temperature by ~1 h), consistent with both being driven by the same slow ambient thermal forcing on similar timescales. NI_BOTTOM_TE1 peaks at +3.84 h (sensor leads rate by ~4 h), consistent with the logbook narrative of tower-bottom temperature accumulating heat that drives the glitch mechanism several hours later. WI_BOTTOM_TE1 shows no significant lag peak, confirming the asymmetry between NI and WI already visible in the zero-lag correlation table.
+**Interpretation**: The CO2 bench ambient channels peak at −0.94/−0.93 h (rate leads temperature by ~56 min), consistent with both being driven by the same slow ambient thermal forcing on similar timescales. NI_BOTTOM_TE1 peaks at +4.16 h (sensor leads rate by ~4 h), consistent with the logbook narrative of tower-bottom temperature accumulating heat that drives the glitch mechanism several hours later. WI_BOTTOM_TE1 shows no significant lag peak, confirming the asymmetry between NI and WI already visible in the zero-lag correlation table.
 
 ### 4.6 — Step 6: Convergent Cross Mapping  [pending Step 4]
 
