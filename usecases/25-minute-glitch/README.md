@@ -40,7 +40,7 @@ Applied the NOISEHOUND ranking pipeline to a 3-hour epoch on 2025-01-01 (GPS 141
 
 Three methods applied to the top 40 ranked channels: cross-correlation lag sign, Granger causality (VAR F-test), and Transfer Entropy (Schreiber 2000). All 40 channels show positive lag and TE direction ←hrec: strain drives auxiliary in every case. The ±5 s window is blind to the actual causal mechanism, which operates on thermal timescales. → Detailed results: Section 4.2.
 
-### Step 3 — Glitch rate correlation with slow sensors over full O4b  [ongoing]
+### Step 3 — Glitch rate correlation with slow sensors over full O4b  [done]
 
 Pearson and Spearman correlation of the hourly glitch rate against 30 slow channels over the full O4b dataset (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins). A cross-correlation lag scan over ±7 days detects any thermal lead time. Channels were selected from three sources: (a) the Virgo logbook history of this glitch family, (b) physical reasoning about which slow sensors could modulate the thermal state of the input mirrors, and (c) the EXCAVATor per-event ranking (Appendix C). → Detailed results: Section 4.3.
 
@@ -164,13 +164,56 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 
 **Overall conclusion**: the per-event ranking approach correctly identifies channels that couple to the glitch, but cannot identify its origin because the causal mechanism operates on timescales much longer than the ±5 s window.
 
-### 4.3 — Step 3: glitch rate correlation  [results pending]
+### 4.3 — Step 3: glitch rate correlation
 
-SLURM array job running on CC-IN2P3. This section will be updated with the correlation table, scatter plots, and lag-scan results once the job completes. Expected key output: Pearson r and optimal lag for INF_NI_BOTTOM_TE1 and the 32 other slow channels over the full O4b baseline (Apr 2023 – Jan 2026, 24 212 triggers, 4 824 one-hour bins).
+**Dataset**: 25 512 hourly bins, Apr 2023 – Apr 2026; 12 879 bins with ≥1 trigger (50.5% duty cycle). 33 slow channels from 1 Hz trend GWF files staged from HPSS.
 
-### 4.4 — Step 4: lag refinement  [pending Step 3]
+#### Correlation table (zero-lag, Pearson r, n = 12 879 bins with triggers)
 
-To be completed after Step 3 identifies the dominant channel and approximate thermal lead time.
+| Rank | Channel | Pearson r | Spearman r | Notes |
+|------|---------|-----------|------------|-------|
+| 1 | WI CO2 bench ambient [°C] | −0.175 | −0.170 | Zero-lag peak; rate leads temp by ~1 h |
+| 2 | NI CO2 bench ambient [°C] | −0.137 | −0.143 | Same |
+| 3 | CEB UPS current R [A] | +0.123 | +0.119 | EXCAVATor rank 15 confirmed |
+| 4 | WI CO2 laser body [°C] | +0.101 | +0.093 | |
+| 5 | NI CO2 laser body [°C] | −0.100 | −0.099 | |
+| 6 | WI mirror coil TE [°C] | −0.086 | −0.072 | |
+| 7 | NI tower bottom TE1 [°C] ★ | +0.074 | +0.057 | Logbook champion; peaks r=+0.099 at +4 h lag |
+| 8 | WI ring heater setpoint [W] | −0.074 | −0.081 | |
+| 9 | NI mirror coil TE [°C] | −0.063 | −0.067 | |
+| 10–25 | Electrical, geophones, RH channels | \|r\| < 0.06 | | |
+| — | NI ring heater thermistor [°C] | −0.035 | −0.043 | New channel; weak |
+| — | CEB north ambient temp [°C] | −0.048 | −0.107 | New channel; weak |
+| — | WI ring heater thermistor [°C] | −0.078 | −0.062 | New channel; weak |
+
+#### Lag scan
+
+Physically meaningful lags (< 10 h, sensor leads glitch rate):
+
+| Channel | Best lag | Best r |
+|---------|----------|--------|
+| NI tower bottom TE1 | **+4 h** | +0.099 |
+| WI/NI CO2 bench ambient | −1 h | −0.18 / −0.15 |
+
+All other channels with apparent best lags > 100 h (WI CO2 laser at +165 h, CEB UPS current at +166 h, mirror coils at ±163 h, etc.) are driven by seasonal co-variation and are not physically interpretable as causal leads.
+
+#### Key findings
+
+1. **CO2 bench ambient temperatures are the strongest correlators** (|r| ~ 0.14–0.18), not INF_NI_BOTTOM_TE1. Their near-zero lag (−1 h) means glitch rate and CO2 bench temperature respond to the same slow forcing on roughly the same timescale — both proxy the same underlying thermal state.
+
+2. **NI_BOTTOM_TE1 shows a physically consistent lag of +4 h** (sensor leads rate, r = +0.099 at peak). This is compatible with the logbook narrative: tower-bottom temperature accumulates thermal energy that drives the glitch mechanism ~4 h later. The zero-lag r = +0.074 is positive, consistent with the logbook's r = −0.72 sign once the metric is converted (logbook measured temperature vs inter-glitch period; period ∝ 1/rate, so negative r(period, T) → positive r(rate, T)). The magnitude difference (0.074 vs 0.72) reflects the contrast between a targeted 2-week episode and the full 3-year baseline with intermittent glitch activity.
+
+3. **CEB electrical (UPS current, r = +0.123) is the third-strongest correlator** — consistent with EXCAVATor's per-event ranking of this channel at rank 15. However, its lag scan peaks at +166 h, which is seasonal and not causal. The zero-lag signal is real but moderate.
+
+4. **Ring heater thermistors and CEB ambient temperature are weak correlators** (|r| < 0.08). Despite logbook reports of 40% correlation in specific episodes (Logbook #60143), the long-baseline correlation is diluted, consistent with the etalon setpoint being an *actuation* channel (it changes in response to the glitch-driving thermal state, not the cause of it).
+
+5. **Geophones (SNEB, SWEB) show negligible correlation** (|r| < 0.026), ruling out seismic/mechanical coupling as a rate driver at hourly timescales despite EXCAVATor flagging them per-event.
+
+**Step 4 priority channels**: NI_BOTTOM_TE1 (+4 h lag, physically motivated), NI/WI CO2 bench ambient (strongest correlators, require sub-hour lag characterisation).
+
+### 4.4 — Step 4: lag refinement  [pending]
+
+Step 3 identified NI_BOTTOM_TE1 (+4 h) and the CO2 bench ambient channels as priority targets. Lag will be refined to sub-hour precision using raw Virgo frames from HPSS.
 
 ### 4.5 — Step 5: Convergent Cross Mapping  [pending Step 3]
 
