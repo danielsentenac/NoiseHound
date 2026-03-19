@@ -214,6 +214,8 @@ Base URL: https://scientists.virgo-gw.eu/DataAnalysis/DetCharDev/users/direnzo/g
 
 EXCAVATor (Swinkels, Nikhef, 2013) is an independent Virgo tool that correlates glitch occurrence with the value of auxiliary channels using two statistics: gain of detection probability (Eff/DT-based) and the Kolmogorov-Smirnov test. It operates on 1 Hz trend data, similarly to NOISEHOUND, but uses a multi-glitch epoch rather than per-event windows.
 
+Report URL: https://scientists.virgo-gw.eu/DataAnalysis/Excavator/test/half_hour_glitch/
+
 ### Run parameters
 
 - Epoch: GPS 1366750818–1366786818 (2023-04-23, 10 hours)
