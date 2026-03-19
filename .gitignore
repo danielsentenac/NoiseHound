@@ -20,9 +20,10 @@ logs/
 slurm/slurm-*.out
 slurm/slurm-*.err
 
-# Result files at root
+# Result files at root (exclude usecases assets)
 *.csv
 *.png
+!usecases/**/*.png
 *.odt
 *.odt.bak
 
