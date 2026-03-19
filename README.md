@@ -81,23 +81,24 @@ Output: `outputs/detect_{GPS_START}_{GPS_END}/triggers.csv`
 
 ### Step 2 — Rank auxiliary channels
 
-Ranks all 1 Hz trend channels by z-score, hit fraction, and cross-correlation lag over ±5 s windows around each trigger:
+Stages one daily trend GWF from HPSS and ranks all 1 Hz channels by z-score, hit fraction, and cross-correlation lag over ±5 s windows around each trigger:
 
 ```bash
+HPSS_TREND=/hpss/in2p3.fr/group/virgo/DATA/trend/{YEAR}/V-trend-{GPS}-86400.gwf \
+TRIGGERS=$HOME/NOISEHOUND/outputs/detect_.../triggers.csv \
 sbatch slurm/noisehound_rank_trend.slurm
 ```
 
-Output: `outputs/rank_{GPS_START}_{GPS_END}/ranking.csv`
-
-For a combined stage-and-rank job (raw frames, single epoch):
+Optional overrides (all have sensible defaults):
 
 ```bash
-AUX_SOURCE_LIST=$HOME/NOISEHOUND/frame_lists/aux_raw_hpss_sources.txt \
-TRIGGERS=$HOME/NOISEHOUND/outputs/detect_.../triggers.csv \
-CHANNEL_FILE=$HOME/NOISEHOUND/candidate_channels.txt \
-MAX_SAMPLE_RATE=64 \
-sbatch slurm/noisehound_rank_hpss.slurm
+INCLUDE="V1:(ENV|TCS|INF|SBE).*" \   # channel name regex filter
+TOP=50 \                               # number of top channels to save
+WINDOW_BEFORE_S=60 \                   # context window around each trigger
+sbatch slurm/noisehound_rank_trend.slurm
 ```
+
+Output: `outputs/rank_trend_{JOBID}/ranking.csv`
 
 ### Step 3 — Causality analysis
 
