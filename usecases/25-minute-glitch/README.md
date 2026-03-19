@@ -62,6 +62,9 @@ The 30 channels and their selection rationale:
 | ENV_TCS_CO2_WI_TE | WI CO2 bench ambient temperature | WI counterpart. |
 | TCS_WI_TE_CO2Laser | WI CO2 laser body temperature | WI counterpart. |
 | TCS_NI_CO2_PWRLAS_mean | NI CO2 laser output power | Power proxy for NI TCS actuation strength; complements the temperature channels. |
+| INF_TCS_NI_RH_TE | NI ring heater thermistor temperature [°C] | Logbook #60143 (direnzo, May 2023): Pearson −40% with glitch distance series, first thermal correlator identified. Logbook #62992, #63147, #63310: confirmed best early correlator; etalon setpoint step of −0.3°C → +1'40" in glitch period. *(channel name to be verified against GWF before adding to pipeline)* |
+| INF_TCS_WI_RH_TE | WI ring heater thermistor temperature [°C] | WI counterpart to INF_TCS_NI_RH_TE. *(to be verified)* |
+| ENV_CEB_N_TE | CEB north ambient temperature [°C] | Logbook #60143 and #66142: partially correlated with glitch rate but out of phase with NI_BOTTOM; proxy for CEB thermal environment. *(to be verified)* |
 | LSC_Etalon_NI_RH_SET_mean | NI ring heater setpoint [W] | Ring heater is the primary slow thermal actuator on the NI input mirror; its setpoint tracks the required thermal correction. |
 | LSC_Etalon_NI_RH_OUT_mean | NI ring heater output [W] | Actual delivered power; may differ from setpoint due to control saturation. |
 | LSC_Etalon_NI_RH_IN_mean | NI ring heater input [W] | Input power monitor. |
