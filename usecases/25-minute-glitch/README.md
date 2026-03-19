@@ -184,7 +184,8 @@ All 40 top-ranked channels were tested with three methods over the same 3-hour e
 | 10 | V1:INF_TCS_WI_RH_TE | WI ring heater thermistor [°C] | −0.078 | −0.062 | |
 | 11 | V1:ENV_CEB_N_TE | CEB north ambient temp [°C] | −0.048 | −0.107 | |
 | 12 | V1:INF_TCS_NI_RH_TE | NI ring heater thermistor [°C] | −0.035 | −0.043 | |
-| 13–33 | — | Electrical, geophones, other RH channels | \|r\| < 0.05 | | |
+| 13 | V1:INF_WI_BOTTOM_TE1 | WI tower bottom TE1 [°C] | +0.037 | +0.028 | WI counterpart to NI_BOTTOM_TE1; weaker |
+| 14–33 | — | Electrical, geophones, other RH channels | \|r\| < 0.05 | | |
 
 #### Lag scan
 
