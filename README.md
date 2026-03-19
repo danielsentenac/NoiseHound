@@ -106,7 +106,7 @@ Applied to the top-ranked channels from Step 2. Methods: Granger causality (VAR 
 
 ### Step 4 — Rate correlation (1-hour bins, full baseline)
 
-SLURM array job: 12 tasks × 3-month blocks, 33 slow channels, 1-hour bins.
+Pearson and Spearman correlation between the hourly glitch rate and each slow channel, plus a cross-correlation lag scan over ±7 days. SLURM array job: 12 tasks × 3-month blocks, 33 slow channels, 1-hour bins.
 
 ```bash
 cd ~/NOISEHOUND
