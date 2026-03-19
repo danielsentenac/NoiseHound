@@ -368,11 +368,21 @@ def parse_args():
     p.add_argument("--bin-size-s",  type=int, default=3600)
     p.add_argument("--merge-only",  action="store_true",
                    help="Skip extraction, just merge partial CSVs and plot")
+    p.add_argument("--channels",    nargs="+", metavar="LABEL",
+                   help="Restrict to these channel short-labels (default: all)")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
+
+    # ── Optional channel subset ────────────────────────────────────────────────
+    if args.channels:
+        global CHANNELS, CH_LABELS
+        CHANNELS = [(ch, lbl) for ch, lbl in CHANNELS if lbl in args.channels]
+        if not CHANNELS:
+            sys.exit(f"No matching channels for labels: {args.channels}")
+        print(f"Channel filter active: {[lbl for _, lbl in CHANNELS]}", flush=True)
 
     # ── Merge + plot mode ──────────────────────────────────────────────────────
     if args.merge_only:
