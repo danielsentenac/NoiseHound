@@ -86,9 +86,9 @@ The 33 channels and their selection rationale:
 | SBE_SWEB_GEO_GRWE_raw_mean | SWEB geophone W-E [counts] | West End Bench counterpart; control channel (remote from NI). |
 | SBE_SWEB_GEO_GRNS_raw_mean | SWEB geophone N-S [counts] | SWEB N-S control channel. |
 
-### Step 5 — Lag refinement with 15-minute bins  [ongoing]
+### Step 5 — Lag refinement with 15-minute bins  [done]
 
-Same 1 Hz trend GWFs as Step 4, re-run with 15-minute bins on the four priority thermal channels to refine the lag from ±1 h to ±15 min resolution. → Results: Section 4.5.
+Same 1 Hz trend GWFs as Step 4. The ~25-min glitch recurrence makes 15-minute bins degenerate (constant rate series → Pearson r undefined); lag refinement was instead performed by parabolic interpolation of the 1-hour cross-correlation peak on the four priority thermal channels. → Results: Section 4.5.
 
 ### Step 6 — Convergent Cross Mapping  [planned, if needed]
 
@@ -225,9 +225,20 @@ All other channels with apparent best lags > 100 h (WI CO2 laser at +165 h, CEB 
 
 **Step 5 priority channels**: V1:INF_NI_BOTTOM_TE1 (+4 h lag, physically motivated), V1:ENV_TCS_CO2_WI_TE and V1:ENV_TCS_CO2_NI_TE (strongest correlators, near-zero lag requires sub-hour characterisation). Also V1:INF_WI_BOTTOM_TE1 as NI counterpart control.
 
-### 4.5 — Step 5: lag refinement  [ongoing]
+### 4.5 — Step 5: lag refinement  [done]
 
-Same 1 Hz trend GWFs as Step 4, but with 15-minute bins instead of 1-hour bins. This improves lag resolution from ±1 h to ±15 min. Four channels: V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_CO2_NI_TE, V1:ENV_TCS_CO2_WI_TE. SLURM array job running on CC-IN2P3.
+The ~25-min glitch recurrence period makes 15-minute bins degenerate (most non-zero bins contain exactly one trigger, giving a near-constant rate series of 4/h → Pearson r undefined). Lag refinement was therefore performed by parabolic interpolation of the 1-hour cross-correlation peak: a parabola is fitted to the three-point neighbourhood of the integer-lag maximum, applied to bins with rate > 0. This refines the 1-hour-resolution lag to sub-hour precision without additional SLURM jobs.
+
+Four priority channels (V1:INF_NI_BOTTOM_TE1, V1:INF_WI_BOTTOM_TE1, V1:ENV_TCS_CO2_NI_TE, V1:ENV_TCS_CO2_WI_TE):
+
+| Channel | Description | Integer lag | Refined lag | Peak r |
+|---------|-------------|-------------|-------------|--------|
+| V1:INF_NI_BOTTOM_TE1 | NI tower bottom TE1 | +4 h | **+3.84 h (+3 h 50 min)** | +0.099 |
+| V1:ENV_TCS_CO2_WI_TE | WI CO2 bench ambient | −1 h | **−1.06 h (−1 h 4 min)** | −0.183 |
+| V1:ENV_TCS_CO2_NI_TE | NI CO2 bench ambient | −1 h | **−1.07 h (−1 h 4 min)** | −0.145 |
+| V1:INF_WI_BOTTOM_TE1 | WI tower bottom TE1 | — | no significant peak | — |
+
+**Interpretation**: The CO2 bench ambient channels peak at −1.06/−1.07 h (rate leads temperature by ~1 h), consistent with both being driven by the same slow ambient thermal forcing on similar timescales. NI_BOTTOM_TE1 peaks at +3.84 h (sensor leads rate by ~4 h), consistent with the logbook narrative of tower-bottom temperature accumulating heat that drives the glitch mechanism several hours later. WI_BOTTOM_TE1 shows no significant lag peak, confirming the asymmetry between NI and WI already visible in the zero-lag correlation table.
 
 ### 4.6 — Step 6: Convergent Cross Mapping  [pending Step 4]
 
