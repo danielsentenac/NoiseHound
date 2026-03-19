@@ -204,6 +204,8 @@ Entries retrieved from logbook.virgo-gw.eu, search keyword '25-minute', listed c
 
 Omicron triggers for the 25-minute family published by M. Di Renzo on the Virgo scientists portal. Selection: SNR∈[100,500], frequency∈[30,50] Hz, inter-trigger separation >15 min. Access requires EGO SSO authentication. Files are mirrored in `NOISEHOUND/data/` on CCA (CC-IN2P3).
 
+Base URL: https://scientists.virgo-gw.eu/DataAnalysis/DetCharDev/users/direnzo/glitches/25minute/
+
 - **Extended catalogue** — 24 212 triggers, Apr 2023 – Jan 2026: `full_25min_glitches_ER16-O4b.csv`
 - **O4b catalogue** — 19 933 triggers, Mar 2024 – Mar 2026: `25min_glitches_ER16-O4b.csv`
 - **mini-ER Dec 2023** — 2 106 triggers, Dec 2023 – Feb 2024: `25min_glitches_mER_Dec23.csv`
