@@ -104,6 +104,19 @@ Output: `outputs/rank_trend_{JOBID}/ranking.csv`
 
 Applied to the top-ranked channels from Step 2. Methods: Granger causality (VAR F-test) and Transfer Entropy (Schreiber 2000) over ±5 s windows around each trigger.
 
+```bash
+python scripts/causality_analysis.py \
+    --trend     /tmp/V-trend-{GPS}-86400.gwf \
+    --hrec-dir  /path/to/hoftonline_frames/ \
+    --triggers  outputs/detect_.../triggers.csv \
+    --ranking   outputs/rank_trend_.../ranking.csv \
+    --gps-start 1419724818 \
+    --gps-end   1419735618 \
+    --output    outputs/causality/
+```
+
+Output: `outputs/causality/causality_summary.csv` and `causality_report.txt`.
+
 ### Step 4 — Rate correlation (1-hour bins, full baseline)
 
 Pearson and Spearman correlation between the hourly glitch rate and each slow channel, plus a cross-correlation lag scan over ±7 days. SLURM array job: 12 tasks × 3-month blocks, 33 slow channels, 1-hour bins.
