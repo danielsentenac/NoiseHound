@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+.venv/
+
+# Data, outputs, generated files
+data/
+outputs/
+reports/
+frame_lists/
+frame_cache/
+logs/
+
+# SLURM logs
+slurm/slurm-*.out
+slurm/slurm-*.err
+
+# Result files at root
+*.csv
+*.png
+*.odt
+*.odt.bak
+
+# Misc
+.DS_Store
+*.swp

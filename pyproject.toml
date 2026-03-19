@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noisehound"
+version = "0.1.0"
+description = "Virgo glitch triage toolkit for datafind discovery, trigger finding, and auxiliary ranking"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "gwpy[gwf]",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "scipy",
+]
+
+[project.scripts]
+noisehound = "noisehound.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["noisehound*"]
