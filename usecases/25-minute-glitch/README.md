@@ -197,7 +197,6 @@ Entries retrieved from logbook.virgo-gw.eu, search keyword '25-minute', listed c
 | #66975 | Jun 2025 | direnzo, mwas | Dec 2024 high-rate period survey; 25-min glitches are the constant background family |
 | #67414 | Aug 2025 | direnzo | Pearson r=−0.72 between glitch rate and INF_NI_BOTTOM_TE1; stronger than mirror temperature |
 | #67431 | Aug 2025 | direnzo | Full O4b glitch population survey; 25-min visible as continuous 40-50 Hz band throughout run |
-| — | Aug 2025 | CEB team | Interval varies 23-32 min seasonally tracking ambient temperature; source suspected near NI tower, possibly UPS mains |
 | #68110 | Nov 2025 | bersanetti | DeepExtractor ML waveform clustering on Jun 11 data; confirms multiple glitch families co-existing |
 | #68210 | Nov 2025 | direnzo | After HVAC failure in CEB (Sep 2025): etalon disruption; NI tower bottom temp remains best predictor; now called ~30-min glitches |
 | #68511 | 17 Jan 2026 | narnaud | BruCo check for 25-minute glitches disabled: those glitches seem to have disappeared. |
