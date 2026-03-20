@@ -192,7 +192,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.25)
         if legend:
-            ax.legend(fontsize=7, loc="upper right")
+            ax.legend(fontsize=7, loc="lower left")
 
     def draw_timeline(ax):
         """Dedicated thin panel: colored bands + clear date labels at edges."""
@@ -216,8 +216,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.text(itf_end_dt   + pd.Timedelta(hours=2), 0.28,
                 itf_end_dt.strftime("%d %b"),
                 color="darkgoldenrod", **kw)
-        # Orange band: start label top, end label bottom
-        ax.text(outage_dt + pd.Timedelta(hours=2), 0.72,
+        # Orange band: start (top), DAQ recovery (middle), ITF relock (bottom)
+        # All three events are within ~3 days → stagger y to avoid overlap.
+        ax.text(outage_dt + pd.Timedelta(hours=2), 0.80,
                 outage_dt.strftime("%d %b %H:%M"),
                 color="darkred", **kw)
         ax.text(recovery_dt + pd.Timedelta(hours=2), 0.28,
@@ -225,11 +226,11 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                 color="darkred", **kw)
         # Grey band / ITF relock labels (only when data available)
         if daq_recovery_dt is not None:
-            ax.text(daq_recovery_dt + pd.Timedelta(hours=2), 0.50,
+            ax.text(daq_recovery_dt + pd.Timedelta(hours=2), 0.55,
                     daq_recovery_dt.strftime("DAQ ↑ %d %b"),
                     color="dimgrey", **kw)
         if itf_relock_dt is not None:
-            ax.text(itf_relock_dt + pd.Timedelta(hours=2), 0.50,
+            ax.text(itf_relock_dt + pd.Timedelta(hours=2), 0.28,
                     itf_relock_dt.strftime("relock %d %b"),
                     color="darkgreen", **kw)
         # Legend patches
@@ -239,7 +240,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ]
         if daq_recovery_dt is not None:
             handles.append(Patch(fc="grey", alpha=0.7, label="DAQ down (no data)"))
-        ax.legend(handles=handles, fontsize=8, loc="upper left", framealpha=0.85)
+        ax.legend(handles=handles, fontsize=8, loc="lower left", framealpha=0.85)
 
     # ── figure: 9 panels (timeline + 8 data) ─────────────────────────────────
     fig, axes = plt.subplots(9, 1, figsize=(16, 26), sharex=True,
