@@ -33,6 +33,23 @@ import pandas as pd
 from scipy import stats
 from scipy.signal import correlate, correlation_lags
 
+# gwpy/astropy: patch converters_and_unit so channels with unit 'degC'
+# (an UnrecognizedUnit) can be read without crashing when gwpy applies
+# the GWF bias term (new += bias, plain float + Quantity).
+try:
+    import astropy.units.quantity as _aq
+    from astropy.units import dimensionless_unscaled as _dless
+    from astropy.units import UnitConversionError as _UCE
+    _orig_cau = _aq.converters_and_unit
+    def _safe_cau(function, method, *inputs):
+        try:
+            return _orig_cau(function, method, *inputs)
+        except (_UCE, ValueError):
+            return [None] * len(inputs), _dless
+    _aq.converters_and_unit = _safe_cau
+except Exception:
+    pass
+
 GPS_EPOCH = pd.Timestamp("1980-01-06", tz="UTC")
 
 CHANNELS = [
