@@ -289,8 +289,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
 
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
     ax = axes[3]
-    for col, lab, color in [("ni_bottom_te1", "NI_BOTTOM_TE1", "tab:orange"),
-                             ("wi_bottom_te1", "WI_BOTTOM_TE1", "tab:red")]:
+    for col, lab, color in [
+            ("ni_bottom_te1", "V1:INF_NI_BOTTOM_TE1",    "tab:orange"),
+            ("wi_bottom_te1", "V1:INF_WI_BOTTOM_TE1",    "tab:red")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -298,8 +299,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
 
     # ── Panel 4: NI/WI CO2 bench ambient temperatures ─────────────────────────
     ax = axes[4]
-    for col, lab, color in [("ni_co2_env_te", "NI CO2 ambient", "tab:blue"),
-                             ("wi_co2_env_te", "WI CO2 ambient", "tab:cyan")]:
+    for col, lab, color in [
+            ("ni_co2_env_te", "V1:ENV_TCS_CO2_NI_TE", "tab:blue"),
+            ("wi_co2_env_te", "V1:ENV_TCS_CO2_WI_TE", "tab:cyan")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -307,8 +309,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
 
     # ── Panel 5: mirror coil temperatures ────────────────────────────────────
     ax = axes[5]
-    for col, lab, color in [("ni_mir_coil_te", "NI mirror coil", "tab:blue"),
-                             ("wi_mir_coil_te", "WI mirror coil", "tab:purple")]:
+    for col, lab, color in [
+            ("ni_mir_coil_te", "V1:INF_NI_MIR_COIL_UL_TE", "tab:blue"),
+            ("wi_mir_coil_te", "V1:INF_WI_MIR_COIL_DR_TE", "tab:purple")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -316,8 +319,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
 
     # ── Panel 6: ring heater setpoints ───────────────────────────────────────
     ax = axes[6]
-    for col, lab, color in [("ni_rh_set", "NI RH setpoint", "tab:green"),
-                             ("wi_rh_set", "WI RH setpoint", "tab:olive")]:
+    for col, lab, color in [
+            ("ni_rh_set", "V1:LSC_Etalon_NI_RH_SET_mean", "tab:green"),
+            ("wi_rh_set", "V1:LSC_Etalon_WI_RH_SET_mean", "tab:olive")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -325,8 +329,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
 
     # ── Panel 7: CO2 laser body temperatures ─────────────────────────────────
     ax = axes[7]
-    for col, lab, color in [("ni_co2_tc", "NI CO2 laser body", "tab:green"),
-                             ("wi_co2_tc", "WI CO2 laser body", "tab:olive")]:
+    for col, lab, color in [
+            ("ni_co2_laser_te", "V1:TCS_NI_TE_CO2Laser", "tab:green"),
+            ("wi_co2_laser_te", "V1:TCS_WI_TE_CO2Laser", "tab:olive")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -336,7 +341,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax = axes[8]
     if "ceb_ups_curr_r" in df.columns:
         ax.plot(dt.values, df["ceb_ups_curr_r"].values,
-                color="tab:red", lw=0.6, label="CEB UPS curr R")
+                color="tab:red", lw=0.6, label="V1:ENV_CEB_UPS_CURR_R_mean")
     decorate(ax)
     ax.set_ylabel("[A]", fontsize=9)
     ax.set_xlabel("Date", fontsize=9)
