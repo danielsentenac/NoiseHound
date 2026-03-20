@@ -118,34 +118,63 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         if legend:
             ax.legend(fontsize=7, loc="upper right")
 
-    # ── figure ────────────────────────────────────────────────────────────────
-    fig, axes = plt.subplots(8, 1, figsize=(16, 24), sharex=True)
+    def draw_timeline(ax):
+        """Dedicated thin panel: colored bands + clear date labels at edges."""
+        ax.set_ylim(0, 1)
+        ax.set_yticks([])
+        ax.axvspan(last_trig_dt, itf_end_dt, color="gold",   alpha=0.6, zorder=0)
+        ax.axvspan(outage_dt,    recovery_dt, color="tomato", alpha=0.5, zorder=0)
+        ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
+        ax.xaxis.set_major_formatter(xfmt)
+        ax.grid(alpha=0.15)
+        kw = dict(fontsize=8, va="center", ha="left", rotation=90,
+                  fontweight="bold", clip_on=False, zorder=7)
+        # Yellow band edges
+        ax.text(last_trig_dt + pd.Timedelta(hours=4), 0.5,
+                last_trig_dt.strftime("%Y-%m-%d %H:%M UTC"),
+                color="darkgoldenrod", **kw)
+        ax.text(itf_end_dt   + pd.Timedelta(hours=4), 0.5,
+                itf_end_dt.strftime("%Y-%m-%d"),
+                color="darkgoldenrod", **kw)
+        # Orange band edges
+        ax.text(outage_dt    + pd.Timedelta(hours=4), 0.5,
+                outage_dt.strftime("%Y-%m-%d %H:%M UTC"),
+                color="darkred", **kw)
+        ax.text(recovery_dt  + pd.Timedelta(hours=4), 0.5,
+                recovery_dt.strftime("%Y-%m-%d (+10 d)"),
+                color="darkred", **kw)
+        # Legend patches
+        from matplotlib.patches import Patch
+        ax.legend(handles=[
+            Patch(fc="gold",   alpha=0.7, label="SR tower opening (Christmas)"),
+            Patch(fc="tomato", alpha=0.6, label="General power outage (~10-day recovery)"),
+        ], fontsize=8, loc="upper left", framealpha=0.85)
+
+    # ── figure: 9 panels (timeline + 8 data) ─────────────────────────────────
+    fig, axes = plt.subplots(9, 1, figsize=(16, 26), sharex=True,
+                             gridspec_kw={"height_ratios": [0.4]+[1]*8})
     fig.suptitle("Glitch rate and thermal channels: Oct 2025 – Apr 2026",
                  fontsize=13)
 
+    # ── Panel 0: event timeline ───────────────────────────────────────────────
+    draw_timeline(axes[0])
+
     # ── Panel 1: glitch rate ──────────────────────────────────────────────────
-    ax = axes[0]
+    ax = axes[1]
     rate = df["n_triggers"].values.astype(float)
     ax.bar(dt.values, rate, width=np.timedelta64(3600, "s"),
            color="steelblue", alpha=0.7)
-    ax.axvspan(last_trig_dt, itf_end_dt, color="gold", alpha=0.35, zorder=0,
-               label="SR tower opening (Christmas)")
-    ax.axvspan(outage_dt, recovery_dt, color="tomato", alpha=0.25, zorder=0,
-               label="Power outage (~10-day recovery)")
-    ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
     ax.annotate(f"Last glitch\n{last_trig_dt.strftime('%Y-%m-%d %H:%M UTC')}",
                 xy=(last_trig_dt, rate.max() * 0.9),
                 xytext=(last_trig_dt + pd.Timedelta(days=3), rate.max() * 0.75),
                 color="crimson", fontsize=7,
                 arrowprops=dict(arrowstyle="->", color="crimson", lw=0.8))
-    ax.legend(fontsize=7, loc="upper left")
+    decorate(ax, legend=False)
     ax.set_ylabel("Rate [/h]", fontsize=9)
     ax.set_title("25-min glitch rate (1-h bins)", fontsize=9)
-    ax.xaxis.set_major_formatter(xfmt)
-    ax.grid(alpha=0.25)
 
     # ── Panel 2: ITF lock fraction ────────────────────────────────────────────
-    ax = axes[1]
+    ax = axes[2]
     if lock is not None:
         lock_dt = gps_to_dt(lock["gps_bin"].values)
         ax.plot(lock_dt.values, lock["lock_frac"].values,
@@ -153,7 +182,6 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.set_ylabel("Lock fraction", fontsize=9)
         ax.set_ylim(-0.05, 1.05)
     else:
-        # Fallback: recurrence period
         ax.scatter(gps_to_dt(t_mid).values, smooth / 60,
                    s=2, alpha=0.4, color="tab:blue",
                    label="Recurrence [min]")
@@ -161,7 +189,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     decorate(ax)
 
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
-    ax = axes[2]
+    ax = axes[3]
     for col, lab, color in [("ni_bottom_te1", "NI_BOTTOM_TE1", "tab:orange"),
                              ("wi_bottom_te1", "WI_BOTTOM_TE1", "tab:red")]:
         if col in df.columns:
@@ -170,7 +198,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[°C]", fontsize=9)
 
     # ── Panel 4: NI/WI CO2 bench ambient temperatures ─────────────────────────
-    ax = axes[3]
+    ax = axes[4]
     for col, lab, color in [("ni_co2_env_te", "NI CO2 ambient", "tab:blue"),
                              ("wi_co2_env_te", "WI CO2 ambient", "tab:cyan")]:
         if col in df.columns:
@@ -179,7 +207,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[°C]", fontsize=9)
 
     # ── Panel 5: mirror coil temperatures ────────────────────────────────────
-    ax = axes[4]
+    ax = axes[5]
     for col, lab, color in [("ni_mir_coil_te", "NI mirror coil", "tab:blue"),
                              ("wi_mir_coil_te", "WI mirror coil", "tab:purple")]:
         if col in df.columns:
@@ -188,7 +216,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[°C]", fontsize=9)
 
     # ── Panel 6: ring heater setpoints ───────────────────────────────────────
-    ax = axes[5]
+    ax = axes[6]
     for col, lab, color in [("ni_rh_set", "NI RH setpoint", "tab:green"),
                              ("wi_rh_set", "WI RH setpoint", "tab:olive")]:
         if col in df.columns:
@@ -197,7 +225,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[W]", fontsize=9)
 
     # ── Panel 7: CO2 laser body temperatures ─────────────────────────────────
-    ax = axes[6]
+    ax = axes[7]
     for col, lab, color in [("ni_co2_tc", "NI CO2 laser body", "tab:green"),
                              ("wi_co2_tc", "WI CO2 laser body", "tab:olive")]:
         if col in df.columns:
@@ -206,7 +234,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[°C]", fontsize=9)
 
     # ── Panel 8: CEB UPS current ──────────────────────────────────────────────
-    ax = axes[7]
+    ax = axes[8]
     if "ceb_ups_curr_r" in df.columns:
         ax.plot(dt.values, df["ceb_ups_curr_r"].values,
                 color="tab:red", lw=0.6, label="CEB UPS curr R")
