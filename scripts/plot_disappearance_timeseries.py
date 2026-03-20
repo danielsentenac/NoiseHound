@@ -95,10 +95,16 @@ def find_outage_markers(lock: pd.DataFrame) -> Tuple[Optional[float], Optional[f
     bins = after["gps_bin"].values
     diffs = np.diff(bins)
 
-    # A gap > 2 h in 1-h binned data marks DAQ down
+    # A gap > 2 h in 1-h binned data marks DAQ down.
+    # Also check if the very first bin is > 2 h after POWER_OUTAGE_GPS
+    # (gap starts right at the outage, before any bin in `after`).
     gap_idx = np.where(diffs > 7200)[0]
 
-    if len(gap_idx) > 0:
+    if bins[0] - POWER_OUTAGE_GPS > 7200:
+        # Gap starts immediately at outage; first bin IS the DAQ recovery
+        daq_recovery_gps = float(bins[0])
+        post_daq = after
+    elif len(gap_idx) > 0:
         daq_recovery_gps = float(bins[gap_idx[0] + 1])
         post_daq = after[after.gps_bin >= daq_recovery_gps]
     else:
