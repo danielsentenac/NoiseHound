@@ -45,7 +45,7 @@ except Exception:
 
 GPS_EPOCH  = pd.Timestamp("1980-01-06", tz="UTC")
 HPSS_BASE  = "cchpss0:/hpss/in2p3.fr/group/virgo/DATA/trend"
-CHANNEL    = "V1:ASC_SR_TY_ERR_mean"
+CHANNEL    = "V1:ASC_SR_TY_ERR_mean"   # default; overridden by --channel arg
 GLITCH_PERIOD_MIN = 25.0   # known ~25-min glitch recurrence
 
 # Two reference windows (GPS)
@@ -74,8 +74,9 @@ def stage(gps_day: int, stage_dir: Path) -> Optional[Path]:
 
 
 def extract_window(gps_start: int, gps_end: int,
-                   stage_dir: Path) -> Optional[pd.DataFrame]:
-    """Extract CHANNEL at 1-s resolution for [gps_start, gps_end), binned to BIN_MIN."""
+                   stage_dir: Path,
+                   channel: str = CHANNEL) -> Optional[pd.DataFrame]:
+    """Extract channel at 1-s resolution for [gps_start, gps_end), binned to BIN_MIN."""
     from gwpy.timeseries import TimeSeries
 
     day_start = (gps_start // 86400) * 86400
@@ -91,7 +92,7 @@ def extract_window(gps_start: int, gps_end: int,
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                ts = TimeSeries.read(str(gwf), CHANNEL, start=t0, end=t1)
+                ts = TimeSeries.read(str(gwf), channel, start=t0, end=t1)
             times.append(np.asarray(ts.times.value, float))
             vals.append(np.asarray(ts.value, float))
         except Exception as e:
@@ -129,12 +130,13 @@ def lombscargle(gps: np.ndarray, val: np.ndarray,
     return periods, power
 
 
-def plot(output: str, stage_dir: str) -> None:
+def plot(output: str, stage_dir: str,
+         channel: str = CHANNEL, ylabel: Optional[str] = None) -> None:
     sd = Path(stage_dir)
     sd.mkdir(parents=True, exist_ok=True)
 
     fig = plt.figure(figsize=(14, 10))
-    fig.suptitle(f"V1:ASC_SR_TY_ERR_mean — zoom & periodogram\n"
+    fig.suptitle(f"{channel} — zoom & periodogram\n"
                  f"Before vs after SR baffle installation (Christmas 2025 shutdown)",
                  fontsize=11)
     gs = GridSpec(2, 2, figure=fig, hspace=0.45, wspace=0.35)
@@ -144,7 +146,7 @@ def plot(output: str, stage_dir: str) -> None:
 
     for idx, (label, (gps_start, gps_end)) in enumerate(WINDOWS.items()):
         print(f"\n[{label.splitlines()[0]}]", flush=True)
-        df = extract_window(gps_start, gps_end, sd)
+        df = extract_window(gps_start, gps_end, sd, channel=channel)
         if df is None or len(df) < 10:
             print("  No data.", flush=True)
             continue
@@ -156,7 +158,7 @@ def plot(output: str, stage_dir: str) -> None:
         ax_ts = fig.add_subplot(gs[idx, 0])
         ax_ts.plot(dt.values, df["val"].values, lw=0.7, color=color)
         ax_ts.set_title(label, fontsize=9)
-        ax_ts.set_ylabel("SR TY error [rad]", fontsize=8)
+        ax_ts.set_ylabel(ylabel or channel.split(":")[-1], fontsize=8)
         ax_ts.xaxis.set_major_formatter(
             plt.matplotlib.dates.DateFormatter("%d %b\n%H:%M"))
         ax_ts.tick_params(axis="x", labelsize=7)
@@ -186,9 +188,15 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output",    default="outputs/zoom_asc_sr_ty.png")
     p.add_argument("--stage-dir", default="/tmp/nh_zoom_sr")
+    p.add_argument("--channel",   default=None,
+                   help="Override channel (default: V1:ASC_SR_TY_ERR_mean)")
+    p.add_argument("--ylabel",    default=None,
+                   help="Y-axis label for time-series panels")
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    plot(args.output, args.stage_dir)
+    plot(args.output, args.stage_dir,
+         channel=args.channel or CHANNEL,
+         ylabel=args.ylabel)
