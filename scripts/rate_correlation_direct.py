@@ -54,81 +54,47 @@ GPS_EPOCH = pd.Timestamp("1980-01-06", tz="UTC")
 
 CHANNELS = [
     # INF infrastructure temperatures (no _mean suffix)
-    ("V1:INF_NI_BOTTOM_TE1",           "ni_bottom_te1"),  # ★ logbook r=-0.72
-    ("V1:INF_WI_BOTTOM_TE1",           "wi_bottom_te1"),
-    ("V1:INF_NI_MIR_COIL_UL_TE",      "ni_mir_coil_te"),
-    ("V1:INF_WI_MIR_COIL_DR_TE",      "wi_mir_coil_te"),
+    ("V1:INF_NI_BOTTOM_TE1",           "NI tower bottom TE1 [°C]  ★"),  # ★ logbook r=-0.72
+    ("V1:INF_WI_BOTTOM_TE1",           "WI tower bottom TE1 [°C]"),
+    ("V1:INF_NI_MIR_COIL_UL_TE",      "NI mirror coil UL TE [°C]"),
+    ("V1:INF_WI_MIR_COIL_DR_TE",      "WI mirror coil DR TE [°C]"),
     # TCS optics temperatures
-    ("V1:TCS_HWS_NI_TE1_mean",         "ni_hws_te1"),
-    ("V1:TCS_HWS_NI_TE2_mean",         "ni_hws_te2"),
-    ("V1:ENV_TCS_CO2_NI_TE",            "ni_co2_env_te"),   # NI CO2 bench ambient temp
-    ("V1:TCS_NI_TE_CO2Laser",          "ni_co2_laser_te"), # NI CO2 laser body temp
-    ("V1:TCS_HWS_WI_TE1_mean",         "wi_hws_te1"),
-    ("V1:TCS_HWS_WI_TE2_mean",         "wi_hws_te2"),
-    ("V1:ENV_TCS_CO2_WI_TE",           "wi_co2_env_te"),   # WI CO2 bench ambient temp
-    ("V1:TCS_WI_TE_CO2Laser",          "wi_co2_laser_te"), # WI CO2 laser body temp
-    ("V1:TCS_HWS_NE_TE1_mean",         "ne_hws_te1"),     # control
-    ("V1:TCS_NI_CO2_PWRLAS_mean",      "ni_co2_pwr"),
+    ("V1:TCS_HWS_NI_TE1_mean",         "NI HWS TE1 [°C]"),
+    ("V1:TCS_HWS_NI_TE2_mean",         "NI HWS TE2 [°C]"),
+    ("V1:ENV_TCS_CO2_NI_TE",           "NI CO2 bench ambient TE [°C]"),   # NI CO2 bench ambient temp
+    ("V1:TCS_NI_TE_CO2Laser",          "NI CO2 laser body TE [°C]"),      # NI CO2 laser body temp
+    ("V1:TCS_HWS_WI_TE1_mean",         "WI HWS TE1 [°C]"),
+    ("V1:TCS_HWS_WI_TE2_mean",         "WI HWS TE2 [°C]"),
+    ("V1:ENV_TCS_CO2_WI_TE",           "WI CO2 bench ambient TE [°C]"),   # WI CO2 bench ambient temp
+    ("V1:TCS_WI_TE_CO2Laser",          "WI CO2 laser body TE [°C]"),      # WI CO2 laser body temp
+    ("V1:TCS_HWS_NE_TE1_mean",         "NE HWS TE1 [°C]"),               # control
+    ("V1:TCS_NI_CO2_PWRLAS_mean",      "NI CO2 laser power [W]"),
     # Ring heater power
-    ("V1:LSC_Etalon_NI_RH_SET_mean",   "ni_rh_set"),
-    ("V1:LSC_Etalon_NI_RH_OUT_mean",   "ni_rh_out"),
-    ("V1:LSC_Etalon_NI_RH_IN_mean",    "ni_rh_in"),
-    ("V1:LSC_Etalon_NI_RH_ERR_mean",   "ni_rh_err"),
-    ("V1:LSC_Etalon_WI_RH_SET_mean",   "wi_rh_set"),
-    ("V1:LSC_Etalon_WI_RH_OUT_mean",   "wi_rh_out"),
-    ("V1:LSC_Etalon_WI_RH_ERR_mean",   "wi_rh_err"),
+    ("V1:LSC_Etalon_NI_RH_SET_mean",   "NI ring heater setpoint [W]"),
+    ("V1:LSC_Etalon_NI_RH_OUT_mean",   "NI ring heater output [W]"),
+    ("V1:LSC_Etalon_NI_RH_IN_mean",    "NI ring heater input [W]"),
+    ("V1:LSC_Etalon_NI_RH_ERR_mean",   "NI ring heater error [W]"),
+    ("V1:LSC_Etalon_WI_RH_SET_mean",   "WI ring heater setpoint [W]"),
+    ("V1:LSC_Etalon_WI_RH_OUT_mean",   "WI ring heater output [W]"),
+    ("V1:LSC_Etalon_WI_RH_ERR_mean",   "WI ring heater error [W]"),
     # Electrical / mains
-    ("V1:ENV_NEB_UPS_VOLT_R_mean",     "neb_ups_volt_r"),
-    ("V1:ENV_CEB_UPS_VOLT_R_mean",     "ceb_ups_volt_r"),
-    ("V1:ENV_WEB_UPS_VOLT_R_mean",     "web_ups_volt_r"),
-    ("V1:ENV_MCB_IPS_CURR_T_mean",     "mcb_ips_curr_t"),
-    ("V1:ENV_CEB_UPS_CURR_R_mean",     "ceb_ups_curr_r"),  # Excavator rank 15 per-event
+    ("V1:ENV_NEB_UPS_VOLT_R_mean",     "NEB UPS voltage R [V]"),
+    ("V1:ENV_CEB_UPS_VOLT_R_mean",     "CEB UPS voltage R [V]"),
+    ("V1:ENV_WEB_UPS_VOLT_R_mean",     "WEB UPS voltage R [V]"),
+    ("V1:ENV_MCB_IPS_CURR_T_mean",     "MCB IPS current T [A]"),
+    ("V1:ENV_CEB_UPS_CURR_R_mean",     "CEB UPS current R [A]"),          # Excavator rank 15 per-event
     # Suspended end bench geophones (Excavator: SNEB W-E rank 5, N-S rank 20)
-    ("V1:SBE_SNEB_GEO_GRWE_raw_mean", "sneb_geo_we"),     # North End Bench W-E
-    ("V1:SBE_SNEB_GEO_GRNS_raw_mean", "sneb_geo_ns"),     # North End Bench N-S
-    ("V1:SBE_SWEB_GEO_GRWE_raw_mean", "sweb_geo_we"),     # West End Bench W-E (control)
-    ("V1:SBE_SWEB_GEO_GRNS_raw_mean", "sweb_geo_ns"),     # West End Bench N-S (control)
+    ("V1:SBE_SNEB_GEO_GRWE_raw_mean", "SNEB geophone W-E [raw]"),        # North End Bench W-E
+    ("V1:SBE_SNEB_GEO_GRNS_raw_mean", "SNEB geophone N-S [raw]"),        # North End Bench N-S
+    ("V1:SBE_SWEB_GEO_GRWE_raw_mean", "SWEB geophone W-E [raw]"),        # West End Bench W-E (control)
+    ("V1:SBE_SWEB_GEO_GRNS_raw_mean", "SWEB geophone N-S [raw]"),        # West End Bench N-S (control)
     # Ring heater thermistor temperatures (logbook-backed, GWF-confirmed)
-    ("V1:INF_TCS_NI_RH_TE",          "ni_rh_te"),        # NI ring heater thermistor °C
-    ("V1:INF_TCS_WI_RH_TE",          "wi_rh_te"),        # WI ring heater thermistor °C
-    ("V1:ENV_CEB_N_TE",              "ceb_n_te"),         # CEB north ambient temp °C
+    ("V1:INF_TCS_NI_RH_TE",          "NI ring heater thermistor [°C]"),  # NI ring heater thermistor °C
+    ("V1:INF_TCS_WI_RH_TE",          "WI ring heater thermistor [°C]"),  # WI ring heater thermistor °C
+    ("V1:ENV_CEB_N_TE",              "CEB north ambient TE [°C]"),        # CEB north ambient temp °C
 ]
 
-CH_LABELS = {
-    "ni_bottom_te1":  "V1:INF_NI_BOTTOM_TE1  ★",
-    "wi_bottom_te1":  "V1:INF_WI_BOTTOM_TE1",
-    "ni_mir_coil_te": "V1:INF_NI_MIR_COIL_UL_TE",
-    "wi_mir_coil_te": "V1:INF_WI_MIR_COIL_DR_TE",
-    "ni_hws_te1":     "V1:TCS_HWS_NI_TE1_mean",
-    "ni_hws_te2":     "V1:TCS_HWS_NI_TE2_mean",
-    "ni_co2_env_te":  "V1:ENV_TCS_CO2_NI_TE",
-    "ni_co2_laser_te":"V1:TCS_NI_TE_CO2Laser",
-    "wi_hws_te1":     "V1:TCS_HWS_WI_TE1_mean",
-    "wi_hws_te2":     "V1:TCS_HWS_WI_TE2_mean",
-    "wi_co2_env_te":  "V1:ENV_TCS_CO2_WI_TE",
-    "wi_co2_laser_te":"V1:TCS_WI_TE_CO2Laser",
-    "ne_hws_te1":     "V1:TCS_HWS_NE_TE1_mean",
-    "ni_co2_pwr":     "V1:TCS_NI_CO2_PWRLAS_mean",
-    "ni_rh_set":      "V1:LSC_Etalon_NI_RH_SET_mean",
-    "ni_rh_out":      "V1:LSC_Etalon_NI_RH_OUT_mean",
-    "ni_rh_in":       "V1:LSC_Etalon_NI_RH_IN_mean",
-    "ni_rh_err":      "V1:LSC_Etalon_NI_RH_ERR_mean",
-    "wi_rh_set":      "V1:LSC_Etalon_WI_RH_SET_mean",
-    "wi_rh_out":      "V1:LSC_Etalon_WI_RH_OUT_mean",
-    "wi_rh_err":      "V1:LSC_Etalon_WI_RH_ERR_mean",
-    "neb_ups_volt_r": "V1:ENV_NEB_UPS_VOLT_R_mean",
-    "ceb_ups_volt_r": "V1:ENV_CEB_UPS_VOLT_R_mean",
-    "web_ups_volt_r": "V1:ENV_WEB_UPS_VOLT_R_mean",
-    "mcb_ips_curr_t": "V1:ENV_MCB_IPS_CURR_T_mean",
-    "ceb_ups_curr_r": "V1:ENV_CEB_UPS_CURR_R_mean",
-    "sneb_geo_we":    "V1:SBE_SNEB_GEO_GRWE_raw_mean",
-    "sneb_geo_ns":    "V1:SBE_SNEB_GEO_GRNS_raw_mean",
-    "sweb_geo_we":    "V1:SBE_SWEB_GEO_GRWE_raw_mean",
-    "sweb_geo_ns":    "V1:SBE_SWEB_GEO_GRNS_raw_mean",
-    "ni_rh_te":       "V1:INF_TCS_NI_RH_TE",
-    "wi_rh_te":       "V1:INF_TCS_WI_RH_TE",
-    "ceb_n_te":       "V1:ENV_CEB_N_TE",
-}
+CH_LABELS = {ch_name: desc for ch_name, desc in CHANNELS}
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -167,7 +133,7 @@ def bin_day(gwf: Path, gps_day: int, bin_size: int,
 
     # Read each channel individually to avoid unit-mixing errors
     ch_data: dict[str, tuple[np.ndarray, np.ndarray]] = {}
-    for ch_name, label in CHANNELS:
+    for ch_name, _desc in CHANNELS:
         try:
             import warnings
             with warnings.catch_warnings():
@@ -197,13 +163,13 @@ def bin_day(gwf: Path, gps_day: int, bin_size: int,
             (trigger_times >= bin_start) & (trigger_times < bin_end)
         ))
         # Channel medians
-        for ch_name, label in CHANNELS:
+        for ch_name, _desc in CHANNELS:
             t, v = ch_data[ch_name]
             if len(t) == 0:
-                row[label] = np.nan
+                row[ch_name] = np.nan
                 continue
             mask = (t >= bin_start) & (t < bin_end)
-            row[label] = float(np.nanmedian(v[mask])) if mask.any() else np.nan
+            row[ch_name] = float(np.nanmedian(v[mask])) if mask.any() else np.nan
         rows.append(row)
 
     return pd.DataFrame(rows)
@@ -222,8 +188,8 @@ def run_analysis(df: pd.DataFrame, triggers_csv: str, out_dir: Path,
     df = df[df["rate"] > 0]
 
     print(f"\nBins with triggers: {len(df)}")
-    labels = [l for _, l in CHANNELS]
-    available = [l for l in labels if l in df.columns]
+    ch_names = [ch for ch, _ in CHANNELS]
+    available = [ch for ch in ch_names if ch in df.columns]
 
     # ── Correlation table ──────────────────────────────────────────────────────
     rows = []
@@ -326,7 +292,8 @@ def run_analysis(df: pd.DataFrame, triggers_csv: str, out_dir: Path,
     smooth = (pd.Series(intervals).rolling(20, center=True, min_periods=5)
               .median().bfill().ffill().values)
 
-    key_cols = [c for c in ["ni_bottom_te1", "ni_rh_set", "ni_co2_tc"] if c in df.columns]
+    key_cols = [c for c in ["V1:INF_NI_BOTTOM_TE1", "V1:LSC_Etalon_NI_RH_SET_mean",
+                            "V1:ENV_TCS_CO2_NI_TE"] if c in df.columns]
     n = 2 + len(key_cols)
     fig, axes = plt.subplots(n, 1, figsize=(16, 3 * n), sharex=False)
 
@@ -429,8 +396,8 @@ def parse_args():
     p.add_argument("--bin-size-s",  type=int, default=3600)
     p.add_argument("--merge-only",  action="store_true",
                    help="Skip extraction, just merge partial CSVs and plot")
-    p.add_argument("--channels",    nargs="+", metavar="LABEL",
-                   help="Restrict to these channel short-labels (default: all)")
+    p.add_argument("--channels",    nargs="+", metavar="V1_NAME",
+                   help="Restrict to these V1: channel names (default: all)")
     p.add_argument("--source-dir",  help="Read binned_summary.csv or partial_*.csv from here "
                    "(merge-only mode); write analysis outputs to --output-dir")
     p.add_argument("--epoch-start", type=float,
@@ -446,10 +413,10 @@ def main():
     # ── Optional channel subset ────────────────────────────────────────────────
     if args.channels:
         global CHANNELS, CH_LABELS
-        CHANNELS = [(ch, lbl) for ch, lbl in CHANNELS if lbl in args.channels]
+        CHANNELS = [(ch, desc) for ch, desc in CHANNELS if ch in args.channels]
         if not CHANNELS:
-            sys.exit(f"No matching channels for labels: {args.channels}")
-        print(f"Channel filter active: {[lbl for _, lbl in CHANNELS]}", flush=True)
+            sys.exit(f"No matching channels for: {args.channels}")
+        print(f"Channel filter active: {[ch for ch, _ in CHANNELS]}", flush=True)
 
     # ── Merge + plot mode ──────────────────────────────────────────────────────
     if args.merge_only:
