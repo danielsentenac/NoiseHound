@@ -347,11 +347,12 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("[A]", fontsize=9)
 
     # ── Panel 9: SR tower thermal channels ───────────────────────────────────
+    # NOTE: TCS_SR_RH_SET (constant 1.0, enable flag) and
+    #       INF_TCS_SR_CHROCC_TE_IntHeater (~-301°C, disconnected sensor) excluded.
     ax = axes[9]
     for col, lab, color in [
-            ("V1:INF_SR_MIR_COIL_UL_TE",        "SR mirror coil UL TE [°C]",      "tab:brown"),
-            ("V1:INF_TCS_SR_RH_TE",             "SR ring heater thermistor [°C]", "tab:pink"),
-            ("V1:INF_TCS_SR_CHROCC_TE_IntHeater","SR CHROCC int heater TE [°C]",   "tab:gray")]:
+            ("V1:INF_SR_MIR_COIL_UL_TE", "SR mirror coil UL TE [°C]",      "tab:brown"),
+            ("V1:INF_TCS_SR_RH_TE",      "SR ring heater thermistor [°C]", "tab:pink")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
     decorate(ax)
