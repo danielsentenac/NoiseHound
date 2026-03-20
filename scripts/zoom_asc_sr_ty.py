@@ -51,7 +51,7 @@ GLITCH_PERIOD_MIN = 25.0   # known ~25-min glitch recurrence
 # Two reference windows (GPS)
 WINDOWS = {
     "Before shutdown\n(24 Nov – 01 Dec 2025)": (1448323200, 1448928000),  # 7 days
-    "After relock\n(12 Jan – 19 Jan 2026)":    (1452556800, 1453161600),  # 7 days
+    "After relock — quiet period\n(01 Feb – 08 Feb 2026)": (1454284800, 1454889600),  # 7 days
 }
 BIN_MIN = 5   # 5-minute averages for time series
 
