@@ -242,9 +242,9 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
             handles.append(Patch(fc="grey", alpha=0.7, label="DAQ down (no data)"))
         ax.legend(handles=handles, fontsize=8, loc="lower left", framealpha=0.85)
 
-    # ── figure: 9 panels (timeline + 8 data) ─────────────────────────────────
-    fig, axes = plt.subplots(9, 1, figsize=(16, 26), sharex=True,
-                             gridspec_kw={"height_ratios": [0.7]+[1]*8})
+    # ── figure: 11 panels (timeline + 10 data) ───────────────────────────────
+    fig, axes = plt.subplots(11, 1, figsize=(16, 32), sharex=True,
+                             gridspec_kw={"height_ratios": [0.7]+[1]*10})
     fig.suptitle("Glitch rate and thermal channels: Oct 2025 – Apr 2026",
                  fontsize=13)
 
@@ -345,6 +345,29 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                 color="tab:red", lw=0.6, label="CEB UPS current R [A]")
     decorate(ax)
     ax.set_ylabel("[A]", fontsize=9)
+
+    # ── Panel 9: SR tower thermal channels ───────────────────────────────────
+    ax = axes[9]
+    for col, lab, color in [
+            ("V1:INF_SR_MIR_COIL_UL_TE",        "SR mirror coil UL TE [°C]",      "tab:brown"),
+            ("V1:INF_TCS_SR_RH_TE",             "SR ring heater thermistor [°C]", "tab:pink"),
+            ("V1:INF_TCS_SR_CHROCC_TE_IntHeater","SR CHROCC int heater TE [°C]",   "tab:gray")]:
+        if col in df.columns:
+            ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
+    decorate(ax)
+    ax.set_ylabel("[°C]", fontsize=9)
+    ax.set_title("SR tower temperatures", fontsize=9)
+
+    # ── Panel 10: SR ASC alignment errors ────────────────────────────────────
+    ax = axes[10]
+    for col, lab, color in [
+            ("V1:ASC_SR_TY_ERR_mean", "SR TY alignment error", "tab:blue"),
+            ("V1:ASC_SR_TX_ERR_mean", "SR TX alignment error", "tab:orange")]:
+        if col in df.columns:
+            ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
+    decorate(ax)
+    ax.set_ylabel("[rad]", fontsize=9)
+    ax.set_title("SR ASC alignment errors (baffle hypothesis)", fontsize=9)
     ax.set_xlabel("Date", fontsize=9)
 
     fig.autofmt_xdate(rotation=20)
