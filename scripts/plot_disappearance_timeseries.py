@@ -125,7 +125,7 @@ def find_outage_markers(lock: pd.DataFrame) -> Tuple[Optional[float], Optional[f
         daq_recovery_gps = None
         post_daq = after
 
-    locked = post_daq[post_daq.lock_frac > 0.05]
+    locked = post_daq[post_daq.lock_mean > 10]
     itf_relock_gps = float(locked["gps_bin"].iloc[0]) if not locked.empty else None
 
     if daq_recovery_gps:
@@ -269,15 +269,15 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax = axes[2]
     if lock is not None:
         lock_dt = gps_to_dt(lock["gps_bin"].values)
-        ax.plot(lock_dt.values, lock["lock_frac"].values,
-                color="tab:green", lw=0.8, label="ITF lock fraction")
-        ax.set_ylabel("Lock fraction", fontsize=9)
-        ax.set_ylim(-0.05, 1.05)
+        ax.plot(lock_dt.values, lock["lock_mean"].values,
+                color="tab:green", lw=0.8, label="META_ITF_LOCK_index")
+        ax.set_ylabel("Lock index", fontsize=9)
         # Annotate ITF relock on this panel
+        ymax = lock["lock_mean"].max()
         if itf_relock_dt is not None:
             ax.annotate(f"ITF relock\n{itf_relock_dt.strftime('%Y-%m-%d')}",
-                        xy=(itf_relock_dt, 0.5),
-                        xytext=(itf_relock_dt + pd.Timedelta(days=4), 0.7),
+                        xy=(itf_relock_dt, ymax * 0.5),
+                        xytext=(itf_relock_dt + pd.Timedelta(days=4), ymax * 0.7),
                         color="darkgreen", fontsize=7,
                         arrowprops=dict(arrowstyle="->", color="darkgreen", lw=0.8))
     else:
@@ -285,7 +285,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                    s=2, alpha=0.4, color="tab:blue",
                    label="Recurrence [min]")
         ax.set_ylabel("Recurrence [min]", fontsize=9)
-    ax.set_title("META_ITF_LOCK_index (lock fraction per hour)", fontsize=9)
+    ax.set_title("META_ITF_LOCK_index (mean value per hour)", fontsize=9)
     decorate(ax)
 
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
