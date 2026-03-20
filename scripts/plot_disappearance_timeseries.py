@@ -53,37 +53,35 @@ def gps_to_dt(gps):
 
 
 def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
-    """Load binned_summary (all 33 channels, 1-h bins) for the epoch.
+    """Merge step4 partials (15-min → 1-h, full coverage, 4 channels) with
+    binned_summary (1-h, all 33 channels, partial coverage) for the epoch.
 
-    step4 partials (15-min bins, 4 channels) are used only to back-fill any
-    1-h bins still missing from binned_summary after the gap-fill job.
+    step4 is aggregated to 1-h and used as the base for full time coverage.
+    binned_summary extra columns are left-joined on the 1-h gps_bin.
     """
-    # Primary: binned_summary has all 33 channels at 1-h resolution
+    # Step4: aggregate 15-min bins → 1-h, use as primary base
+    files = sorted(glob.glob(f"{step4_dir}/partial_*.csv"))
+    df4 = (pd.concat([pd.read_csv(f) for f in files])
+           .sort_values("gps_bin").drop_duplicates("gps_bin"))
+    df4 = df4[(df4.gps_bin >= EPOCH_START_GPS) & (df4.gps_bin < EPOCH_END_GPS)]
+    df4["gps_bin"] = (df4["gps_bin"] // 3600) * 3600
+    agg = {c: "mean" for c in df4.columns if c != "gps_bin"}
+    agg["n_triggers"] = "sum"
+    df4 = df4.groupby("gps_bin").agg(agg).reset_index()
+
+    # binned_summary: join extra columns (all 33 ch) where available
     dfs = pd.read_csv(binned_csv)
     dfs = dfs[(dfs.gps_bin >= EPOCH_START_GPS) & (dfs.gps_bin < EPOCH_END_GPS)]
-    dfs = dfs.sort_values("gps_bin").drop_duplicates("gps_bin").reset_index(drop=True)
+    extra = [c for c in dfs.columns if c not in df4.columns]
+    if extra:
+        df4 = df4.merge(dfs[["gps_bin"] + extra], on="gps_bin", how="left")
 
-    # Back-fill from step4: aggregate 15-min → 1-h, merge missing bins only
-    files = sorted(glob.glob(f"{step4_dir}/partial_*.csv"))
-    if files:
-        df4 = (pd.concat([pd.read_csv(f) for f in files])
-               .sort_values("gps_bin").drop_duplicates("gps_bin"))
-        df4 = df4[(df4.gps_bin >= EPOCH_START_GPS) & (df4.gps_bin < EPOCH_END_GPS)]
-        # Round to 1-h bin and aggregate
-        df4["gps_bin_1h"] = (df4["gps_bin"] // 3600) * 3600
-        agg_cols = {c: "mean" for c in df4.columns if c not in ("gps_bin", "gps_bin_1h")}
-        agg_cols["n_triggers"] = "sum"
-        df4h = df4.groupby("gps_bin_1h").agg(agg_cols).reset_index()
-        df4h = df4h.rename(columns={"gps_bin_1h": "gps_bin"})
-        # Only keep step4 bins absent from binned_summary
-        missing = df4h[~df4h.gps_bin.isin(dfs.gps_bin)]
-        keep_cols = [c for c in missing.columns if c in dfs.columns]
-        if not missing.empty:
-            dfs = pd.concat([dfs, missing[keep_cols]], ignore_index=True)
-            dfs = dfs.sort_values("gps_bin").drop_duplicates("gps_bin").reset_index(drop=True)
-
-    print(f"Bins: {len(dfs)}, with triggers: {(dfs.n_triggers > 0).sum()}")
-    return dfs
+    df4 = df4.sort_values("gps_bin").reset_index(drop=True)
+    print(f"Bins: {len(df4)}, with triggers: {(df4.n_triggers > 0).sum()}")
+    covered = {c: f"{df4[c].notna().mean()*100:.0f}%" for c in extra[:4]} if extra else {}
+    if covered:
+        print(f"  Extra col coverage (first 4): {covered}")
+    return df4
 
 
 def load_lock(itf_lock_csv: str) -> Optional[pd.DataFrame]:
