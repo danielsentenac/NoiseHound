@@ -53,21 +53,37 @@ def gps_to_dt(gps):
 
 
 def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
-    """Merge step4 partials (full coverage, 4 channels) with binned_summary
-    (all channels, partial coverage) for the Oct 2025 – Apr 2026 epoch."""
-    files = sorted(glob.glob(f"{step4_dir}/partial_*.csv"))
-    df4 = (pd.concat([pd.read_csv(f) for f in files])
-           .sort_values("gps_bin").drop_duplicates("gps_bin"))
-    df4 = df4[(df4.gps_bin >= EPOCH_START_GPS) & (df4.gps_bin < EPOCH_END_GPS)].reset_index(drop=True)
+    """Load binned_summary (all 33 channels, 1-h bins) for the epoch.
 
+    step4 partials (15-min bins, 4 channels) are used only to back-fill any
+    1-h bins still missing from binned_summary after the gap-fill job.
+    """
+    # Primary: binned_summary has all 33 channels at 1-h resolution
     dfs = pd.read_csv(binned_csv)
     dfs = dfs[(dfs.gps_bin >= EPOCH_START_GPS) & (dfs.gps_bin < EPOCH_END_GPS)]
-    extra = [c for c in dfs.columns if c not in df4.columns]
-    if extra:
-        df4 = df4.merge(dfs[["gps_bin"] + extra], on="gps_bin", how="left")
+    dfs = dfs.sort_values("gps_bin").drop_duplicates("gps_bin").reset_index(drop=True)
 
-    print(f"Bins: {len(df4)}, with triggers: {(df4.n_triggers > 0).sum()}")
-    return df4
+    # Back-fill from step4: aggregate 15-min → 1-h, merge missing bins only
+    files = sorted(glob.glob(f"{step4_dir}/partial_*.csv"))
+    if files:
+        df4 = (pd.concat([pd.read_csv(f) for f in files])
+               .sort_values("gps_bin").drop_duplicates("gps_bin"))
+        df4 = df4[(df4.gps_bin >= EPOCH_START_GPS) & (df4.gps_bin < EPOCH_END_GPS)]
+        # Round to 1-h bin and aggregate
+        df4["gps_bin_1h"] = (df4["gps_bin"] // 3600) * 3600
+        agg_cols = {c: "mean" for c in df4.columns if c not in ("gps_bin", "gps_bin_1h")}
+        agg_cols["n_triggers"] = "sum"
+        df4h = df4.groupby("gps_bin_1h").agg(agg_cols).reset_index()
+        df4h = df4h.rename(columns={"gps_bin_1h": "gps_bin"})
+        # Only keep step4 bins absent from binned_summary
+        missing = df4h[~df4h.gps_bin.isin(dfs.gps_bin)]
+        keep_cols = [c for c in missing.columns if c in dfs.columns]
+        if not missing.empty:
+            dfs = pd.concat([dfs, missing[keep_cols]], ignore_index=True)
+            dfs = dfs.sort_values("gps_bin").drop_duplicates("gps_bin").reset_index(drop=True)
+
+    print(f"Bins: {len(dfs)}, with triggers: {(dfs.n_triggers > 0).sum()}")
+    return dfs
 
 
 def load_lock(itf_lock_csv: str) -> Optional[pd.DataFrame]:
