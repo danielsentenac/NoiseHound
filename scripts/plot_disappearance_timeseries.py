@@ -221,7 +221,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.text(outage_dt + pd.Timedelta(hours=2), 0.80,
                 outage_dt.strftime("%d %b %H:%M"),
                 color="darkred", **kw)
-        ax.text(recovery_dt + pd.Timedelta(hours=2), 0.28,
+        ax.text(recovery_dt + pd.Timedelta(hours=2), 0.12,
                 recovery_dt.strftime("~%d %b"),
                 color="darkred", **kw)
         # Grey band / ITF relock labels (only when data available)
