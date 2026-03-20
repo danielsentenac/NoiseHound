@@ -285,7 +285,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                    s=2, alpha=0.4, color="tab:blue",
                    label="Recurrence [min]")
         ax.set_ylabel("Recurrence [min]", fontsize=9)
-    ax.set_title("META_ITF_LOCK_index (mean value per hour)", fontsize=9)
+    ax.set_title("V1:META_ITF_LOCK_index", fontsize=9)
     decorate(ax)
 
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
