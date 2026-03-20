@@ -14,13 +14,14 @@ import subprocess
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import Optional
 
 GPS_EPOCH = pd.Timestamp("1980-01-06", tz="UTC")
 HPSS_BASE = "cchpss0:/hpss/in2p3.fr/group/virgo/DATA/trend"
 CHANNEL   = "V1:META_ITF_LOCK_index"
 
 
-def stage(gps_day: int, stage_dir: Path) -> Path | None:
+def stage(gps_day: int, stage_dir: Path) -> Optional[Path]:
     year = (GPS_EPOCH + pd.to_timedelta(gps_day, unit="s")).year
     remote = f"{HPSS_BASE}/{year}/V-trend-{gps_day}-86400.gwf"
     local  = stage_dir / f"V-trend-{gps_day}-86400.gwf"

@@ -11,13 +11,15 @@
 set -euo pipefail
 
 WORKDIR="$HOME/NOISEHOUND"
-PYTHON="$HOME/.venvs/noisehound/bin/python3"
+IGWN_PYTHON="${IGWN_PYTHON:-/cvmfs/software.igwn.org/conda/envs/igwn/bin/python}"
 STAGE_DIR="/tmp/nh_itf_lock_$$"
 mkdir -p "$STAGE_DIR"
 
 echo "=== ITF lock extraction started $(date -u '+%Y-%m-%d %H:%M:%SZ') ==="
 
-"$PYTHON" "$WORKDIR/scripts/extract_itf_lock.py" \
+export PYTHONPATH="$WORKDIR${PYTHONPATH:+:$PYTHONPATH}"
+
+"$IGWN_PYTHON" "$WORKDIR/scripts/extract_itf_lock.py" \
     --output    "$WORKDIR/outputs/itf_lock_step7.csv" \
     --gps-start 1443657600 \
     --gps-end   1459468800 \

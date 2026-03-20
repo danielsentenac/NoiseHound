@@ -5,7 +5,9 @@ Plots the glitch rate and key thermal / electrical channels over the
 disappearance epoch (Oct 2025 – Apr 2026), with:
   - Yellow band: ITF shutdown (Christmas 2025-12-12 – 2026-01-08)
   - Orange band: general power outage (2026-02-28, ~10-day recovery)
-  - ITF lock fraction panel (META_ITF_LOCK_index) replacing recurrence
+  - Grey band (inside orange): DAQ down period (no data), auto-detected
+  - Green dashed line: ITF first relock after outage, auto-detected
+  - ITF lock fraction panel (META_ITF_LOCK_index) right under glitch rate
 
 Key GPS markers:
   - LAST_TRIGGER_GPS  = 1449582668  (2025-12-12 13:51 UTC) — yellow band start
@@ -26,11 +28,13 @@ from __future__ import annotations
 import argparse
 import glob
 from pathlib import Path
+from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.dates import DateFormatter
+from matplotlib.patches import Patch
 
 GPS_EPOCH = pd.Timestamp("1980-01-06", tz="UTC")
 
@@ -51,13 +55,11 @@ def gps_to_dt(gps):
 def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
     """Merge step4 partials (full coverage, 4 channels) with binned_summary
     (all channels, partial coverage) for the Oct 2025 – Apr 2026 epoch."""
-    # Step4: full coverage, 4 channels
     files = sorted(glob.glob(f"{step4_dir}/partial_*.csv"))
     df4 = (pd.concat([pd.read_csv(f) for f in files])
            .sort_values("gps_bin").drop_duplicates("gps_bin"))
     df4 = df4[(df4.gps_bin >= EPOCH_START_GPS) & (df4.gps_bin < EPOCH_END_GPS)].reset_index(drop=True)
 
-    # binned_summary: all channels, partial coverage — merge extra columns
     dfs = pd.read_csv(binned_csv)
     dfs = dfs[(dfs.gps_bin >= EPOCH_START_GPS) & (dfs.gps_bin < EPOCH_END_GPS)]
     extra = [c for c in dfs.columns if c not in df4.columns]
@@ -68,7 +70,7 @@ def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
     return df4
 
 
-def load_lock(itf_lock_csv: str) -> pd.DataFrame | None:
+def load_lock(itf_lock_csv: str) -> Optional[pd.DataFrame]:
     if not itf_lock_csv or not Path(itf_lock_csv).exists():
         print(f"  ITF lock CSV not found: {itf_lock_csv}")
         return None
@@ -78,6 +80,44 @@ def load_lock(itf_lock_csv: str) -> pd.DataFrame | None:
     return df
 
 
+def find_outage_markers(lock: pd.DataFrame) -> Tuple[Optional[float], Optional[float]]:
+    """Detect DAQ recovery time and ITF first relock time from lock data.
+
+    After POWER_OUTAGE_GPS the lock CSV will have a gap (DAQ down = no rows).
+    Returns:
+      daq_recovery_gps — first gps_bin after the gap (DAQ back online)
+      itf_relock_gps   — first gps_bin after gap where lock_frac > 0.05
+    """
+    after = lock[lock.gps_bin >= POWER_OUTAGE_GPS].sort_values("gps_bin")
+    if after.empty:
+        return None, None
+
+    bins = after["gps_bin"].values
+    diffs = np.diff(bins)
+
+    # A gap > 2 h in 1-h binned data marks DAQ down
+    gap_idx = np.where(diffs > 7200)[0]
+
+    if len(gap_idx) > 0:
+        daq_recovery_gps = float(bins[gap_idx[0] + 1])
+        post_daq = after[after.gps_bin >= daq_recovery_gps]
+    else:
+        daq_recovery_gps = None
+        post_daq = after
+
+    locked = post_daq[post_daq.lock_frac > 0.05]
+    itf_relock_gps = float(locked["gps_bin"].iloc[0]) if not locked.empty else None
+
+    if daq_recovery_gps:
+        print(f"DAQ recovery : GPS {daq_recovery_gps:.0f}  "
+              f"= {gps_to_dt(daq_recovery_gps)}")
+    if itf_relock_gps:
+        print(f"ITF relock   : GPS {itf_relock_gps:.0f}  "
+              f"= {gps_to_dt(itf_relock_gps)}")
+
+    return daq_recovery_gps, itf_relock_gps
+
+
 def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
          itf_lock_csv: str, output: str) -> None:
 
@@ -85,7 +125,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     lock = load_lock(itf_lock_csv)
     dt   = gps_to_dt(df["gps_bin"].values)
 
-    # Recurrence (kept for fallback if lock data unavailable)
+    # Recurrence — fallback when lock data unavailable
     trig  = pd.read_csv(triggers_csv)
     t_all = np.sort(trig["time"].values)
     keep  = np.concatenate([[True], np.diff(t_all) > 300])
@@ -97,21 +137,37 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                  .rolling(20, center=True, min_periods=5)
                  .median().bfill().ffill().values)
 
-    last_trig_dt    = gps_to_dt(LAST_TRIGGER_GPS)
-    itf_end_dt      = gps_to_dt(ITF_DOWN_END)
-    outage_dt       = gps_to_dt(POWER_OUTAGE_GPS)
-    recovery_dt     = gps_to_dt(POWER_RECOVERY)
+    last_trig_dt = gps_to_dt(LAST_TRIGGER_GPS)
+    itf_end_dt   = gps_to_dt(ITF_DOWN_END)
+    outage_dt    = gps_to_dt(POWER_OUTAGE_GPS)
+    recovery_dt  = gps_to_dt(POWER_RECOVERY)
+
+    # Detect DAQ down end and ITF relock from lock data
+    daq_recovery_gps, itf_relock_gps = (
+        find_outage_markers(lock) if lock is not None else (None, None)
+    )
+    daq_recovery_dt = gps_to_dt(daq_recovery_gps) if daq_recovery_gps else None
+    itf_relock_dt   = gps_to_dt(itf_relock_gps)   if itf_relock_gps   else None
 
     xfmt = DateFormatter("%b %Y")
 
     def decorate(ax, legend=True):
-        """Add both event bands + red dashed line to an axis."""
+        """Add event bands, red dashed line, and outage sub-markers to an axis."""
         ax.axvspan(last_trig_dt, itf_end_dt,
                    color="gold", alpha=0.35, zorder=0,
                    label="SR tower opening (Christmas)")
         ax.axvspan(outage_dt, recovery_dt,
-                   color="tomato", alpha=0.25, zorder=0,
+                   color="tomato", alpha=0.20, zorder=0,
                    label="Power outage (~10-day recovery)")
+        # Grey band: DAQ down (no data)
+        if daq_recovery_dt is not None:
+            ax.axvspan(outage_dt, daq_recovery_dt,
+                       color="grey", alpha=0.50, zorder=1,
+                       label="DAQ down (no data)")
+        # Green dashed line: ITF first relock
+        if itf_relock_dt is not None:
+            ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--",
+                       label="ITF first relock")
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.25)
@@ -124,35 +180,50 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.set_yticks([])
         ax.axvspan(last_trig_dt, itf_end_dt, color="gold",   alpha=0.6, zorder=0)
         ax.axvspan(outage_dt,    recovery_dt, color="tomato", alpha=0.5, zorder=0)
+        if daq_recovery_dt is not None:
+            ax.axvspan(outage_dt, daq_recovery_dt, color="grey", alpha=0.7, zorder=1)
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
+        if itf_relock_dt is not None:
+            ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--")
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.15)
-        kw = dict(fontsize=8, va="center", ha="left", rotation=90,
+        kw = dict(fontsize=10, va="center", ha="left", rotation=0,
                   fontweight="bold", clip_on=False, zorder=7)
-        # Yellow band edges
-        ax.text(last_trig_dt + pd.Timedelta(hours=4), 0.5,
-                last_trig_dt.strftime("%Y-%m-%d %H:%M UTC"),
+        # Yellow band: start label top, end label bottom
+        ax.text(last_trig_dt + pd.Timedelta(hours=2), 0.72,
+                last_trig_dt.strftime("%d %b %H:%M"),
                 color="darkgoldenrod", **kw)
-        ax.text(itf_end_dt   + pd.Timedelta(hours=4), 0.5,
-                itf_end_dt.strftime("%Y-%m-%d"),
+        ax.text(itf_end_dt   + pd.Timedelta(hours=2), 0.28,
+                itf_end_dt.strftime("%d %b"),
                 color="darkgoldenrod", **kw)
-        # Orange band edges
-        ax.text(outage_dt    + pd.Timedelta(hours=4), 0.5,
-                outage_dt.strftime("%Y-%m-%d %H:%M UTC"),
+        # Orange band: start label top, end label bottom
+        ax.text(outage_dt + pd.Timedelta(hours=2), 0.72,
+                outage_dt.strftime("%d %b %H:%M"),
                 color="darkred", **kw)
-        ax.text(recovery_dt  + pd.Timedelta(hours=4), 0.5,
-                recovery_dt.strftime("%Y-%m-%d (+10 d)"),
+        ax.text(recovery_dt + pd.Timedelta(hours=2), 0.28,
+                recovery_dt.strftime("~%d %b"),
                 color="darkred", **kw)
+        # Grey band / ITF relock labels (only when data available)
+        if daq_recovery_dt is not None:
+            ax.text(daq_recovery_dt + pd.Timedelta(hours=2), 0.50,
+                    daq_recovery_dt.strftime("DAQ ↑ %d %b"),
+                    color="dimgrey", **kw)
+        if itf_relock_dt is not None:
+            ax.text(itf_relock_dt + pd.Timedelta(hours=2), 0.50,
+                    itf_relock_dt.strftime("relock %d %b"),
+                    color="darkgreen", **kw)
         # Legend patches
-        from matplotlib.patches import Patch
-        ax.legend(handles=[
+        handles = [
             Patch(fc="gold",   alpha=0.7, label="SR tower opening (Christmas)"),
             Patch(fc="tomato", alpha=0.6, label="General power outage (~10-day recovery)"),
-        ], fontsize=8, loc="upper left", framealpha=0.85)
+        ]
+        if daq_recovery_dt is not None:
+            handles.append(Patch(fc="grey", alpha=0.7, label="DAQ down (no data)"))
+        ax.legend(handles=handles, fontsize=8, loc="upper left", framealpha=0.85)
 
     # ── figure: 9 panels (timeline + 8 data) ─────────────────────────────────
     fig, axes = plt.subplots(9, 1, figsize=(16, 26), sharex=True,
-                             gridspec_kw={"height_ratios": [0.4]+[1]*8})
+                             gridspec_kw={"height_ratios": [0.7]+[1]*8})
     fig.suptitle("Glitch rate and thermal channels: Oct 2025 – Apr 2026",
                  fontsize=13)
 
@@ -173,7 +244,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax.set_ylabel("Rate [/h]", fontsize=9)
     ax.set_title("25-min glitch rate (1-h bins)", fontsize=9)
 
-    # ── Panel 2: ITF lock fraction ────────────────────────────────────────────
+    # ── Panel 2: ITF lock fraction (META_ITF_LOCK_index) ─────────────────────
     ax = axes[2]
     if lock is not None:
         lock_dt = gps_to_dt(lock["gps_bin"].values)
@@ -181,11 +252,19 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                 color="tab:green", lw=0.8, label="ITF lock fraction")
         ax.set_ylabel("Lock fraction", fontsize=9)
         ax.set_ylim(-0.05, 1.05)
+        # Annotate ITF relock on this panel
+        if itf_relock_dt is not None:
+            ax.annotate(f"ITF relock\n{itf_relock_dt.strftime('%Y-%m-%d')}",
+                        xy=(itf_relock_dt, 0.5),
+                        xytext=(itf_relock_dt + pd.Timedelta(days=4), 0.7),
+                        color="darkgreen", fontsize=7,
+                        arrowprops=dict(arrowstyle="->", color="darkgreen", lw=0.8))
     else:
         ax.scatter(gps_to_dt(t_mid).values, smooth / 60,
                    s=2, alpha=0.4, color="tab:blue",
                    label="Recurrence [min]")
         ax.set_ylabel("Recurrence [min]", fontsize=9)
+    ax.set_title("META_ITF_LOCK_index (lock fraction per hour)", fontsize=9)
     decorate(ax)
 
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
