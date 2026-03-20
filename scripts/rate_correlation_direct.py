@@ -92,6 +92,14 @@ CHANNELS = [
     ("V1:INF_TCS_NI_RH_TE",          "NI ring heater thermistor [°C]"),  # NI ring heater thermistor °C
     ("V1:INF_TCS_WI_RH_TE",          "WI ring heater thermistor [°C]"),  # WI ring heater thermistor °C
     ("V1:ENV_CEB_N_TE",              "CEB north ambient TE [°C]"),        # CEB north ambient temp °C
+    # SR tower — baffle hypothesis (added after Christmas-shutdown disappearance)
+    ("V1:INF_SR_MIR_COIL_UL_TE",    "SR mirror coil UL TE [°C]"),        # SR mirror coil temp (INF analog)
+    ("V1:INF_TCS_SR_RH_TE",         "SR ring heater thermistor [°C]"),   # SR ring heater thermistor
+    ("V1:TCS_SR_RH_SET",            "SR ring heater setpoint"),           # SR ring heater setpoint
+    ("V1:INF_TCS_SR_CHROCC_TE_IntHeater", "SR CHROCC int heater TE [°C]"), # SR chromatic compensator heater
+    # SR ASC slow-trend angular motion (baffle removes scattered-light drive)
+    ("V1:ASC_SR_TY_ERR_mean",       "SR TY alignment error [rad]"),      # SR tilt-Y error signal
+    ("V1:ASC_SR_TX_ERR_mean",       "SR TX alignment error [rad]"),      # SR tilt-X error signal
 ]
 
 CH_LABELS = {ch_name: desc for ch_name, desc in CHANNELS}
