@@ -3,7 +3,7 @@
 #SBATCH -p htc
 #SBATCH -c 2
 #SBATCH --mem=8G
-#SBATCH -t 02:00:00
+#SBATCH -t 04:00:00
 #SBATCH -o /pbs/home/s/sentenac/NOISEHOUND/slurm-nh-zoom-sr-ty-%j.out
 
 # High-resolution zoom + Lomb-Scargle periodogram for V1:ASC_SR_TY_ERR_mean
@@ -21,8 +21,12 @@ echo "=== SR TY zoom job started $(date -u '+%Y-%m-%d %H:%M:%SZ') ==="
 export PYTHONPATH="$WORKDIR${PYTHONPATH:+:$PYTHONPATH}"
 
 "$IGWN_PYTHON" "$WORKDIR/scripts/zoom_asc_sr_ty.py" \
-    --output    "$WORKDIR/outputs/zoom_asc_sr_ty.png" \
-    --stage-dir "$STAGE_DIR"
+    --channel          "V1:ASC_SR_TY_ERR_mean" \
+    --ylabel           "SR TY error [rad]" \
+    --output           "$WORKDIR/outputs/zoom_asc_sr_ty.png" \
+    --stage-dir        "$STAGE_DIR" \
+    --after-gps-start  1452456000 \
+    --after-gps-end    1458000000
 
 echo "=== Done $(date -u '+%Y-%m-%d %H:%M:%SZ') ==="
 rm -rf "$STAGE_DIR"

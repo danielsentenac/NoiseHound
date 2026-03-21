@@ -84,6 +84,30 @@ def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
     return df4
 
 
+def compute_state_spans(lock: pd.DataFrame,
+                        lo: float, hi: float,
+                        gap_tol_s: float = 7200.0):
+    """Return list of (start_dt, end_dt) for contiguous runs where
+    lock_mean ∈ [lo, hi], merging gaps ≤ gap_tol_s."""
+    sel = lock[(lock["lock_mean"] >= lo) & (lock["lock_mean"] <= hi)].copy()
+    if sel.empty:
+        return []
+    sel = sel.sort_values("gps_bin")
+    bins = sel["gps_bin"].values
+    spans = []
+    seg_start = bins[0]
+    seg_end   = bins[0] + 3600
+    for b in bins[1:]:
+        if b - seg_end <= gap_tol_s:
+            seg_end = b + 3600
+        else:
+            spans.append((gps_to_dt(seg_start), gps_to_dt(seg_end)))
+            seg_start = b
+            seg_end   = b + 3600
+    spans.append((gps_to_dt(seg_start), gps_to_dt(seg_end)))
+    return spans
+
+
 def load_lock(itf_lock_csv: str) -> Optional[pd.DataFrame]:
     if not itf_lock_csv or not Path(itf_lock_csv).exists():
         print(f"  ITF lock CSV not found: {itf_lock_csv}")
@@ -169,6 +193,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     daq_recovery_dt = gps_to_dt(daq_recovery_gps) if daq_recovery_gps else None
     itf_relock_dt   = gps_to_dt(itf_relock_gps)   if itf_relock_gps   else None
 
+    # LN3 / LN3_ALIGNED spans for analysis context
+    ln3_spans         = compute_state_spans(lock, 133, 136) if lock is not None else []
+    ln3_aligned_spans = compute_state_spans(lock, 143, 146) if lock is not None else []
+
     xfmt = DateFormatter("%b %Y")
 
     def decorate(ax, legend=True):
@@ -189,6 +217,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
             ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--",
                        label="ITF first relock")
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
+        for s, e in ln3_spans:
+            ax.axvspan(s, e, color="tab:orange", alpha=0.12, zorder=0)
+        for s, e in ln3_aligned_spans:
+            ax.axvspan(s, e, color="tab:green",  alpha=0.18, zorder=0)
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.25)
         if legend:
@@ -205,6 +237,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
         if itf_relock_dt is not None:
             ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--")
+        for s, e in ln3_spans:
+            ax.axvspan(s, e, color="tab:orange", alpha=0.35, zorder=2)
+        for s, e in ln3_aligned_spans:
+            ax.axvspan(s, e, color="tab:green",  alpha=0.50, zorder=2)
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.15)
         kw = dict(fontsize=10, va="center", ha="left", rotation=0,
@@ -235,8 +271,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                     color="darkgreen", **kw)
         # Legend patches
         handles = [
-            Patch(fc="gold",   alpha=0.7, label="SR tower opening (Christmas)"),
-            Patch(fc="tomato", alpha=0.6, label="General power outage (~10-day recovery)"),
+            Patch(fc="gold",       alpha=0.7, label="SR tower opening (Christmas)"),
+            Patch(fc="tomato",     alpha=0.6, label="General power outage (~10-day recovery)"),
+            Patch(fc="tab:orange", alpha=0.5, label="LOW_NOISE_3 (SR misaligned)"),
+            Patch(fc="tab:green",  alpha=0.6, label="LOW_NOISE_3_ALIGNED (SR aligned)"),
         ]
         if daq_recovery_dt is not None:
             handles.append(Patch(fc="grey", alpha=0.7, label="DAQ down (no data)"))

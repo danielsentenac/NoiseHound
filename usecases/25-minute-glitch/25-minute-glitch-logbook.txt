@@ -1,0 +1,1287 @@
+Virgo Logbook
+ LHO
+ LLO
+ KAGRA
+Reports 
+1-25
+ of 63  
+Detector Characterisation (Tools)
+narnaud - 20:23 Saturday 17 January 2026 (68511)  
+Comment to Online DetChar tools enabled (68457)
+From this night onwards, Online BruCo will require ITF_LOCK to be in LOW_NOISE_3_ALIGNED to run on a data segment. In addition, a check assuming the possible presence of 25-minute glitches in BruCo segments of interest has been disabled given that those glitches seem to have disappeared.
+
+Detector Characterisation (Glitches)
+direnzo - 1:27 Friday 21 November 2025 (68210)  
+Comment to New very loud glitches - 15 minute glitches (68209)
+I performed some quick analyses of these glitches and report a few preliminary observations below.
+
+Although they appear very strong in B1, their SNR in the strain channel is about 220-270, roughly half that of the 25-minute glitches. Figure 1 shows the glitchgram of the strain data, where these glitches have a central frequency around 100 Hz.
+Their waveform differs from that of the 25-minute glitches: they have a broader bandwidth and are shorter in duration, although they do show residual excitations after the peak: Figure 2.
+They seem to have a preferred separation of roughly 14′45″ ± 2″ (to be confirmed with more statistics), but they can also occur very close to one another: Figure 3.
+I ran UPV on both the strain and on SDB2_B1_PD1_D, but I did not find any evidence of correlations for these glitches (some insights for others). I will repeat the analyses over the next few days with larger statistics.
+Images attached to this comment
+68210_1763683767_Glitches_Nov_20_2025.png 68210_1763683810_Glitch_1447679388.png 68210_1763683865_Glitch_1447682050.png
+AdV-ISC (Commissioning up to first full interferometer lock)
+bersanetti - 20:05 Thursday 06 November 2025 (68110)  
+Comment to BNS Range drops (68075)
+The test with the QD2 sgnal lasted up to the unlock. I then disabled it by hand as the automation did not know about it, then I added in DRMI_LOCK the reset of this new sensing matrix weight.
+
+At the end of the calibration activity there is clean data from 18:11 UTC for 300 s; then, after a 25-minutes glitch, I changed the BS_TY loop sensor again from QD1 to QD2 at 18:20:03 UTC; clean data afterwards for 20 minutes.
+
+At 18:41:12 UTC (ramptime = 5 s, in ADJUSTING mode) I opened the SR_TY loop, clean (SCIENCE) data for another 20 minutes. I enabled the loop back at 19:04:11 UTC (ramptime= 5 s).
+
+Detector Characterisation (Glitches)
+direnzo - 23:08 Thursday 02 October 2025 (67852)  
+Comment to Larger BNS range drops (67845)
+Quick entry, with attached figures, just to note that the 25-minute glitches have not become more intense, and no other glitch families appear strong enough to explain the large range drops observed between October 1 and 2. The overall glitch rate is relatively low, compared to the period after the Spring Break.
+
+It also appears that only a small fraction of the range drops larger than 5 Mpc occur in close proximity to any glitch. A dedicated correlation analysis may shed more light on the actual cause of these drops.
+
+Images attached to this comment
+67852_1759439267_Range_drops_Oct1.png 67852_1759439273_Range_drops_Oct2.png
+Detector Characterisation (Glitches)
+direnzo, paoletti - 10:24 Friday 19 September 2025 (67746)  
+Correlation Analysis of 25-Minute Glitches and Temperature Variations in CEB
+Following the recent HVAC failure in the Central Building and its impact on the etalon control (ref. #67732), we report here the usual correlation analysis between the ~30-minute glitches (formerly referred to as 25-minute glitches) and several temperature signals associated with the etalon, in particular the temperature at the bottom of the North Input (NI) tower.
+
+Figure 1 is analogous to those presented in previous entries: #63147, #63479, #66142. The plot now also includes the Central Building temperature (in grey), which shows clear fluctuations starting on 13 September. No obvious similarity is observed between the CEB temperature and NI_BOTTOM temperature, except for the fact that both began to oscillate significantly from 13 September onwards, likely due to the etalon temperature active control. It was not possible to align the two series in order to assess a possible time delay.
+
+Overall, this quick analysis confirms the established correlation between the NI_BOTTOM temperature and the glitch rate (orange and red curves), which appears much stronger than any direct link with the CEB temperature.
+
+Conclusion: the source of these 25-minute glitches remains thermally coupled to NI_BOTTOM.
+
+Images attached to this report
+67746_1758270162_Glitch_distances_Sep_2025.png
+Detector Characterisation (Glitches)
+direnzo - 22:54 Friday 01 August 2025 (67414)  
+Update on Glitch Rates and Populations
+Following up on Nicolas’ update ( #67407) and the discussion during the last BCM, I report here the results of the glitch rate and population analysis over the past month, repeating the same procedure used in June.
+
+Figures 1 and 2 show the glitchgrams of the strain channel for June and July, and for the past week. The lower plots display the rate split by SNR. These values are obtained by estimating the glitch rate every 30 minutes and applying a 6-hour moving average (so, maximum 12 points). Aside from an overall decreasing trend, there are notable drops in the rate observed between June 20-22 and on July 29. The latter may be correlated with the intervention on the Pstab performed on the same day  #67395 (?). If so, this could indicate that a glitch source, different from the (other) hypothesized one related to ear stabilizaition crackling, has been mitigated.
+
+I then proceeded to identify glitch families with SNR > 50, clustering them based on the difference (1 – Pearson correlation) of their whitened time series, as described in #66972 ]. The resulting clusters are shown in Figure 3, and are available in the attached CSV file (renamedto  TXT format).
+
+Clusters 1 and 2 correspond to step glitches, with some contamination in Cluster 1 from the 25-minute glitches.
+
+Cluster 3 consists of the 25-minute glitches.
+
+Cluster 4 includes a few other strong and similar glitches found in the data.
+
+Cluster 5 mostly consists of unclassified glitches.
+
+Figures 4 and 5 show the glitchgrams with the clusters labeled in different colors. As can be seen, step glitches are still present; see the example in Figure 6.
+
+Lastly, I tried to verify whether the SNR of step glitches might also be decreasing. In Figure 7, I report the SNR of Clusters 1 and 2. The line of triggers with SNR between 400 and 550 corresponds to the 25-minute glitches. I applied a cut to exclude them. The orange line represents the daily average SNR. Also in this case, a weak decreasing trend is suggested.
+
+In conclusion, over the coming days we should monitor whether the reduced glitch rate is maintained, and further understand whether the Pstab could have been responsible for part of the observed glitches (Piernicola suggested so in private conversations).
+
+Images attached to this report
+67414_1754081001_Glitch_rates_Jun-Jul.png 67414_1754081010_Glitch_rates_last_week_July.png 67414_1754081264_glitch_clusters_linkage.png 67414_1754081401_glitchgram_cluster_July.png 67414_1754081418_glitchgram_cluster_last_weeks_July.png 67414_1754081476_stp_glitch_example.png 67414_1754081508_step_glitch_snrs_July.png
+Non-image files attached to this report
+ glitch_clusters_July.txt
+Comments to this report:
+direnzo - 17:16 Monday 04 August 2025 (67431)  
+ERRATUM: The rate values shown at the bottom of the first two plots of the previous entry (as well as in similar plots posted in June: #67040 and #66940) are incorrect. Due to a bug in the code that I used to read the Omicron triggers (specifically, reading simultaneously from both /data/online/ and /data/procdata/) triggers older than two days were duplicated. This led to a systematic doubling of the rate for times earlier than two days ago, and thus to an artificial step in the plot.
+
+I apologize for this error.
+The corrected plots are attached below.
+
+Images attached to this comment
+67431_1754320453_Glitch_rates_July.png 67431_1754320453_Glitch_rates_last_week_July.png
+Detector Characterisation (Glitches)
+negri - 12:14 Friday 13 June 2025 (66988)  
+Comment to High rate of mid-frequency glitches (66895)
+I have run a similar analysis to entry #66972 by modelling each glitch waveform with a Virgo dedicated version of DeepExtractor (https://arxiv.org/abs/2501.18423), which allows to extract excess power from a whitened timeseries. I used as glitch triggers a threshold over the channel V1:DQ_BRMSMonHrec_BRMS_HREC_HOFT_FREQ_BAND_85_95_Hrec_hoft_16384Hz as proposed in entry #66923. I ran the algorithm on a long stretch of data when the interferometer was locked on the 11th of June. Clustering has been done with DBSCAN using 1-pearson correlation as a distance metric. The results are very similar to the previous entry. I have used very conservative DBSCAN parameters to reduce the number of "outliers" in each class.
+
+Figure 1 shows a projection in 2D of the dataset using t-SNE algorithm, just for visual purposes.
+
+Figure 2 shows the median class waveforms. Each waveform has been rescaled to have compatible amplitudes. Classes 0 and 1 correspond to the up-step and down-step glitches, class 2 is the 25-minute glitch, while class 3 seems to be a subset of the up-step class. The number of up and down steps is quite similar. Note that due to the DBSCAN settings, some step-glitches ended up being unclassified.
+
+I will try and run the algorithm on longer stretches of data to gain more GPS times. 
+
+ 
+
+Images attached to this comment
+66988_1749809063_tsne_11th_june.png 66988_1749809074_clusters_11th_june.png
+Non-image files attached to this comment
+ step_glitch_classes_11th_june.txt
+Detector Characterisation (Glitches)
+direnzo, mwas - 12:56 Thursday 12 June 2025 (66975)  
+Comment to High rate of mid-frequency glitches (66895)
+Based on the shape of the glitches (specifically clusters 1+2 and 4+5), we can reasonably hypothesize they originate from step-like discontinuities in the strain: down-steps for clusters 1+2 and up-steps for clusters 4+5, respectively.
+
+Interestingly, the directions of these jumps appear to be nearly balanced. While the previously reported percentages showed a majority in clusters 1 and 2, Michal has acutely noticed that some of the 25-minute glitches (Cluster 3) may have been misclassified into Cluster 1, which would bring the distribution closer to parity between clusters 1+2 and 4+5.
+
+Regarding the waveform shapes, we can show analytically how a step function leads to the observed patterns in the plots, both in Michal's (with a causal filter) and mine (with a zero-phase filter). Here's a brief derivation:
+
+A unit step function u(t) (equal to 1 for t > 0, 0 otherwise) has a Laplace transform U(s) = L[u(t)]=1/s. The Virgo ASD behaves approximately like a high-pass filter, whose impulse response we denote g(t). Whitening the step function with the ASD, u(t)∗g(t), where L[g(t)] = 1/ASD(s), has a result similar to applying a high-pass filter. We consider, for simplicity, a first-order high-pass filter with transfer function G(s) = s/(s+ω0)​, where ω0 is the cut-off angular frequency. The transformed output is then: U(s)G(s) =1/(s+ω0),  which corresponds to the time-domain function e^{−ω0t} u(t), that is, a decaying exponential starting at the step, the glitch. This matches the right-hand side of the waveforms in the plots for Cluster 4+5 (and is the opposite of Clusters 1+2).
+
+When using a zero-phase (acausal) filter, such as the filtfilt method (which applies the filter forward and backward), the result becomes symmetric: combining e^{−ω0t} u(t) with its time-reversed counterpart −e^{ω0t} u(−t), forming a double exponential. The same reasoning applies in reverse for down-step inputs.
+
+To explain the oscillatory features seen in Michal's plots, we can model the whitening process using a more realistic second-order filter, with transfer function: s^2 / (s^2 + 2ζω0 + ω0^2), whose response depends also on the damping parameter ζ . There are three main cases when applied to the step function: underdamped (ζ<1, e.g. Butterworth filter with ζ= 1/sqrt(2)), that characterizes an oscillatory response,  critically damped (ζ=1) and overdamped (ζ>1), both of which present no oscillations and an approximately exponential decay. For example, for a Butterworth filter, setting ω0 = 1 to simplify the expressions, the filtered step function is: s / (s^2 + sqrt(2) +1) = (s + 1/sqrt(2)) / ((s+1/sqrt(2))^2 +1/2 ) - (1/sqrt(2)) / ((s+1/sqrt(2))^2 +1/2 ), whose inverce Laplace transform can be read from this list:  e^{-t/sqrt(2)} [cos(t/sqrt(2)) - sin(t/sqrt(2))] u(t). 
+
+Moving to simulated data, I’ve attached: 
+
+Figure 1: Plot of a step function,
+
+Figure 2: Its whitened version using the Virgo PSD,
+
+Figures 3 and 4: The filtered function by a high-pass (cut-off = 10 Hz) and band-pass filtering (10 -100 Hz).
+
+For comparison, I also add the same plots for a filtered Dirac Delta function ( ~ 25 minute glitches): Figures 5-8.
+
+In conclusion, the new class of mid-frequency glitches appears to be generated by step discontinuities in the strain. It is therefore quite appropriate to refer to them as "step glitches".
+
+ 
+
+PS: I am no longer able to use codecogs to write equations in the logbook!! :-(
+
+Images attached to this comment
+66975_1749725416_l3H6h00k0jCe59R4.png 66975_1749725442_0uPtb3dfraMP04ur.png 66975_1749725445_vG2ib0VD0ERbjTy0.png 66975_1749725452_b4FQ7PfgJvcrSKEZ.png 66975_1749725671_Pt8jsrk79CnfpXt3.png 66975_1749725679_0nMYn40P6or606mu.png 66975_1749725682_a4ICWWqzw6Bbh512.png 66975_1749725686_R0fX9h2Ypzhq7GoY.png
+Detector Characterisation (Glitches)
+direnzo - 1:17 Thursday 12 June 2025 (66972)  
+Comment to High rate of mid-frequency glitches (66895)
+I investigated the glitch waveforms to check if similarities are present that may allow us to identify clusters of similar glitches, also trying to answer the question whether the shape of the new glitches is always the same, there is a random phase, there are multiple families, etc.
+
+As a first step, I attempted to replicate the clustering approach from entry #66013 using only the Omicron trigger parameters (e.g., SNR, duration, central frequency). This approach did not yield clearly identifiable clusters. The issue is that parameters like SNR and duration seem to span continuous values without forming isolated regions in the Omicron parameter space. For example, Figure 1 shows a 2D histogram of glitch durations and SNRs recorded between June 7 and 11; although the line at SNR ~400 corresponding to the 25-minute glitches is faintly visible, it already does not constitute a distinct, separable group.
+
+To better capture glitch morphology, I instead performed clustering directly on the whitened time series corresponding to Omicron glitch triggers with SNR > 100, yielding a total of 891 glitches between June 4 and 11 during DQ Studies mode. I applied hierarchical clustering using Pearson correlation as the distance metric (specifically, 1 - Pearson correlation).  This method captures waveform shape and phase similarities while being insensitive to amplitude. The clustering procedure followed the method described here and in arXiv:1109.2378v1. The result is shown in Figure 2 as a dendrogram, where each leaf corresponds to a time series and the y-axis indicates dissimilarity. Branches connect waveforms that are more similar, and colors represent the identified clusters.
+
+In Figure 3, I show the standardized time series for each cluster. The percentage of glitches across clusters is as follows: 41.44%, 8.95%, 4.86%, 23.74%, 15.37%, and 5.64% respectively. Clusters 1 and 2, and clusters 4 and 5, contain morphologically similar glitches that appear to differ by a phase of approximately Pi. Cluster 3 corresponds to the 25-minute glitches, while Cluster 6 contains a heterogeneous set of waveforms without a clear common structure. This suggests that the majority of glitches can be grouped into two dominant waveform types (each appearing with a phase shift), along with a third, distinct 25-minute glitch class, and a residual miscellaneous group.
+
+I attach a CSV containing the GPS timestamps, center frequencies, and assigned cluster labels for all glitches.
+
+Figure 4 shows a glitchgram for the long segments in the DQ Studies mode between June 7 and 8, with each marker colored by its cluster assignment. As anticipated, the result is visually complex and does not reveal a clearly separable temporal or frequency structure among the classes.
+
+Images attached to this comment
+66972_1749683266_unnamed.png 66972_1749683622_dendrogram.png 66972_1749683631_glitch_clusters_linkage.png 66972_1749683661_glitchgram_cluster.png
+Non-image files attached to this comment
+ glitch_clusters_June_4-11.txt
+Detector Characterisation (Glitches)
+salvador - 16:02 Friday 25 April 2025 (66629)  
+Comment to 25-minute glitches are still there (66628)
+Strangely enough, there seems to be a second glitch before (or after) the 25-min glitch which appears more often compared to before the WE mirror replacement.
+Fig. 1 shows the spectrogram of Hrec_hoft_20000Hz for 15000 s with 10s time steps from 05-03-2025 at 21:00 UTC, fig. 2 shows a close-up on the first 1.2 hours with 3 glitches.
+
+Fig. 3 shows the same spectrogram but from yesterday 24-04-2025 at 21:00 UTC, fig. 4 shows the close-up at the last 1.2 hours with 3 glitches.
+
+The time difference between the 2 glitches is not constant and is the order of 1 minute.
+
+Images attached to this comment
+66629_1745589441_Hrec_hoft_20000Hz_1425243618-15000s.png 66629_1745589446_Hrec_hoft_20000Hz_1425243618-15000s_closeUp.png 66629_1745589450_Hrec_hoft_20000Hz_1429563618-15000s.png 66629_1745589453_Hrec_hoft_20000Hz_1429563618-15000s_closeUp.png
+Detector Characterisation (Glitches)
+narnaud - 11:01 Friday 25 April 2025 (66628)  
+25-minute glitches are still there
+Not that there was much hope they would go away with the NE replacement, but that plot for instance clearly shows that the 25-minute glitches are still there.
+
+Comments to this report:
+salvador - 16:02 Friday 25 April 2025 (66629)  
+Strangely enough, there seems to be a second glitch before (or after) the 25-min glitch which appears more often compared to before the WE mirror replacement.
+Fig. 1 shows the spectrogram of Hrec_hoft_20000Hz for 15000 s with 10s time steps from 05-03-2025 at 21:00 UTC, fig. 2 shows a close-up on the first 1.2 hours with 3 glitches.
+
+Fig. 3 shows the same spectrogram but from yesterday 24-04-2025 at 21:00 UTC, fig. 4 shows the close-up at the last 1.2 hours with 3 glitches.
+
+The time difference between the 2 glitches is not constant and is the order of 1 minute.
+
+Images attached to this comment
+66629_1745589441_Hrec_hoft_20000Hz_1425243618-15000s.png 66629_1745589446_Hrec_hoft_20000Hz_1425243618-15000s_closeUp.png 66629_1745589450_Hrec_hoft_20000Hz_1429563618-15000s.png 66629_1745589453_Hrec_hoft_20000Hz_1429563618-15000s_closeUp.png
+Detector Characterisation (Glitches)
+Paoletti - 11:10 Tuesday 04 March 2025 (66292)  
+Comment to Update on ~25min (25-minute) glitches - last year of data (66275)
+"... and probably connected to the UPS mains line."
+
+As an example, look at the data from September 2nd when a global IPS failure occurred from the provider:
+
+the IPS grid went down at 07:04:18 UTC.
+all devices connected to the IPS mains went down.
+the diesel generators started feeding the local IPS mains at 07:05:01 and ran until 13:54:14, when the supplier provided us with the IPS grid again.
+despite the initial “hole” of 40 seconds (and the global switch-off) the 25m glitches remained there, with the same timing (in this case 1700 s +/- 30 s)
+If the device generating the glitches had been connected to the IPS mains, it would probably have “reset” or otherwise started its count again from scratch.
+
+ 
+
+Images attached to this comment
+66292_1741081797_IPS_failure.PNG
+Detector Characterisation (Glitches)
+Paoletti, Mantovani - 14:20 Saturday 01 March 2025 (66275)  
+Update on ~25min (25-minute) glitches - last year of data
+A recent ~25m glitches timing measurement shows an interval of 1600s +/- 60s (i.e., about 26m)
+
+Maddalena kindly provided (more than) one year of data, from Jan 2024 to the present, with the NI and WI bottom temperature superimposed (in RED).
+
+As confirmed by previous analysis, the best correlation is with NI temperature. The delta_T varies from 23m in winter, up to 32m in summer.
+(There is clearly also a correlation with overall ambient temperature, as visible in this plot, but it is not as clear as with NI_bottom)
+
+This should guide our effort to find the source in the CEB area, around the NI tower, and probably connected to the UPS mains line. This last sentence is not supported by clear evidence (e.g., switching OFF the IPS mains line in the entire Virgo area, with no diesel generators running), but by looking at the IPS mains line failures, where there is always some time (about 60s) before the diesel generators start up, we have an indication that the timing of the glitches was not affected by this IPS "hole" (did not reset the time occurence, always arriving at the same time stretch).
+ 
+
+Images attached to this report
+66275_1740828973_Paragon1.png 66275_1740829257_Paragon2.png
+Comments to this report:
+Paoletti - 11:10 Tuesday 04 March 2025 (66292)  
+"... and probably connected to the UPS mains line."
+
+As an example, look at the data from September 2nd when a global IPS failure occurred from the provider:
+
+the IPS grid went down at 07:04:18 UTC.
+all devices connected to the IPS mains went down.
+the diesel generators started feeding the local IPS mains at 07:05:01 and ran until 13:54:14, when the supplier provided us with the IPS grid again.
+despite the initial “hole” of 40 seconds (and the global switch-off) the 25m glitches remained there, with the same timing (in this case 1700 s +/- 30 s)
+If the device generating the glitches had been connected to the IPS mains, it would probably have “reset” or otherwise started its count again from scratch.
+
+ 
+
+Images attached to this comment
+66292_1741081797_IPS_failure.PNG
+Detector Characterisation (Glitches)
+direnzo - 23:54 Wednesday 05 February 2025 (66142)  
+Quick update on temperature correlation of 25-minute glitches
+Given the renewed interest in 25-minute glitches, I revisited previous analyses (#63479) using January data, particularly noting a variation in glitch rates around January 12-14.
+
+Figure 1 presents a scatter plot of the distances between consecutive glitches, along with their moving median (orange curve). Overlaid are temperature readings from the North Input (NI) bottom, the NI Ring Heater, and the NI mirror coil. The same time delays applied in previous analyses have been used (#63479). The Pearson correlation coefficient with the first temperature channel is -0.72, while correlations with the others are -0.09 and -0.14 respectively. This confirms a stronger relationship between glitch rates and tower temperature rather than mirror temperature.
+
+To further investigate the glitch and temperature behavior between January 12 and 14, I analyzed the correlation between the V1:INF_NI_BOTTOM_TE1 channel and all the other temperature probes in the trend frame. The highest correlation was with the corresponding thermometer at the West Input, V1:INF_WI_BOTTOM_TE1: Figure 2. However, the observed temperature jump, and glitch rate increase, were anti-correlated with (and possibly caused by) a 1°C drop in the central building: Figure 3.
+
+Overall, this quick analysis aligns with previous results but provides no new insights into the underlying cause of the 25-minute glitches.
+
+Images attached to this report
+66142_1738795606_Glitch_distances_Jan_2025.png 66142_1738795822_INF_WI_BOTTOM_TE1_correlation.png 66142_1738795930_ENV_CEB_N_TE_correlation.png
+Detector Characterisation (Glitches)
+direnzo - 14:57 Tuesday 21 January 2025 (66013)  
+Comment to Overview of glitch populations in the first half of January (66010)
+From the UPV results, I couldn't find correlations with the (safe) SDB2_B1_* channels. The channels tested with UPV+VetoPerf are listed in the attached TXT file. However, I explored this possible relationship using a different approach, which I will describe in detail below.
+
+To complement the primary visual identification of glitch families described in #66010, I applied clustering algorithms to the glitch triggers identified by Omicron during this time frame. Specifically, I used the DBSCAN - Density-based spatial clustering of applications with noise algorithm, an unsupervised clustering method that groups data points based on their density in the parameter space of Omicron triggers.
+
+For this analysis, I selected triggers with SNR > 10. The classification results are shown in the glitchgram in Figure 1, where different colors represent the glitch families identified by the algorithm. While the clustering is not perfect, and the choice of glitch features and hyperparameters was not optimized or cared in detail, the results align with the observations described in the original post. In particular:
+
+The 25-minute glitches are clearly identified (brown markers).
+Scattered light is recognized as distinct families in the correspondence of recent days of bad weather (blue markers).
+THe high-frequency glitches of the last days are identified, whose rate has significantly increased since January 19, as previously reported (orange and, possibly, red markers).
+Other intermediate-frequency glitches are recognized, although less distinctly (purple markers).
+Crosses correspond to triggers not classified by the algorithm and are therefore identified as "noise."
+This clustering analysis confirms the visual classifications in the initial post and provides additional insights into the structure and onset of the glitch families.
+
+Focussing on the "purple glitch family," these are characterized by very large SNR and frequency at peak in the bucket. Therefore, to study the relation with the B1 saturation, I selected glitch triggers with SNR > 300 (and frequency at peak >90 Hz, although not necessary to further restrict the selection). The selected glitches are shown in the gitchgram in Figure 2. I compared the GPS times of these glitches with the times where the B1 saturation flag was active, represented by the vertical lines. Blue vertical lines correspond to times when this flag was active and fell within a delta_t of 2 seconds from the selected high-SNR glitches. Gray lines correspond to B1 saturations not corresponding to the previous glitches. The result doesn't change significantly by increasing the delta_t up to some tens of seconds (the lower limit is given by the resolution of trend channels).
+
+Comparing blue and grey lines, using a minimum SNR threshold of 300, 68.59% of the high-SNR glitches have a flag nearby. These are the percentages obtained by changing the threshold:
+
+SNR threshold	Coincidence [%]
+100	57.60
+300	68.59
+500	74.9
+1000	70.32
+
+In the central panel of the same image, I reported the hourly rate of high-SNR glitches and B1 saturations. There seems to be a clear correspondence between the two curves. These results support the hypothesis by Michal that high-SNR glitches are associated with saturations of the B1 photodiode.
+
+In Figure 3 I report the detail of a day with many high-SNR glitches and many B1 saturations.
+
+ 
+
+Images attached to this comment
+66013_1737466553_Glitches_Jan2025_classification_DBSCAN.png 66013_1737466982_Glitches_Jan2025_comparison.png 66013_1737467816_Glitches_Jan2025_comparison_detail.png
+Non-image files attached to this comment
+ SDB2_B1_channels.txt
+Detector Characterisation (Glitches)
+direnzo - 15:04 Monday 20 January 2025 (66010)  
+Overview of glitch populations in the first half of January
+I did a survey of the glitch populations present in the Virgo strain data, starting from the end of January 3, after the injection problems were resolved: #65902. In Figure 1 I report the glitchgram (GPS time vs. frequency at the peak of the glitch trigger, with colorscale and markersize representing the SNR) of the triggers in the analyzed period.
+
+Besides the usual 25-minute glitches, visible as continuous triggers between 40 and 50 Hz, the other glitch families are:
+
+Scatterd Light glitches from bad weather and high microseismic noise, visible as low-frequency trigger clusters on Jan 8-11 (as reported by the operators in entries #65945, #65954, and #65964) Jan 13-14 (#65970).
+A family of glitches very loud (SNR > 200) and very fast glitches, with central frequencies in the bucket 60-400 Hz, has appeared since January 8.
+At a higher frequency, a third family of glitches, weaker than the previous one, seems to have appeared starting from January 19 (and possibly after the injection system failure: #66002 and #66004).
+I tried to investigate the origin of these glitches by repeating the correlation analysis via UPV+VetoPerf reported by Nicolas' in #65906.
+
+At this link the complete result of VetoPerf, which I summarize:
+
+V1:SDB1_OMC1_Peltier_cmd_0 and V1:SDB1_B1_f1_i_DCn_0 seem to act as a veto for a fraction of the glitches with SNR ~1000 in the bucket. However, most glitches in this region did not report any useful channels as vetoes, with the channel list used. More detailed investigations are needed, especially if this very loud family of glitches persists.
+
+The fainter glitch family started yesterday appears similar to, but significantly less severe than, that identified on January 2: #65902. The resulting correlated channels are the same as found by Nicolas in #65906, specifically INJ_* and SIB2_* channels. In the attached gif the glitchgram before and after applying the veto: note that the majority of triggers after January 19 disappear. We will continue to monitor these glitches but they will likely go away once the INJ issues are fully resolved, as happened earlier inJanuary.
+
+Images attached to this report
+66010_1737373036_Glitches_Jan2025.png 66010_1737381579_V1-Hrec_hoft_16384Hz-veto5.gif
+Comments to this report:
+mwas - 20:57 Monday 20 January 2025 (66012)  
+Figure 1. There are lots of glitches that are related to B1 photodiode saturations. Are these channels related to one of the family of glitches?
+
+Images attached to this comment
+66012_1737402942_Screenshot from 2025-01-20 19-55-18.png
+spinicelli - 13:22 Tuesday 21 January 2025 (66025)  
+Concerning the PSL/INJ side, since the last SL Temp controller failure, the PSTAB corrections increased more then the usual trend of the last days (see fig.1).
+
+This morning, we brought back the temperature of the amp head at its nominal one (since the beginning of the year), however, this didn't recover completely the AMP power (see fig. 2).
+
+However, the PSTAB noise has been improved, the related glitches in Hrec should be reduced now.
+
+Images attached to this comment
+66025_1737461757_PSL_1.png 66025_1737462119_PSL_1_zoom.png
+direnzo - 14:57 Tuesday 21 January 2025 (66013)  
+From the UPV results, I couldn't find correlations with the (safe) SDB2_B1_* channels. The channels tested with UPV+VetoPerf are listed in the attached TXT file. However, I explored this possible relationship using a different approach, which I will describe in detail below.
+
+To complement the primary visual identification of glitch families described in #66010, I applied clustering algorithms to the glitch triggers identified by Omicron during this time frame. Specifically, I used the DBSCAN - Density-based spatial clustering of applications with noise algorithm, an unsupervised clustering method that groups data points based on their density in the parameter space of Omicron triggers.
+
+For this analysis, I selected triggers with SNR > 10. The classification results are shown in the glitchgram in Figure 1, where different colors represent the glitch families identified by the algorithm. While the clustering is not perfect, and the choice of glitch features and hyperparameters was not optimized or cared in detail, the results align with the observations described in the original post. In particular:
+
+The 25-minute glitches are clearly identified (brown markers).
+Scattered light is recognized as distinct families in the correspondence of recent days of bad weather (blue markers).
+THe high-frequency glitches of the last days are identified, whose rate has significantly increased since January 19, as previously reported (orange and, possibly, red markers).
+Other intermediate-frequency glitches are recognized, although less distinctly (purple markers).
+Crosses correspond to triggers not classified by the algorithm and are therefore identified as "noise."
+This clustering analysis confirms the visual classifications in the initial post and provides additional insights into the structure and onset of the glitch families.
+
+Focussing on the "purple glitch family," these are characterized by very large SNR and frequency at peak in the bucket. Therefore, to study the relation with the B1 saturation, I selected glitch triggers with SNR > 300 (and frequency at peak >90 Hz, although not necessary to further restrict the selection). The selected glitches are shown in the gitchgram in Figure 2. I compared the GPS times of these glitches with the times where the B1 saturation flag was active, represented by the vertical lines. Blue vertical lines correspond to times when this flag was active and fell within a delta_t of 2 seconds from the selected high-SNR glitches. Gray lines correspond to B1 saturations not corresponding to the previous glitches. The result doesn't change significantly by increasing the delta_t up to some tens of seconds (the lower limit is given by the resolution of trend channels).
+
+Comparing blue and grey lines, using a minimum SNR threshold of 300, 68.59% of the high-SNR glitches have a flag nearby. These are the percentages obtained by changing the threshold:
+
+SNR threshold	Coincidence [%]
+100	57.60
+300	68.59
+500	74.9
+1000	70.32
+
+In the central panel of the same image, I reported the hourly rate of high-SNR glitches and B1 saturations. There seems to be a clear correspondence between the two curves. These results support the hypothesis by Michal that high-SNR glitches are associated with saturations of the B1 photodiode.
+
+In Figure 3 I report the detail of a day with many high-SNR glitches and many B1 saturations.
+
+ 
+
+Images attached to this comment
+66013_1737466553_Glitches_Jan2025_classification_DBSCAN.png 66013_1737466982_Glitches_Jan2025_comparison.png 66013_1737467816_Glitches_Jan2025_comparison_detail.png
+Non-image files attached to this comment
+ SDB2_B1_channels.txt
+narnaud - 10:20 Monday 27 January 2025 (66072)  
+The strong glitches have been there all week, with varying intensity/frequency over time. See for instance https://scientists.virgo-gw.eu/DataAnalysis/UPV/2025/20250126/last_week_1421276422-1421881222/V1:Hrec_hoft_16384Hz/perf/V1-Hrec_hoft_16384Hz-all_freqtime.png (Omicron glitchgram over a week) and https://scientists.virgo-gw.eu/DataAnalysis/UPV/2025/20250126/last_week_1421276422-1421881222/V1:Hrec_hoft_16384Hz/perf/V1-Hrec_hoft_16384Hz-veto6_freqtime.png (after an UPV veto based on V1:INJ_IMC_TRA_DC, representative of many related INJ channels).
+
+Detector Characterisation (Glitches)
+direnzo - 18:30 Monday 09 December 2024 (65756)  
+Analysis of glitch families of Decembr 8
+To verify that the glitch issues of the past few weeks had passed, I analyzed the high glitch-rate period between December 7 at 18:00 UTC and 8 at 6 UTC. In this, I identified two main glitch families, in addition to the usual 25-minute glitches.
+
+Figure 1 shows the spectrogram of the strain data of December 8 from 2 to 5 UTC. The usual Scattered Light glitches are visible as excess energy between about 20 and 50 Hz. Further down, between 10 and 20 Hz, a second (new?) family of glitches is particularly visible as "bursts" of noise at about 2:40, 2:50, 3:25, and 3:40 UTC. Additionally, a very loud glitch at 3:24:02.6 UTC caused a two-minute long excitation of the 48 Hz lines, with a beat every about 3.5 seconds, compatible with the frequency of the crossbar resonances of filter 7 of the terminal suspensions: #48183.
+
+Figure 2: detail of some scattered light glitches with superimposed the frequency of the most correlated predictor channel: V1:Sc_WE_MIR_Z. To study these glitches, I applied the same technique described in many other logbook entries during O4 (#63761, #64022 , ...). The list of most correlated channels is the same as in other periods with high microseismicity, such as the one described in #65142,  #64022 and #64026. This is the file with the results.
+
+Figures 3 and 4: spectrograms, over different time windows, of the other glitch family at low frequency. As can be seen from the second image, these glitches are centered between about 10 and 20 Hz, and appear, almost like a beating, with an almost constant rate of 9 glitches every 10 seconds. I tried to investigate repeating the same analysis as above, as if they were Scattered Light, but without success; no correlation emerged with the velocity derived from all the position channels of Virgo. Further investigations should be done to understand their origin, however, they do not seem to be linked to the glitches between 20 and 80 Hz present until a week ago: #65625.
+
+Figure 5: spectrogram of the very loud glitch and the resulting ringing of resonance at 48 Hz for about two minutes. I have not had time to investigate this specific glitch in detail, but it would be interesting to do so, to understand what is causing it and the coupling with the frequencies of the Filter 7 crossbars at the North End and West End.
+
+Images attached to this report
+65756_1733760604_Scatered_light_1417658418.png 65756_1733763340_Scattered_predict_1417661263_Sc_WE_MIR_Z_Sep16.png 65756_1733764211_Scatered_light_1417661628.png 65756_1733764216_Scatered_light_1417661898.png 65756_1733765213_Scatered_light_1417663446.png
+Non-image files attached to this report
+ SL_glitches_Dec08_position.txt
+Comments to this report:
+Paoletti - 11:17 Tuesday 10 December 2024 (65764)  
+The "very loud glitch" that excited many crossbars around 48 Hz appears to be due to an IPS mains line voltage drop that occured at 03:24:02,600 + 100ms.
+
+The associated magnetic glitch is visible in all Virgo buildings magnetometers.
+
+Images attached to this comment
+65764_1733825479_Cattura.PNG
+direnzo - 14:03 Wednesday 11 December 2024 (65782)  
+I add to Federico's excellent catch on the origin of the glitch and the 48 Hz resonance the pointer to a past entry reporting the same kind of noise: #48619.
+
+Detector Characterisation (Glitches)
+direnzo - 23:09 Tuesday 03 December 2024 (65705)  
+Comment to Lower sensitivity and increased glitch rate (65625)
+That's excellent news! I confirm that the glitches seem to have disappeared after today's maintenance and in particular once we returned to Science mode at 17:48 UTC. This seems to be the case for the frequent, low-frequency glitches, identified as being somehow related to SWEB controls (#65654), but also for the rarer, high-frequency ones (#65646). Of course, the 25-minute glitches, visible as a continuous trigger at 40-50 Hz with SNR ~400, are still there.
+
+Figure: glitchgram with the omicron triggers from the beginning of December to now, and below the rate series. It is evident that from a rate even larger than 10 per minute we have returned, in the last hours, to a value comparable to the median value of O4b of 0.1/minute.
+
+Images attached to this comment
+65705_1733263650_Glitches_Dec2024.png
+Detector Characterisation (Glitches)
+direnzo - 23:51 Sunday 15 September 2024 (65147)  
+Comment to Scattered Ligth glitches on September 9 and 12 (65142)
+I continue here the analysis of the loud (SNR > 100) glitches identified in the first post. Most of them appear to belong to the same family, characterized by a burst of energy of a few tenths of a second, with a peak frequency (the one typically reported in glitchgrams) between 10 and 30 Hz, and a broadband structure in which some resonances stand out, such as 74, 150, 500 Hz: Figure 1. Typically, these are frequencies where bilinear couplings are strongest and are excited in bad weather conditions. Compare, for example, the MONET results for September 12 (bad weather) and September 14 (calm) around the 74.4 Hz calibration line. At this link, you can find the omicron scans of some glitches belonging to this family.
+
+In the hour of data shown in Figure 2 of the first post, there are also two glitches belonging to the 25-minute family, respectively at GPS 1410153390.86 (05:16:12.86 UTC) and 1410155120.89 (05:45:02.89 UTC), with a waveform clearly distinguishable from that of the other family: Figure 2.
+
+I investigated Michal's hypothesis (confirmed by Didier during the DetChar meeting on Friday) about the coherence of LSC_MICH and LSC_SRCL during the period shown in figure 4 of the first post. Figure 3 and 4 show the coherence spectrograms between Hrec and LSC_MICH and LSC_SRCL respectively. As hypothesized, there is a band between 10 and 30 Hz in MICH with increased coherence between 5:16 and 5:20 UTC, and possibly again between 5:44 and 5:48 UTC. In SRCL instead a line is noted at about 19 Hz.
+
+Finally, I add to the characterization of this period of bad weather the glitchgram and time series of the seismometers between September 12 and 13: Figure 5.
+
+ 
+
+ 
+
+Images attached to this comment
+65147_1726247788_September_12_glitch_n_2.png 65147_1726248118_September_12_glitch_n_4.png 65147_1726426783_Coherence_hre_MICH.png 65147_1726426788_Coherence_hre_SRCL.png 65147_1726428649_Scattered_Light_September_12-13.png
+Detector Characterisation (Glitches)
+direnzo - 13:36 Monday 26 August 2024 (65016)  
+The 50Hz tail of the 25-minute glitches is an artifact of the feedforward line subtraction
+In the first reports on the 25-minute glitches (#59763, #61837, etc.), dating back a year or more, the spectrograms (and whiten time series) showed that they were approximately symmetric. Subsequently, at least starting from the mini-ER of December 2023, it appeared that these glitches possessed a residual excitation at 50 Hz. Therefore, there was the question of whether this "tail" had always been present, but not visible due to low sensitivity (or glitch SNR), or whether was it a feedforward artifact due to the subtraction of the 50 Hz line.
+
+Following feedback from Federico, Paolo and Diego, I verified these hypotheses using the data from February 2024 when the feedforward was temporarily switched off, as reported in this entry: #63288. In the analyzed time interval there are two glitches, one at GPS time 1391978086.32, with feedforward active, and one at time 1391979621.89, with feedforward disabled.
+
+As can be seen in Figure 1, with feedback active the 50 Hz tail is clearly visible, extending for at least a couple of seconds after the peak of the glitch, while in Figure 2, with feedforward deactivated, this tail is not visible.
+
+Furthermore, the SNR of these two glitches is approximately the same (as can be seen from Figure 1 of entry #63288); omicron-print reports for LSC_DARM an SNR of 276.53 for the first and 285.35 for the second.
+
+This supports the hypothesis that the visible 50 Hz excitation after the glitches is not directly part of them but a consequence of the feedforward with which the 50 Hz is subtracted.
+
+Images attached to this report
+65016_1724671386_25min_DARM_with_FF.png 65016_1724671389_25min_DARM_without_FF.png
+Detector Characterisation (Glitches)
+direnzo, dalcanton - 23:28 Wednesday 07 August 2024 (64900)  
+Comment to More on the timing of the 25-minute glitches (64896)
+At the suggestion of Tito, I report here the visualization of the correlation between the series of glitch distances and the temperature at the bottom of the North Input tower (delayed by 4 hours) also by means of scatter plots.
+
+Figure 1 (plasma): Correlation between the temperatures of the INF_NI_BOTTOM_TE1 channel (delayed by 4 hours) and the non-averaged distances between two consecutive glitches. The (negative) Pearson coefficient is reported in the upper right corner.
+
+Figure 2 (viridis): Correlation between INF_NI_BOTTOM_TE1 (+4 hours) and the moving median distance time series between two consecutive glitches. In this case, the Pearson coefficient is (in absolute value) larger due to the removal of the apparently random fluctuations of the glitch distances.
+
+Images attached to this comment
+64900_1723065142_Correlation_25minute.png 64900_1723065148_Correlation_25minute_median.png
+Detector Characterisation (Glitches)
+direnzo - 17:40 Wednesday 07 August 2024 (64896)  
+More on the timing of the 25-minute glitches
+I've taken advantage of the abundance of data from the past few months and the recent etalon set point variations to verify that the relationship between the rate of the 25-minute glitches and the temperature of the bottom of the North Input tower has remained consistent even after the intervention of the last weeks, and the consequent down time of the detector. I therefore repropose the same analysis already seen in the logbook entries #63310, #63285 etc, and presented at the Commissioning meeting in February VIR-0074A-24. I focus specifically on the temperatures of the two input towers to confirm once again where the correlation is more evident.
+
+The data for the 25-minute glitches is as reported at this link. I took the temperatures recorded by the channels INF_NI_BOTTOM_TE1 (red) and INF_WI_BOTTOM_TE1 (purple), and I delayed their time series by 4 hours to synchronize them with the glitch distance series (whose median is the orange curve), whose variation occurs about 4 hours later, as highlighted in this entry #63479 (pay attention to the centering of the moving median if you want to repeat the analysis!).
+
+Figure 1 shows glitch distance and tower temperature data from early June until before the break. A marked similarity is again visible with the temperature at the bottom of the North Input. This correlation is particularly evident in the detail between June and July shown in Figure 2, where the orange and red curves are practically always superimposed, especially in correspondence with the jumps on June 25, July 2 and 10.
+
+Across the intervention between July 22 and 31, the correlation remained stable and clearly visible, especially in the longer segments of the interferometer in Low Noise 3 state: Figure 3.
+
+Figure 4 shows, in a time window of two weeks at the beginning of June, the usual comparison with the other temperature monitors at the North Input, with the delays described in #63479 applied.
+
+Overall, the situation seems the same as presented before the start of the run and described in the previous links.
+
+Images attached to this report
+64896_1723041878_Glitch_distances_Jun-Aug_2024.png 64896_1723042509_Glitch_distances_Jun-Jul_2024.png 64896_1723042753_Glitch_distances_Jul-Aug_2024.png 64896_1723045031_Glitch_distances_Jun_all_2024.png
+Comments to this report:
+direnzo, dalcanton - 23:28 Wednesday 07 August 2024 (64900)  
+At the suggestion of Tito, I report here the visualization of the correlation between the series of glitch distances and the temperature at the bottom of the North Input tower (delayed by 4 hours) also by means of scatter plots.
+
+Figure 1 (plasma): Correlation between the temperatures of the INF_NI_BOTTOM_TE1 channel (delayed by 4 hours) and the non-averaged distances between two consecutive glitches. The (negative) Pearson coefficient is reported in the upper right corner.
+
+Figure 2 (viridis): Correlation between INF_NI_BOTTOM_TE1 (+4 hours) and the moving median distance time series between two consecutive glitches. In this case, the Pearson coefficient is (in absolute value) larger due to the removal of the apparently random fluctuations of the glitch distances.
+
+Images attached to this comment
+64900_1723065142_Correlation_25minute.png 64900_1723065148_Correlation_25minute_median.png
+Detector Characterisation (General)
+direnzo - 13:21 Saturday 03 August 2024 (64853)  
+Data quality overview after re-engaging Science mode
+I report an overview of data quality in the about three hours of Science mode (Low Noise 3 state) following the interventions of the past weeks. Overall, the noise is consistent with that before the intervention. I have attached some plots below to analyze stationarity, glitch rate and spectral noise.
+
+Figure 1: Side-by-side spectrograms of the strain in the last three hours of Science mode pre-intervention and in the post-intervention Science mode segment.
+
+Figure 2: Same spectrogram but where the two parts are normalized frequency-wise by the median. On the left-hand side, you can see some color variation, indicating excess noise, in the 50-60 and 300-400 Hz bands. I will analyze the detail in the following plots.
+
+Figure 3: Glitchgram and glitch rate timeseries, perfectly consistent with what we already saw during O4b: 25-minute glitches are the main family of glitches visible. The rate is still 0.1 glitches/minute. The latest burst of glitches appears to be associated with the earthquake reported by Beatrice from 22:51 UTC: #64849.
+
+File: In this PDF file I report the comparison between the reference sensitivity curves for O4b (as reported on the VIM), in the last segment of Science mode before the intervention, in an hour of DQ studies at 9:15 on August 2, and during the Science mode on August 2. The various frequency windows detail some regions with more marked differences between the current sensitivity curve and those before the intervention. A few of them have been already highlighted in #64838. As shown in the normalized spectrogram (Figure 2), some of these structures are non-stationary, and it is likely that they will disappear after the detector will stabilize after a few hours of unperturbed Science mode, and especially once the squeezing is reinjected. It is however important to keep an eye on these frequency bands and structures in the coming days and longer data segments.
+
+So far, everything is OK, overall, from a data quality perspective.
+
+ 
+
+Images attached to this report
+64853_1722682712_Spectro_Aug2024.png 64853_1722682834_Median_norm_Aug2024.png 64853_1722683040_Glitches_Aug2024.png
+Non-image files attached to this report
+ ASD_Aug2.pdf
+Comments to this report:
+direnzo - 20:01 Monday 05 August 2024 (64873)  
+I repeated the analysis of the previous entry, and here I report the comparison with the noise curve in the first segment of Science mode after recovery (violet) and today's one (fuchsia), after several hours stably in Science mode. The detector in both cases is in Low Noise 3 state, while the other curves reported are, as in the previous entry, the reference curve of O4b (cyan) and the one in the last segment of Science mode before the intervention (blue).
+
+Below I analyze the various structures that appeared in the spectrum after the intervention:
+
+Broad peak at 54 Hz (Figure 1): new broad peak at ~54 Hz, not present before the intervention, and with non-stationary central frequency, as shown by the difference in the peak between Friday (violet) and today (fuchsia). BruCo highlighted coherence of this with the accelerometer on the detection tower and with various other accelerometers of the OB suspension filter 0.
+
+Line at 62.5 Hz (Figure 2): New line quite narrow, with slightly variable amplitude. Coherence found with V1:INJ_IMC_QD_FF_DC_V.
+
+Peak at 157.8 Hz (Figure 3): broad structure 157.8 Hz enhanced compared to before the intervention (blue) and especially to the reference curve for O4b (cyan), where it looked almost absent. BruCo highlights a large number of channels coherent with this structure, linked to the control of the SSFS, such as V1:SSFS_Err_post.
+
+Small bumps at 185 and 197 Hz (Figure 4): Two new small peaks at 185 and 197 Hz. Only a slight coherence for the first peak with the accelerometer of the detection tower, ENV_DT_ACC_Z. Nothing evident for the second one.
+
+Bump at 262 Hz (Figure 5): New wide bump at 262Hz, identified first in this entry #64838. Once again, BruCo reports some coherence, albeit modest, with the accelerometers on the detection tower: ENV_DT_ACC_Z  and ENV_DT_CT_ACC_Z.
+
+Line at 300 Hz and bump at 307 Hz (Figure 6): Noise in this region appears amplified after the intervention. The 300 Hz line seems higher, and with it the whole sideband structure. The bilinear contributions to the noise are however the usual ones, as highlighted by the MONET results: Figure 7. No significant coherence is found with the bump at 307 Hz.
+
+Bump at 370 Hz and structure at 381 Hz (Figure 8): No evident coherence has been found with BruCo for the 370 bump, while for the other structure there is again a slight coherence with the detection tower accelerometers: ENV_DT_ACC_Z.
+
+Peak at 480.5 Hz (Figure 9): New wide peak at around 480Hz, not present before the intervention. Still  ENV_DT_ACC_Z among the most coherent channels, though with quite low value.
+
+Disappeared comb and bump at 980 Hz (Figure 10):   A comb of lines spaced about 2.85 Hz at 980 Hz was present and known for some time (see #63996). After the intervention, and with the detector in Low Noise 3 without squeezing, this structure seems no longer present. Action item: to be understood if this is actually related to the injected squeezing state, comparing other sufficiently long periods in Low Noise 3.
+
+Small peaks at 1632 and 1650 Hz (Figure 11): Compared to before the intervention, two peaks appeared at 1632 and 1650 Hz. Also in other cases, the frequencies corresponding to harmonics of 50 Hz have higher noise than before: see Figure 6 and Figure 10. Unfortunately, BruCo daily runs don't get that high in frequency. Action item: Re-run BruCo with a larger sampling rate configuration.
+
+Bump at 2030 Hz (Figure 12): New large bump between 1950 and 2100 Hz. Same action as above.
+
+In general, after the intervention, a slight increase in noise is evident at a few frequencies, related to the vibrations of the detection tower. The origin of these vibrations needs to be further investigated.
+
+ 
+
+Images attached to this comment
+64873_1722874791_asd_Aug4_52-56.png 64873_1722875351_asd_Aug4_62-63.png 64873_1722875711_asd_Aug4_154-162.png 64873_1722876208_asd_Aug4_184-201.png 64873_1722876669_asd_Aug4_258-266.png 64873_1722878029_asd_Aug4_290-315.png 64873_1722878054_projection_295-305_Hz.png 64873_1722878333_asd_Aug4_360-390.png 64873_1722879311_asd_Aug4_475-487.png 64873_1722879316_asd_Aug4_945-995.png 64873_1722880135_asd_Aug4_1615-1660.png 64873_1722880615_asd_Aug4_1900-2150.png
+direnzo - 11:15 Wednesday 07 August 2024 (64893)  
+I have re-run BruCo with a sample rate of 5 kHz to investigate the coherence of the structures identified in the previous entry. Link to the full results.
+
+The structure at 1632 Hz has been found coherent with some channels related to the squeezing (the external squeezing bench EQB1): EQB1_CC_PLL_STATUS and EQB1_MAIN_PLL_STATUS.
+
+The bump at 1650 Hz has coherence with the quadrant photodiode signals for the B1s beam on the external detection bench, EDB_B1s_QD4_DC1 (same for DC2, 3 and 4), and with the magnetometers in the W direction in the central building, ENV_CEB_MAG_W , and other buildings. The latter could be just a contamination coming from the harmonics of the mains frequency.
+
+No evident coherence for the broad bump at about 2 kHz. The values for the coherence reported by BruCo are all below 0.1, except for a few narrow lines.
+
+AdV-DAQ (Calibration)
+direnzo - 18:34 Thursday 04 July 2024 (64665)  
+Comment to BNS range drops look longer than the actual problem of ~25min glitches (64664)
+This is a "known feature" of the VIM BNS range calculation (VIR-0590A-20), which in turn relies on PSD estimations with the welch method with 8 second long strides, 2 second FFTs and 50% of overlap. The result is smoothed with a 80 second long moving average, if I'm not mistaken. At least, it matches pretty well what is shown in the range time series.
+
+This is not the only definition of BNS range that we have in Virgo. The same thing for LVK. For example, the BNS range estimated by gwistat is done by making median averages (instead of the means of the Welch's method) and smoothing with a geometric mean. The 25-minute glitches are completely absent there. In general, using medians makes the PSD estimation robust against these glitches: see this git issue.
+
+For this reason, the last version of BruCO has an option to use median averages ( --medianpsdestimation ), which makes coherence estimates robust and suitable for durations longer than ~ 1500 sec (=25 minutes).
+
+Images attached to this comment
+64665_1720110476_Screenshot 2024-07-04 at 18-27-43 gwistat - Grafana.png
+Detector Characterisation (Glitches)
+direnzo - 10:22 Saturday 15 June 2024 (64512)  
+25-minute glitches investigations - Some links to support the investigations
+To support the investigation of the 25-minute glitches, I have put at this link some CSV files with the omicron triggers (GPS time, frequency, SNR, etc.) corresponding to these glitches. CSV files and PNG plots are updated automatically every day.
+Taking advantage of the stability of the detector and the excellent duty cycle, the criterion to identify the triggers corresponding to the 25-minute family is quite simple: I made a filter on the omicron triggers for SNR in [100,500] and peak frequency in [30,50] Hz. On the result, I applied a filter on consecutive glitches to be more than 15 minutes apart. Obviously, these criteria aren't perfect, so there's no guarantee that these are truly only and all the 25-minute glitches. Apparently, the result doesn't look bad, anyway.
+I also remember this wiki page where to collect the results of all the investigations on 25-minute glitches (it's not very up to date but I'm working on it...) and this git issue to be used as a discussion place to exchange ideas, suggestions, analysis proposals and questions, before these are finalized in logbook entry, to bolster the investigation of this annoying noise issue.
+
+Images attached to this report
+64512_1718439708_25minute_glitch_distances_last_week.png 64512_1718439709_25minute_glitch_distances_full.png
+
+Virgo Logbook
+ LHO
+ LLO
+ KAGRA
+Reports 
+26-50
+ of 63  
+Detector Characterisation (Glitches)
+direnzo - 23:33 Sunday 28 April 2024 (64124)  
+Comment to New numerous glitches starting last night (64114)
+These new glitches seem to originate from some noise source activating for ~2 minutes and off for ~4, similar to a square wave.
+
+First of all, I identified the new glitch family selecting the omicron triggers with peak frequency lower than 40 Hz and SNR between 15 and 60. Then, plotting the temporal distances in the occurrences of consecutive glitches (similarly to what has been done for the 25-minute glitches), I noticed that these alternate between ~115 seconds and 250 or 225 seconds in the examined time interval: figure 1.
+
+Figure 2 and 3 show the spectrograms of two consecutive glitches in hrec, and their whiten time series. The latter show opposite behaviours, with a spike up in one glitch, followed by a spike down in the next one.
+
+Similar plots for the magnetometers at the West Input, show a step-like behaviour: figure 4 and 5.
+
+The (non-whitened) time series of this magnetometer channel shows more clearly the square wave behaviour in the correspondence of each pair of glitches: figure 6.
+
+The next task is finding what source is activating with a similar timing.
+
+ 
+
+Images attached to this comment
+64124_1714337105_distances.png 64124_1714337630_Glitch_h_example_1398198572_no.png 64124_1714337631_Glitch_h_example_1398198658_no.png 64124_1714337747_Glitch_mag_example_1398198572_no.png 64124_1714337747_Glitch_mag_example_1398198658_no.png 64124_1714337914_glitch_ENV_WI_MAG_N.png
+Detector Characterisation (Spectral lines)
+direnzo - 12:08 Wednesday 17 April 2024 (63996)  
+Spectral lines during the first week of O4b
+In the framework of the ongoing investigations for the study of spectral noise, I repeated the analysis done for the mini-Engineering Run, with the estimate of a high-resolution sensitivity curve and the rough identification of the main spectral lines, as described in this logbook entry: #63221. The result can be used as a reference and for comparison with the output of more refined tools, such as NoEMi.
+
+As a remark, the frequency resolution of 1mHz is obtained with 1000 second-long FFTs. This duration is constrained by the 25-minute glitches; estimating the ASD with median averages is robust to these glitches if most of the FFTs are not affected by their presence. This requires using FFTs shorter than 25 minutes (1500 sec).
+
+The data segment to be analyzed was the one with the longest duration in Science mode, weighted by the lowest coefficient of variation. The choice fell on the segment: 2024-04-13 01:53:18 to 2024-04-13 18:30:04 (59806.0 sec).
+
+I attach to this entry the pdf with the details of the various frequency regions of the spectrum and the CSV with the identified lines. I plan to repeat this analysis for the next weeks, and attach the results in this git issue and its sub-tasks, for reference.
+
+I'm adding also the following images:
+
+Figure 1: high-resolution sensitivity curve with red lines corresponding to the identified spectral lines. Refer to the PDF file for the details.
+
+Figure 2: detail of the 970-995 Hz region, showing a comb of lines spaced about ~2.83 Hz (0.35 sec).
+
+Figure 3: spectrogram of the 955-1005 Hz region, showing the wandering line already documented in these logbook entries: #60093, #61873.
+
+ 
+
+Images attached to this report
+63996_1713347153_Lines_O4b_w1.png 63996_1713348197_Hrec_hoft_16384Hz_970-995.png 63996_1713348285_Spectrogram_985Hz_line.png
+Non-image files attached to this report
+ O4b_w1_lines_1mHz.pdf
+ O4b_w1_peak_list_1mHz.txt
+Detector Characterisation (Tools)
+narnaud - 11:08 Wednesday 17 April 2024 (63995)  
+Changes to online BruCo: running on Science segments (instead of locked segments) and avoiding loud glitches
+As of today online BruCo should run daily on Science segments -- until now it was running on locked segments. The segments processed by online BruCo should thus be more stable, while they may also be more numerous -- as one can leave Science for a short while w/o loosing the lock. I'll monitor the potential increase of running time in the coming days. Another improvement is that loud glitches (defined as having an Omicron SNR greater than 50) should now be excluded from the segments processed by online Bruco. Online BruCo is configured to run of segments lasting at least 15 minutes: thus, the 25-minute glitches should be safely removed w/o rejecting Science segments. I'll keep an eye on that as well to make sure the loud glitch removal doesn't kill all the online BruCo input segments.
+
+Detector Characterisation (Glitches)
+direnzo - 19:19 Monday 15 April 2024 (63974)  
+Comment to New loud glitches starting this morning (63973)
+I'm investigating this issue, without much success for the moment. From the point of view of data analysis, they are not a major problem, as long as their duration is short, their number/rate remains low enough, and they are just glitches, not increased baseline noise. I add just a couple of plots to motivate the previous statements.
+
+Figure 1: glitchgram showing the omicron triggers of the last 24 hours. The bottom plot shows their rate, which remains under control and below the 1-per-minute level (the one from O3).
+
+Figure 2: "rectanglegram" showing, in addition to the previous plot, the frequency extent of each glitch.
+
+Figure 3: median normalized spectrogram to show that the noise level has remained on average the same, despite the presence of these new glitches.
+
+Figure 4: spectrogram of one of these glitches. They are quite different from the infamous 25-minute ones, and present a repeated excess energy structure.
+
+I will follow up with some correlation study results (hopefully).
+
+Images attached to this comment
+63974_1713200144_Glitches_1397145618.png 63974_1713200304_Glitches_rectangle_1397145618.png 63974_1713200397_Median_norm.png 63974_1713201376_Glitch_h_example_1397230240_no.png
+Detector Characterisation (Broadband noise)
+direnzo - 16:17 Friday 12 April 2024 (63947)  
+Comment to Electric noise coupling to h(t) (63944)
+It seems that the coherence estimation by BruCo got fooled by one of the 25-minute glitches, happening at the end of the analyzed interval, UTC 14:20:25 2024/4/11 + 900 s. The glitch is recorded by omicron at 14:33:39.68. So, the spectral estimation is biased: don't trust this result.
+
+The coherence mis-estimation is documented in this git issue.
+
+Figure 1: coherence spectrogram of 1 hour of data around the interval of yesterday BruCo run. The effect of the glitch is visible at 14:33 UTC as an excess of coherence. The left-hand side panel shows the estimated coherence in the 1-hour interval using the median method, which is more robust to glitches. Except for the 50 Hz line and its harmonics, no suspect coherence value is visible. Since v3r2, BruCo has available the --medianpsdestimation option to estimate the spectrum using the median instead of the average (Welch method).
+
+Figure 2: Q-scan and whiten time series of Hrec and V1:ENV_NEB_IPS_CURR_R_2000Hz in an interval of 1 second around the time of the glitch. The current channel shows absolutely no excess noise.
+
+But then why the coherence between the two?
+
+Figure 3: there is in fact a glitch in V1:ENV_NEB_IPS_CURR_R_2000Hz 2 seconds after that in Hrec, and of a vaguely similar shape, as visible from the spectrograms. The similarity in the spectrum has triggered a larger coherence value in the time bin of figure 1 embracing both glitches.
+
+To confirm that this occurred just by chance, I plotted the spectrograms for other 25-minute glitches for both Hrec and V1:ENV_NEB_IPS_CURR_R_2000Hz. For all, no glitches in the latter channel have been observed.
+
+Figure 4: Q-scans of Hrec and V1:ENV_NEB_IPS_CURR_R_2000Hz for another glitch belonging to the 25-minute family.
+
+Images attached to this comment
+63947_1712929103_Hrec_curr_coherence.png 63947_1712930194_Glitch_1sec.png 63947_1712930347_Glitch_8sec.png 63947_1712930932_No_Glitch_8sec.png
+Detector Characterisation (Glitches)
+Paoletti, Fiori, Tringali, Boschi, Gkaitatzis, Poulton, Spinicelli - 14:21 Thursday 07 March 2024 (63517)  
+Another suggestion for the 25-minute glitch problem (Glitch rate vs NI RH and NI Bottom TE)
+We had suspected that these glitches, whose repetition time is somehow correlated with the temperature of the NI Etalon heating belts, were generated in some NI Sa or Sc board.
+
+Apart from disconnecting the mirror coils done a few days ago, which did not bring any results, we recently found a way to measure the temperature of the DSP boards.
+
+In addition, we have recently changed the fan speed of the DSP boards several times.
+
+As a result, each time we were able to change the temperature of the NI boards (about 5 degrees), but it seems that the glitch rate did not change. This leads us to assume that the DSP Sa and Sc boards are not the glitch generators. (*)
+
+ 
+
+* Left out of this test are the power supplies that are housed in the same crates as the DSPs and supply power to the boards, because they are not directly affected by fan speed and temperature variations. But it is also true that 1) their boxes are more or less in the same environment (the crates), and they probably feel some temperature variation as well, although not that significant; 2) there is no indication that they feel the temperature variation of the etalon.
+
+Images attached to this report
+63517_1709815574_Cattura.PNG
+Detector Characterisation (Spectral lines)
+direnzo, tringali - 22:12 Thursday 22 February 2024 (63375)  
+Comment to Bump at 42Hz (63324)
+It seems like a lot of thigs are going on in this small frequency interval just after the Ncal lines. To better understand the structures at around 42 Hz, we made several high resolution ASDs across January and February. The attached GIF image and the associated (static) PDF file describe the evolution of the line and bump structures over this period. This is a summary with some observations:
+
+Jan 15: no line at 42 Hz but some structures are already visible at 42.4 Hz, as well as a small peak at 42.4 Hz. What I initially thought were sidebands of the 42 Hz line (ref. #63340) seem in fact to be not.
+
+Jan 17: Another small peak at 41.65 Hz.
+
+Jan 18: Increased noise baseline and new structure between 41.7 and 41.9 Hz.
+
+Jan 19: The structure that just appeared seems to have moved to around 42 Hz. This structure appears to drift until Jan 22, as visible in this spectrogram.
+
+Jan 20:: Sharper peak at 42 Hz.
+
+Jan 21: New peak at 41.8 Hz, and structure centered at 42.1 Hz.
+
+Jan 22 3:00: Peak at 42 Hz. This seems to come before the installation of the new chiller happened on Jan 23: #63062. The previous structure has now drifted to 42.2 Hz, and is different than the 42.4 Hz structure already documented.
+
+Jan 22 11:40: the peak at 42 Hz is not visible but the structure at 42.2 Hz is now larger.
+
+Jan 25: The 42 Hz peak is clearly visible. The structure at 42.2 Hz is either disappeared or merged with that at 42.4 Hz. The noise baseline is low.
+
+Jan 26: Increased noise baseline.
+
+Jan 27: The peak at 41.8 Hz is back...
+
+Jan 28: ...and gone.
+
+Feb 6: Increased peak at 41.6 Hz. The structure at 42.4 Hz seems wider.
+
+Feb 9 and 11:New structure at 42.6? Is that part of what constituted the 42.4 Hz bump?
+
+Feb 16: Dtructures at 41.4, 41.6, 42.4 and 42.6 Hz, in addition to the peak slightly before 42 Hz.
+
+Feb 20: 42 Hz line disappeared after the chiller replacement: #63338. Structures at 41.4 Hz, 41.6 Hz, 42.4 Hz and slightly before 42.6 Hz are still visible but are likely not related to the 42 Hz line: they are no sidebands.
+
+Some high resolution BruCo analysis should be done to understand the origin of the residual structures. The argument --medianpsdestimation , new to version 3.2, should provide handy to avoid the spectral estimations being spoiled by the 25-minute glitches. Additionally, this analysis proves that we need a tool that automatically performs periodic comparisons between spectra.
+
+Images attached to this comment
+63375_1708634120_ASD_multi.gif
+Non-image files attached to this comment
+ ASD_combined.pdf
+Detector Characterisation (Spectral lines)
+direnzo - 10:46 Wednesday 21 February 2024 (63350)  
+Comment to Bump at 42Hz (63324)
+It seems that the chiller swap (#63338) removed the line at 42 Hz, as well as the comb of 1 Hz lines identified by BruCo and in the logbook entry #63339, but not the sideband structure at 400 mHz around the 42 Hz line.
+
+Figure 1 shows the comparison of the ASDs estimated at four different times. Dec 25: no line at 42 Hz, small structure at 42.4 and probably nothing at 41.6 Hz. Feb 12: no Ncal lines but both the 42 Hz line and its sidebands are visible. Feb 14: Ncal on, 42 Hz line and sidebands visible. Feb 20: no 42 Hz line but the surrounding structure is still present.
+
+Figure 2: spectrogram of Hrec data from Feb 20 in the region around 42 Hz. The 42 line is not visible anymore but some excess of noise over the baseline is visible at ~42.4 Hz. The vertical yellow lines are the well known 25-minute glitches, while the horizontal lines between 40.5 and 41.5 Hz are the Ncal lines.
+
+At this link, you can find the results of a BruCo run on the data from February 20, after the chiller swap. The coherence at 42 Hz is greatly diminished, as well as at the other integer frequencies between 30 and 49 Hz (the 50 Hz is excluded, of course).
+
+To understand the origin of the structures around the 42 Hz line, I ran a bilinear noise coupling analysis with MONET on the data from February 12, using ENV_CEB_IPS_CURR_R as the carrier. The results are summarized in the attached text file and, partially, in Figure 3. The structures below 42 Hz are not well caught by the model and angular modulators used, with the possible exception of the structure around 41.8 Hz, predicted with Sc_NI_MIR_Y_AA as a modulator: Figure 4. The sideband at 42.4 Hz instead seems to be correlated with Sc_MC_MAR_TY_CORR as a modulator: Figure 5. Other interesting modulators, appearing all over the 42-43 Hz band are the Sc_IB_MAR_T{X,Y,Z}_CORR channels: Figures 6 and 7.
+
+Images attached to this comment
+63350_1708504381_asd_multi_Feb20.png 63350_1708505314_Spectrogram_hrec_Feb20.png 63350_1708507889_projection_41.5-42.5_Hz.png 63350_1708508483_ENV_CEB_IPS_CURR_R_2000Hz_x_Sc_NI_MIR_Y_AA_41.5-42.5_Hz.png 63350_1708508487_ENV_CEB_IPS_CURR_R_2000Hz_x_Sc_MC_MAR_TY_CORR_41-43_Hz.png 63350_1708508756_ENV_CEB_IPS_CURR_R_2000Hz_x_Sc_IB_MAR_TX_CORR_41-43_Hz.png 63350_1708508870_ENV_CEB_IPS_CURR_R_2000Hz_x_Sc_IB_MAR_TY_CORR_41-43_Hz.png
+Non-image files attached to this comment
+ most_coherent_ranked_41-43.txt
+Detector Characterisation (Glitches)
+fiori - 13:28 Monday 19 February 2024 (63319)  
+Comment to Increased rate of the 25-minute glitches after etelon NI temperature increase (63310)
+The attached shows and compares the temperature change measured by different probes: The RH probe at the level of the NI mirror shows the largest, about +0.6deg. A bit less but not small change (about +0.4deg) is observed at the level of F7. Instead, essentially nothing is seen by the temperature probe at the bottom on the NI chamber. This would exclude (or make less likely) a source or coupling mechanism located outside of the NI vacuum chamber. The source or the coupling might indeed be located in a volume larger than the sole mirror, for example it could be at the level of F7 or the marionette. One possibility could be the marionette coils whose cables are in the same bundle with the wires of mirror coils and temperature probes
+
+Images attached to this comment
+63319_1708342449_Screenshot 2024-02-19 at 12.14.56.jpg
+Detector Characterisation (Glitches)
+mantovani - 10:24 Monday 19 February 2024 (63317)  
+Comment to Increased rate of the 25-minute glitches after etelon NI temperature increase (63310)
+The same behavior of the glitch rate vs NI RH TE has been observed with the analysis we have performed.
+
+Images attached to this comment
+63317_1708334661_240216_NIte.png
+Detector Characterisation (Glitches)
+direnzo - 20:44 Sunday 18 February 2024 (63310)  
+Increased rate of the 25-minute glitches after etelon NI temperature increase
+After the double step of +0.3 degC in the etalon NI temperature on Feb 16 and 17 (#63303 and #63305), the period of the 25-minute glitches has decreased from about 28 minutes during the week of Feb 10 to 17, to about 24 minutes at the end of the temperature transient: -4 minutes. This confirms a relation of -2 minutes in the period of the glitches every +0.3 degC step in the NI etalon temperature already documented in VIR-0074A-24 and #63285 for the steps of Dec 28 (#62849) and Jan 27 (#62992).
+
+Figure: scatter plot of the distances between the 25-minute glitches (blue), together with their running median over 10 points (orange), together with the North Input Ring Heater temperature (green).
+
+Images attached to this report
+63310_1708285276_Distance_Hrec_hoft_16384Hz_time-series_corr_Feb18.png
+Comments to this report:
+mantovani - 10:24 Monday 19 February 2024 (63317)  
+The same behavior of the glitch rate vs NI RH TE has been observed with the analysis we have performed.
+
+Images attached to this comment
+63317_1708334661_240216_NIte.png
+fiori - 13:28 Monday 19 February 2024 (63319)  
+The attached shows and compares the temperature change measured by different probes: The RH probe at the level of the NI mirror shows the largest, about +0.6deg. A bit less but not small change (about +0.4deg) is observed at the level of F7. Instead, essentially nothing is seen by the temperature probe at the bottom on the NI chamber. This would exclude (or make less likely) a source or coupling mechanism located outside of the NI vacuum chamber. The source or the coupling might indeed be located in a volume larger than the sole mirror, for example it could be at the level of F7 or the marionette. One possibility could be the marionette coils whose cables are in the same bundle with the wires of mirror coils and temperature probes
+
+Images attached to this comment
+63319_1708342449_Screenshot 2024-02-19 at 12.14.56.jpg
+AdV-ISC (Commissioning up to first full interferometer lock)
+direnzo - 15:22 Thursday 15 February 2024 (63285)  
+Comment to analysis of (63254)
+This 2.5-month long analysis of the 25-minute glitches is very interesting for a better understanding of their possible origin and, especially, the dependency on the temperature, or anything else, of their period. However, the assumptions and methods of the analysis in the main entry are questionable, for a number of reasons.
+
+First of all, it is a little bit too ambitious to try to find a single correlated channel for the variation of the rate of these glitches for such a long period. Indeed, other slower variations have been already observed and documented for example in logbook entry #62992, or earlier in May in #60143. A regression analysis, that includes all the potential contributions, should have been more appropriate.
+
+Additionally, don't ignore the normal variability of about 2.5 minutes of the rate of these glitches. For comparison, the steps of +-0.3 degC in NI RH temperature of December 28 (#62849) and January 27 (#62992) were followed by "a consequent" variation of about -+1.5 minutes in the period of the glitches. If there are no steps and the NI RH temperature is just controlled at 0.1 degC level, it is difficult to spot any variation. For these reasons, I advocated for using a hour-long moving median to investigate correlations instead of the glitch-to-glitch distance. And, for the same reasons, don't expect long-term correlations with NI RH temperature; you can clearly see them only in the correspondence of the mentioned steps in this temperature. Refer to previous entries, or the newly attached Figure 1 and Figure 2.
+
+One last note is on the difficulty of finding correlations when the "live time of the detector" (time in LN2 or 3 over the observed period) is small, ~40%.
+
+Given these premises, I repeated the correlation/regression analysis, including all the ENV_* and *_TE* channels from the trend frame. I attach the plots of the channels that exhibit a most strict resemblance with the curve of the glitch period. The target is the time series of the running median distance.
+
+Figure 3: V1:ENV_SQB2_PIPE_SEIS_Z_mean
+
+Figure 4: V1:ENV_MCB_SEIS_N_mean
+
+Figure 5: V1:ENV_LB_SEIS_X_mean
+
+Although we cannot be sure about the presence of a real relation, besides the similarity in the time series, it is interesting that all of them are seismometers. As if the (ground?) motion could affect the timing of these glitches.
+
+ 
+
+ 
+
+Images attached to this comment
+63285_1707993819_Distance_Hrec_hoft_16384Hz_time-series_corr_Dec28.png 63285_1707993824_Distance_Hrec_hoft_16384Hz_time-series_corr_Jan27.png 63285_1708005208_most_correlated_Dec-Feb_24.png 63285_1708005550_most_correlated_Dec-Feb_16.png 63285_1708005644_most_correlated_Dec-Feb_17.png
+Environmental Monitoring (Environmental Monitoring)
+direnzo - 18:56 Wednesday 14 February 2024 (63278)  
+Comment to Another hunt of the 25m glitches source (63246)
+The artificially generated glitch at 18:56:01.574 UTC looks similarly "blippy" (Gravity Spy jargon) in a time-frequency map (Figure 1) but its time series is quite different than that of the 25-minute glitches. The latter are all very similar: they look like an "elbow" in the row data (Ref. to #63006) and an inverted sinc in the whiten or high-passed time series (Ref. to #61944). The whiten time series of this glitch is shown in Figure 2.
+
+To stress the difference between the two glitches, I've also run the omicron scans for this artificial glitch and one of the 25-minute family: artificial glitch results, 25-minute glitch results. In the former, the simultaneous presence of a glitch in V1:ENV_WEB_MAG_*, V1:ENV_WEB_MIC_* and V1:ENV_WE_ACC_* is clearly visible. For the latter, there are no equally good witness channels: all the glitches simultaneously present are in unsafe channels (LSC_*, Sc_*, SDB2_B1_PD*) or just coincidences (PSL_ML_DC, BsX_*, ENV_DT_CT_FINGER_ACC_*, etc.).
+
+I' let the experts to comment if they notice some interesting correlation in the (safe) channels for the 25-minute glitch.
+
+Images attached to this comment
+63278_1707932308_image (2).png 63278_1707932581_image (3).png
+Detector Characterisation (Spectral lines)
+direnzo - 19:04 Friday 09 February 2024 (63221)  
+Spectral lines during the mini-Engineering Run
+As part of the spectral noise study activity and the compilation of the Lines Database, I estimated a fairly detailed sensitivity curve with the data of the very stable lock of 27h05m24s of December 25. The Amplitude Spectral Density has been estimated with 1024-second long FFTs, 50% overlap, and median averages for being robust against the presence of the infamous 25-minute glitches. Then, I searched for lines with a very basic peak find algorithm based on the prominence of each peak. This quantity represents a measure of how much a peak stands out from the surrounding baseline of the signal and is defined as the vertical distance between the peak and its lowest contour line [Ref. scipy function]. This criterion is obviously quite crude but may be sufficient for a basic comparison.
+
+Indeed, the peaks found can be compared for verification with those of other much more refined algorithms, such as NoEMi or STAMP-PEM. At this link, selecting the ER15-5 database, you can find the peaks of NoEMi for the same period of the mini-Engineering Run.
+
+I attach to this entry just a couple of images of some regions of the spectrum, as well as the pdf with the details of the various parts of the sensitivity curve, and a CSV file (change its format from txt) with the list of peaks found and their prominence (log10).
+
+Images attached to this report
+63221_1707501650_Hrec_hoft_16384Hz_full_with_lines.png 63221_1707501698_Hrec_hoft_16384Hz_40-70.png 63221_1707501715_Hrec_hoft_16384Hz_354-360.png 63221_1707501774_Hrec_hoft_16384Hz_435-455.png
+Non-image files attached to this report
+ Ref_ASD_and_lines_mER.pdf
+ Ref_ASD_peak_list_mER.txt
+Detector Characterisation (Glitches)
+direnzo - 15:48 Thursday 01 February 2024 (63147)  
+Monthly report on 25-minute glitches timing an temperature correlation
+I have analyzed the evolution of the rate of the annoying 25-minute glitches over the entire month of January. The criteria to identify this family of glitches among the various omicron triggers is the same as described in logbook entry #62965. Refer to the latter entry for a comparison of the rates during the mini-Engineering Run and those during January.
+
+Figure 1: scatter plot of the distance of one trigger from the next, along with their moving median (orange line) covering 10 points (~4 hours) and aligned to the center of the stride. this thing is important for the considerations associated with Figure 3.
+
+Figure 2: distributions of glitch distances before (blue) and after (red) the decrease of about 0.3 C of the North Input ring heater temperature done between January 26 and 28. The two distributions are clearly shifted, with medians 25 minutes and 3 seconds, and 26 minutes and 41 seconds respectively: -0.3 degC -> + 1'40 in glitch distance.
+
+Figure 3: To answer a question asked by Maddalena at the last Commissioning meeting, I plotted together with the median time series, the temperatures reported by the channels V1:INF_NI_BOTTOM_TE1 (violet) and V1:INF_TCS_NI_RH_TE (green). Notice the upside-down y-axis. Also, notice that these two temperatures have no 24-hour periodicity and that they are shifted by about 8 hours. Refer to Figure 4 for the detail of 2 days of data from the two channels. Going back to the original question, I'm tempted to say that glitch distance median time series is "more correlated" to the temperature of the North Input ring heater, hence the etalon control, than the temperature at the bottom of the North Input tower.
+
+Images attached to this report
+63147_1706797199_Distance_Hrec_hoft_16384Hz_time-series_January.png 63147_1706797214_Distance_Hrec_hoft_16384Hz_January.png 63147_1706797221_Distance_Hrec_hoft_16384Hz_median_January.png 63147_1706797226_Distance_temperature_January.png
+Detector Characterisation (Glitches)
+viret - 14:44 Tuesday 23 January 2024 (63064)  
+Comment to 25-minute glitches found correlated with some Angular Control channels related to the SR (63042)
+I looked a bit more closely at V1:ASC_SR_T(X,Y)_DCP_mag_B1_I_10Hz channels, which seems to be the one with the largest correlation.
+Below is the evolution of those channels around the 3 first 25min glitches candidates provided in Francesco's list.
+
+Plots are done with full raw data, these are not trend plots. The effect looks pretty long, and starts ~1s after the glitch.
+
+I haven't found those channels in the database, what kind of info are they supposed to provide? What does DCP stand for?
+Nota: pdf file has a better resolution...
+
+Images attached to this comment
+63064_1706016430_25minGlitch.jpg
+Non-image files attached to this comment
+ 25minGlitch.pdf
+Detector Characterisation (Glitches)
+viret - 16:42 Monday 22 January 2024 (63054)  
+Comment to 25-minute glitches found correlated with some Angular Control channels related to the SR (63042)
+I looked at those variables in the full raw data stored on hpss, and got the impression that the peak is usually few seconds after the omicron trigger (so this would be a consequence more than a cause). Below are few examples of channel amplitudes close to the peaks recorded at 1982s and 3359s.
+The trend plots are averaging the info over which timescale? Do you observe also this delay?
+Images attached to this comment
+63054_1705937989_V1-ASC_SR_TX_DCP_phi_B1_Q_10Hz.png 63054_1705937989_V1-ASC_SR_TX_DCP_phi_B1_I_10Hz.png
+Detector Characterisation (Glitches)
+direnzo - 12:05 Monday 22 January 2024 (63049)  
+Comment to 25-minute glitches found correlated with some Angular Control channels related to the SR (63042)
+It is likely that the maximum frequency of these 25-minute glitches doesn't arrive as high as 490 Hz. In the attached histogram, I've plotted the maximum frequencies of all the omicron triggers (not the clusters) with GPS time within one second around the central time of each of the 25-minute glitches. I'm tempted to conclude that there is not much energy above ~400 Hz related to these glitches. Which of course is not an argument to claim that the identified channels are "" safe.
+
+Images attached to this comment
+63049_1705921131_max_freq_dist.png
+Detector Characterisation (Glitches)
+mwas - 10:49 Monday 22 January 2024 (63047)  
+Comment to 25-minute glitches found correlated with some Angular Control channels related to the SR (63042)
+These channels did not exist for O3, the SR mirror was not installed. They have a high chance of being unsafe, they are based on the main differential arm length DC read-out photodiodes (B1), so the same channel that serves as the starting point for having h(t). The channels are just B1 demodulated at ~491Hz (DARM line) and then at 4-5Hz (SR angular dither lines in TX/TY). One would need to do a safety study to check if this double demodulation is sufficient to render these channels safe. But without a study I would assume by default that they are not safe. Or at least I expect that whenever there is a glitch that covers the 480Hz-500Hz band, there will be a glitch in these V1:ASC_SR_{TX,TY}_DCP_{phi,mag}_B1_* channels too.
+
+Detector Characterisation (Glitches)
+salvador - 9:18 Monday 22 January 2024 (63045)  
+Comment to 25-minute glitches found correlated with some Angular Control channels related to the SR (63042)
+Adding to the study of Francesco, these channels, which also pop-out in the coherent channel study, did not qualify as unsafe for the previous safety channel study using O3b data (channel list).
+
+More precisely, here is the list obtained in the coherent study:
+
+V1:ASC_SR_TX_SRCL_I_FS_mean
+V1:ASC_SR_TX_SRCL_I_10Hz_mean
+V1:ASC_SR_TX_DCP_phi_B1_mag_10Hz_FS_mean
+V1:ASC_SR_TX_DCP_mag_B1_Q_10Hz_mean
+V1:ASC_SR_TX_DCP_mag_B1_Q_FS_mean
+V1:ASC_SR_TX_DCP_mag_B1_mag_10Hz_FS_mean
+Detector Characterisation (Glitches)
+direnzo - 21:40 Sunday 21 January 2024 (63042)  
+25-minute glitches found correlated with some Angular Control channels related to the SR
+I've continued the analysis of the dataset of the omicron triggers for the annoying 25-minute glitches during the days of the mini-Engineering run. Differently to what I've done in logbook entry #62965, this time I've tried a brute force correlation of the glitches time series with all the "V1:*_mean", "V1:*_rms", "V1:*_TE*" channels in the trend frame (20,586 total). The glitches time series has been constructed as a " train of Dirac's delta," with a value of 1 at the GPS times corresponding to each glitch trigger, and zero otherwise. Regarding the the auxiliary channels, in addition to their time series, I've also considered the absolute value of their derivatives (one-point difference), and second derivatives. The latter transformations are meant to convert those channels that behave like square waves or sawtooth waves into trains of deltas.
+
+Among all the above, the only channels found correlated are those of the family: V1:ASC_SR_{TX,TY}_DCP_{phi,mag}_B1_*. The fact that they are correlated may mean that they are simply witnessing or reacting to the glitches, without telling anything new about their presence.  However, they don't list among the BruCo excluded channels: /data/dev/detchar/online/bruco/share/virgo_excluded_channels_Hrec_hoft.txt.
+
+I leave the floor to the expert to comment on this result.
+
+Attached, the plots of some of these channels (blue) together with the glitches time series (orange). The time range is a zoom-in of the days of the 24 and 25 December just to better observe their correlations.
+
+ 
+
+Images attached to this report
+63042_1705869393_ASC_SR_TX_DCP_phi_B1_mag_10Hz_FS_mean_pp.png 63042_1705869416_ASC_SR_TX_DCP_mag_B1_mag_10Hz_FS_rms.png 63042_1705869470_ASC_SR_TX_DCP_phi_B1_I_FS_mean_pp.png 63042_1705869497_ASC_SR_TX_DCP_phi_B1_I_10Hz_mean_pp.png
+Comments to this report:
+salvador - 9:18 Monday 22 January 2024 (63045)  
+Adding to the study of Francesco, these channels, which also pop-out in the coherent channel study, did not qualify as unsafe for the previous safety channel study using O3b data (channel list).
+
+More precisely, here is the list obtained in the coherent study:
+
+V1:ASC_SR_TX_SRCL_I_FS_mean
+V1:ASC_SR_TX_SRCL_I_10Hz_mean
+V1:ASC_SR_TX_DCP_phi_B1_mag_10Hz_FS_mean
+V1:ASC_SR_TX_DCP_mag_B1_Q_10Hz_mean
+V1:ASC_SR_TX_DCP_mag_B1_Q_FS_mean
+V1:ASC_SR_TX_DCP_mag_B1_mag_10Hz_FS_mean
+mwas - 10:49 Monday 22 January 2024 (63047)  
+These channels did not exist for O3, the SR mirror was not installed. They have a high chance of being unsafe, they are based on the main differential arm length DC read-out photodiodes (B1), so the same channel that serves as the starting point for having h(t). The channels are just B1 demodulated at ~491Hz (DARM line) and then at 4-5Hz (SR angular dither lines in TX/TY). One would need to do a safety study to check if this double demodulation is sufficient to render these channels safe. But without a study I would assume by default that they are not safe. Or at least I expect that whenever there is a glitch that covers the 480Hz-500Hz band, there will be a glitch in these V1:ASC_SR_{TX,TY}_DCP_{phi,mag}_B1_* channels too.
+
+direnzo - 12:05 Monday 22 January 2024 (63049)  
+It is likely that the maximum frequency of these 25-minute glitches doesn't arrive as high as 490 Hz. In the attached histogram, I've plotted the maximum frequencies of all the omicron triggers (not the clusters) with GPS time within one second around the central time of each of the 25-minute glitches. I'm tempted to conclude that there is not much energy above ~400 Hz related to these glitches. Which of course is not an argument to claim that the identified channels are "" safe.
+
+Images attached to this comment
+63049_1705921131_max_freq_dist.png
+viret - 16:42 Monday 22 January 2024 (63054)  
+I looked at those variables in the full raw data stored on hpss, and got the impression that the peak is usually few seconds after the omicron trigger (so this would be a consequence more than a cause). Below are few examples of channel amplitudes close to the peaks recorded at 1982s and 3359s.
+The trend plots are averaging the info over which timescale? Do you observe also this delay?
+Images attached to this comment
+63054_1705937989_V1-ASC_SR_TX_DCP_phi_B1_Q_10Hz.png 63054_1705937989_V1-ASC_SR_TX_DCP_phi_B1_I_10Hz.png
+viret - 14:44 Tuesday 23 January 2024 (63064)  
+I looked a bit more closely at V1:ASC_SR_T(X,Y)_DCP_mag_B1_I_10Hz channels, which seems to be the one with the largest correlation.
+Below is the evolution of those channels around the 3 first 25min glitches candidates provided in Francesco's list.
+
+Plots are done with full raw data, these are not trend plots. The effect looks pretty long, and starts ~1s after the glitch.
+
+I haven't found those channels in the database, what kind of info are they supposed to provide? What does DCP stand for?
+Nota: pdf file has a better resolution...
+
+Images attached to this comment
+63064_1706016430_25minGlitch.jpg
+Non-image files attached to this comment
+ 25minGlitch.pdf
+Detector Characterisation (Glitches)
+direnzo, dalcanton - 0:55 Thursday 18 January 2024 (63006)  
+Welcome the "elbow glitches" - Some observations on the waveform of the annoying 25-minute glitches
+Following the analysis initiated in logbook entries #61944 and #62161, I report here the plots of some of the glitches included in the dataset in logbook entry #62965 for the mini-Engineering Run.
+
+Figure 1 is an animated GIF with the first 20 glitches in the miniER dataset for the raw channel V1:Hrec_hoft_20000Hz. No filters have been applied. They almost all show some steep turnings at the times marked by the dashed line, which gives them an "elbows-like" waveform. Not sure if it matters but this turning seems to be "always" upward... Notice also that the time of the dashed line has been triggered by the excess energy in the whiten data, and it is slightly delayed from the omicron trigger time reported in the dataset. I assume the latter to be a characteristic time of the tile corresponding to the glitch.
+
+Figure 2: the same behaviour is observable in Hrec_raw, for all the glitches.
+
+Figure 3: unfortunately, the glitch presence is a bit less recognizable in DARM. (the fast oscillations seem to correspond to the frequencies of the violin modes ~450 Hz) The one shown in the figure corresponds to that in the previous figure for Hrec. Notice one peculiar thing, shown in the next figure...
+
+Figure 4: whitening the data, for better visualizing the glitches, we can notice that the glitches in Hrec are delayed 1145 ms from those in DARM. Additionally, the phase seems to be the opposite: upward turnings in Hrec convert to downward ones. These seem to be general properties of all the 25-minute glitches examined. I don't know how expected or informative is this observation. Maybe reconstruction experts can comment further...
+
+Images attached to this report
+63006_1705534072_elbow_glitches.gif 63006_1705534971_Elbow_glitch_00011_raw.png 63006_1705535297_Elbow_glitch_00011_DARM.png 63006_1705535676_Elbow_glitch_00011_all_white.png
+Comments to this report:
+direnzo - 9:13 Thursday 18 January 2024 (63008)  
+ERRATA CORRIGE: concerning the delay between the glitches in DARM and Hrec, the delay is 114.5 ms. I've missed the dot in the above entry.
+
+mwas - 11:02 Thursday 18 January 2024 (63010)  
+How are the data whitenened, and how does this differen between h(t) and DARM? I exepect the ~100ms delay is due to difference in the whitening, and that the whitening is done in a causal way, which means that it introduces a delay.
+
+Figure 1 and 2 show a time-frequency decompostion of h(t) and DARM made using the old matlab implementation of Omega pipeline and there is no time delay of ~100ms between the two. From what I remember Omega uses zero phase delay whitening filters (equivalent ot applying the same filter twice once in the time forward direction and once in the time backward direction).
+
+/users/mwas/detchar/hoftGlitch_20230118/arches.m
+
+Images attached to this comment
+63010_1705576037_Screenshot from 2024-01-18 09-58-36.png 63010_1705576037_Screenshot from 2024-01-18 09-58-17.png
+mwas - 13:51 Thursday 18 January 2024 (63013)  
+The systematic kink in the h(t) time series is interesting. If one assumes that it is due to a current discharge in the mirror coils, we can try to use it to estimate what is the current involved.
+
+Looking at the figure my imperssion is that the change of the kink is of the order 0.5e-18 over 40ms, which using the 3km arm length to convert strain into DARM correspond to a change of speed of 4e-14 m/s.
+
+The mirrors have a weight of 42kg, and the coil/magnet pairs have a response of 0.0034 N/A (VIR-0296B-16). So the change in momentum correspond to an impulse of 1.6e-12 N s and a charge going through the coils of 5e-10 C.
+
+If this charge correspond to a discharge of a capacitor with 10V at its edges, the 5e-10C correspond to a capacitor with 50pF capacitance. The question is if we can imagine somewhere a ~50pF capacitor, being charged over 25 minutes with a ~3e-14 A current, and discharged in a few ms once it reaches 10V. (Or something with similar order of magnitude).
+
+direnzo - 15:00 Thursday 18 January 2024 (63011)  
+I confirm the impression of Michal on a potential non-zero phase shift in the transformed data. I've used the gwpy standard whitening filter for both Hrec and DARM in Figure 4 of the above entry. This filter is based on an FFT-convolution of a FIR filter obtained from the inverse of the estimated signal ASD, used as a transfer function. I have contacted Duncan MacLeod for a better understanding of these functions.
+
+To confirm that the glitches in DARM and Hrec are in fact synchronous, I've used a Butterworth forward and backward ("filtfilt"), bandpass filter between 20 and 300 Hz to focus on the frequencies of interest for these glitches. As visible in the attached figure (where DARM has been multiplied by 10^-13 to have a similar scale as Hrec), the glitch in the two channels occurs in practice at the same time.
+
+ 
+
+ 
+
+Images attached to this comment
+63011_1705583688_Elbow_glitch_00011_all_20-300_bandpass.png
+Detector Characterisation (Glitches)
+mwas - 19:35 Tuesday 16 January 2024 (62993)  
+Comment to Timing of the annoying 25-minute glitches during the Decmeber 23 mini-Engineering Run (62965)
+Figure 1. There was another intentional change in NI Etalon temperature during the night from Jan 10 to Jan 11. So this could be another time to check if the rate of 25-minute glitches changes, there are long stretches of locks before the change, but then for several days the lock are relatively short and glitchy due to INJ glitches, so the analysis can be more difficult. On Jan 15 there should again be more stable data, that can be used to check the efffect of the NI Etalon set point change on the 25-minute glitches.
+
+Images attached to this comment
+62993_1705429892_Screenshot from 2024-01-16 18-31-18.png
+Detector Characterisation (Glitches)
+direnzo - 19:25 Tuesday 16 January 2024 (62992)  
+Comment to Timing of the annoying 25-minute glitches during the Decmeber 23 mini-Engineering Run (62965)
+As anticipated earlier today at the Commissioning meeting, I report a preliminary analysis of the channels correlated with the glitches. Specifically, I considered the time series representing the evolution of glitch distances (the orange curve in Figure 4 of the main entry) and I correlated it with all the thermometers and channels related to the Etalon control system present in the trend frame: "V1:*_TE*","V1:*_Etalon_*", for a total of 1310 channels. The attached text file includes all the (300) channels that possess a Pearson correlation coefficient exceeding 0.2 with the glitch distance series, arranged in order of significance.
+
+As is customary in correlation analyses, this result alone tells nothing about the probable origin of these glitches. It is just "a filter" for those channels that exhibit some similarity with the target in their time evolution, whether they are related or not. As commented by Michal at the Commissioning meeting, some intentional temperature variations at the NI related to the Etalon scan may suggest an actual relation with the mechanism producing the glitches. For example, the curve of the glitch distances exhibits a downward trend, especially from December 29, similar to the average temperatures in a large part of Italy. These have arguably no direct effect on the glitches, although the process/device generating them appears to be sensitive at least to some temperatures. 
+
+I add the plots of some possibly interesting correlations of the target (blue, left axis) and the above channels (right axis).
+
+Figure 1: animated gif with the 12 most correlated channels reported in the attached text file.
+
+Figure 2 - 3: correlation with the North Input Ring Heater.
+
+Figure 4: Etalon set point temperature.
+
+Figure 6 - 12: interesting but probably unrelated correlation with the temperature at the PSL amplifier. I leave the floor to the experts to comment.
+
+Further analyses will follow, including additional channels and, possibly, involving directly the glitches time series, not their time differences.
+
+Images attached to this comment
+62992_1705428531_Most_correlated_TE_Etalon_mER.gif 62992_1705428642_25min_glitches_most_correlated_02.png 62992_1705428684_25min_glitches_most_correlated_03.png 62992_1705428761_25min_glitches_most_correlated_04.png 62992_1705428819_25min_glitches_most_correlated_06.png 62992_1705428824_25min_glitches_most_correlated_12.png
+Non-image files attached to this comment
+ Most_correlated_TE+Etalon_with_25min_glitches.txt
+ Most_correlated_TE+Etalon_with_25min_glitches.txt
+Detector Characterisation (Glitches)
+direnzo - 0:17 Monday 15 January 2024 (62965)  
+Timing of the annoying 25-minute glitches during the Decmeber 23 mini-Engineering Run
+To facilitate the analysis of the annoying 25-minute glitches, I am sharing a CSV file containing the omicron glitch triggers observed during the days of the mini-Engineering Run; from 16:00 UTC on Dec 24 to 7:10 UTC on Jan 1, coinciding with the time of the Japan earthquake. Please note that I had to modify the file extension from .csv to .txt, as the former format was not accepted. Feel free to change it back to .csv after downloading.
+
+To narrow down the triggers of interest from the total of omicron recordings during this period, I applied the following criteria: a frequency at peak in [30, 80] Hz, and an SNR > 60. This resulted in the selection of a total of 441 glitch triggers. These criteria are supported by the glitchgram reported in Fig. 1 for the examined period. No cuts were made based on the ITF mode flag. Additionally, considering the fast nature of these glitches, I thought to add also some requirement on the duration and/or the Q of these glitches but this had no impact in practice. Following a preliminary analysis with a histogram depicting the time difference between consecutive glitch triggers, I further made a refinement by excluding glitches occurring closer than 15 minutes to their neighbors. This reduced the number of glitches from 441 to 431. While it is not guaranteed that the result includes all and only the glitches belonging to the 25-minute family, it should serve as a representative sample.
+
+Figure 2  displays a histogram of the difference in GPS time between two consecutive glitches, with dashed lines indicating the median (24 minutes and 21 seconds, with characteristic fluctuations of 2.5-3 minutes) and the 5th and 95th percentile values. The orange curve represents the distribution function estimated using the kernel density method. Notably,  Fig. 3 reveals three small clusters at approximately 48, 72, and 96 minutes, supporting the hypothesis that the glitches are "GPS-locked" rather than "lock-locked." Following an unlock, the time for the next glitch aligns with multiples of 25 minutes after the GPS time of the last glitch before the unlock.
+
+Figure 4  resents a scatterplot illustrating the time evolution of the distance between two consecutive glitches, with the orange curve indicating the moving median computed over 10 glitches (approximately 4 hours).
+
+In the next steps, I will explore correlated channels with the time series of the glitches and their time differences.
+
+Images attached to this report
+62965_1705270467_GLitches_miniER.png 62965_1705271334_Distance_Hrec_hoft_16384Hz_miniER.png 62965_1705273211_Distance_Hrec_hoft_16384Hz_miniER_extended.png 62965_1705273579_Distance_Hrec_hoft_16384Hz_time-series_miniER.png
+Non-image files attached to this report
+ 25min_glitches_mER_Dec23.txt
+Comments to this report:
+direnzo - 19:25 Tuesday 16 January 2024 (62992)  
+As anticipated earlier today at the Commissioning meeting, I report a preliminary analysis of the channels correlated with the glitches. Specifically, I considered the time series representing the evolution of glitch distances (the orange curve in Figure 4 of the main entry) and I correlated it with all the thermometers and channels related to the Etalon control system present in the trend frame: "V1:*_TE*","V1:*_Etalon_*", for a total of 1310 channels. The attached text file includes all the (300) channels that possess a Pearson correlation coefficient exceeding 0.2 with the glitch distance series, arranged in order of significance.
+
+As is customary in correlation analyses, this result alone tells nothing about the probable origin of these glitches. It is just "a filter" for those channels that exhibit some similarity with the target in their time evolution, whether they are related or not. As commented by Michal at the Commissioning meeting, some intentional temperature variations at the NI related to the Etalon scan may suggest an actual relation with the mechanism producing the glitches. For example, the curve of the glitch distances exhibits a downward trend, especially from December 29, similar to the average temperatures in a large part of Italy. These have arguably no direct effect on the glitches, although the process/device generating them appears to be sensitive at least to some temperatures. 
+
+I add the plots of some possibly interesting correlations of the target (blue, left axis) and the above channels (right axis).
+
+Figure 1: animated gif with the 12 most correlated channels reported in the attached text file.
+
+Figure 2 - 3: correlation with the North Input Ring Heater.
+
+Figure 4: Etalon set point temperature.
+
+Figure 6 - 12: interesting but probably unrelated correlation with the temperature at the PSL amplifier. I leave the floor to the experts to comment.
+
+Further analyses will follow, including additional channels and, possibly, involving directly the glitches time series, not their time differences.
+
+Images attached to this comment
+62992_1705428531_Most_correlated_TE_Etalon_mER.gif 62992_1705428642_25min_glitches_most_correlated_02.png 62992_1705428684_25min_glitches_most_correlated_03.png 62992_1705428761_25min_glitches_most_correlated_04.png 62992_1705428819_25min_glitches_most_correlated_06.png 62992_1705428824_25min_glitches_most_correlated_12.png
+Non-image files attached to this comment
+ Most_correlated_TE+Etalon_with_25min_glitches.txt
+ Most_correlated_TE+Etalon_with_25min_glitches.txt
+mwas - 19:35 Tuesday 16 January 2024 (62993)  
+Figure 1. There was another intentional change in NI Etalon temperature during the night from Jan 10 to Jan 11. So this could be another time to check if the rate of 25-minute glitches changes, there are long stretches of locks before the change, but then for several days the lock are relatively short and glitchy due to INJ glitches, so the analysis can be more difficult. On Jan 15 there should again be more stable data, that can be used to check the efffect of the NI Etalon set point change on the 25-minute glitches.
+
+Images attached to this comment
+62993_1705429892_Screenshot from 2024-01-16 18-31-18.png
+
+Virgo Logbook
+ LHO
+ LLO
+ KAGRA
+Reports 
+51-63
+ of 63  
+Environmental Monitoring (Environmental Monitoring)
+Fiori, Paoletti - 22:32 Monday 18 December 2023 (62781)  
+Comment to 25-minute glitch investigation: changed temperature in the electronic rooms (62672)
+At 21:20 UTC, we restored the temperature setpoint (22 deg) of IER.
+
+Environmental Monitoring (Environmental Monitoring)
+fiori, tringali, paoletti - 14:50 Monday 18 December 2023 (62775)  
+Comment to 25-minute glitch investigation: changed temperature in the electronic rooms (62672)
+The attached plot looks the glitch rate and the temperature of the IER are compared during the last 48 hours. Although some change in the glitch rate occurs, this seems part of the natural variability of this rate and seems not correlated.
+
+Images attached to this comment
+62775_1702907378_glitches_e_temperatura_piscina_2.png
+Environmental Monitoring (Environmental Monitoring)
+Paoletti - 10:39 Sunday 17 December 2023 (62768)  
+Comment to 25-minute glitch investigation: changed temperature in the electronic rooms (62672)
+It is confirmed that the glitch rate has not changed, although the IER temperature has decreased from 20 to 17 degrees. The average value is 1320s (22m) with a variability of +/- 100s circa.
+
+Images attached to this comment
+62768_1702805852_IER_2.png
+Environmental Monitoring (Environmental Monitoring)
+Paoletti - 20:09 Saturday 16 December 2023 (62762)  
+Comment to 25-minute glitch investigation: changed temperature in the electronic rooms (62672)
+It seems that the latest decrease in IER (Piscina) temperature had no effect on the glitch rate. There is a large variability (as noted by few days), but the mean value is quite the same.
+
+Let's see tonight, when the temperature has stabiized.
+
+Images attached to this comment
+62762_1702753526_IER.png
+Environmental Monitoring (Environmental Monitoring)
+Fiori, Tringali - 18:50 Saturday 16 December 2023 (62761)  
+Comment to 25-minute glitch investigation: changed temperature in the electronic rooms (62672)
+We changed the setpoint temperature of both splitters in the IER (piscina) from 22 to 17 deg at ~13:30 UTC. We decided to maintain this value throughout the night.
+Tomorrow the operator will reset the setpoint to 22 deg.
+
+Environmental Monitoring (Environmental Monitoring)
+fiori, tringali - 22:35 Thursday 07 December 2023 (62672)  
+25-minute glitch investigation: changed temperature in the electronic rooms
+We acted in order to increase by a few degrees the temperature of some electronic rooms inside the CEB, in particular:
+
+DAQ room: we left on only the fan coil #1 (left side near the desk) at the minimum speed
+DET EE room (DER): we switched off both splitters (there is no way to regulate the speed)
+EER room: we changed the splitter temperature set point from 21 to 25 deg
+IER (piscina): we changed the temperature set point point of both splitters from 22 to 26 deg
+These actions were performed between 17:24 and 18:14 UTC. We caused an unlock of the ITF while moving out of the EE room.
+
+We observed the rate of the glitches for 1 hour before the actions and for 2 hours after the actions (Figure 1).
+
+Between the two observation times the temperature of the rooms had increased by a few degrees: DAQ room 3deg, DET EEroom 4deg, EE room 2 deg, IER 0.2 deg
+
+Similar temperature changes are measured by the sensors in the rooms (Figure 1) and by the sensors inside some electronics boards (Figure 2).
+
+The rate of the glitches has not changed in significant way :-( (Figure 1)
+
+Note that the temperature of the IER had a very little change.
+
+We conclude the shift by returning all to the initial condition.
+
+Images attached to this report
+62672_1701984680_20231207_temperatures_1.png 62672_1701984689_20231207_temperatures_2.png
+Comments to this report:
+Fiori, Tringali - 18:50 Saturday 16 December 2023 (62761)  
+We changed the setpoint temperature of both splitters in the IER (piscina) from 22 to 17 deg at ~13:30 UTC. We decided to maintain this value throughout the night.
+Tomorrow the operator will reset the setpoint to 22 deg.
+
+Paoletti - 20:09 Saturday 16 December 2023 (62762)  
+It seems that the latest decrease in IER (Piscina) temperature had no effect on the glitch rate. There is a large variability (as noted by few days), but the mean value is quite the same.
+
+Let's see tonight, when the temperature has stabiized.
+
+Images attached to this comment
+62762_1702753526_IER.png
+Paoletti - 10:39 Sunday 17 December 2023 (62768)  
+It is confirmed that the glitch rate has not changed, although the IER temperature has decreased from 20 to 17 degrees. The average value is 1320s (22m) with a variability of +/- 100s circa.
+
+Images attached to this comment
+62768_1702805852_IER_2.png
+fiori, tringali, paoletti - 14:50 Monday 18 December 2023 (62775)  
+The attached plot looks the glitch rate and the temperature of the IER are compared during the last 48 hours. Although some change in the glitch rate occurs, this seems part of the natural variability of this rate and seems not correlated.
+
+Images attached to this comment
+62775_1702907378_glitches_e_temperatura_piscina_2.png
+Fiori, Paoletti - 22:32 Monday 18 December 2023 (62781)  
+At 21:20 UTC, we restored the temperature setpoint (22 deg) of IER.
+
+Detector Characterisation (Glitches)
+dal canton, direnzo, was - 0:54 Tuesday 10 October 2023 (61945)  
+Comment to Potential lead on ~25min periodic glitches (61944)
+Following the initial suggestion by Tito and the push from Michal, I have tried to directly compare the waveforms of multiple occurrences of these glitches by aligning their time series to the peak time of the corresponding omicron triggers. First of all, notice that if their phases had been completely random, averaging these shifted time series would have given zero as a result. For example, in Fig. 1 I have reported the mean (orange line) of 1000 sine-Gaussian signals (represented by the blue lines); their mean is indeed close to zero and the larger the number of averages, the closer. This was my concern too for a similar operation on the glitch time series but, in fact, this has been the discriminating factor in the analysis I'm about to describe.
+
+I have tried to identify the omicron triggers representing the annoying 25-minute periodic glitches by applying the following selection criteria: 35 Hz < peak frequency < 110 Hz, and SNR > 40. I have put the last 1000 omicron triggers matching the previous criteria in the attached CSV file (I had to change the extension to txt but this is in fact a CSV). Notice that the previous criteria are not perfect and the CSV file contains a number of triggers not belonging to this family of glitches.
+
+In Fig. 2 I have plotted, with semitransparent tiny blue lines, the time series of 1000 glitches bandapssed between 20 and 1024 Hz. The darker the color, the larger the superposition of the waveforms. In fact, most of them follow the same exact pattern, that is, they have the same phase. Moreover, all these glitches seem to have very similar SNRs. The orange curve represents their median (not mean to be more resilient to completely different waveforms). Notice also the darker shade in the correspondence of the y = 0 axis. This takes into account all the other glitches, not belonging to the 25-minute family, with random phases and that average to zero.
+
+In order to verify the effects of the lowpass filter, in Fig. 3 I have reported the same analysis as before but with the second corner frequency set to 100 Hz. This and the former figure look in fact very similar, with the former being visually more "furry" (more high frequencies) than the latter, as expected.
+
+As a final check, I repeated the analysis one last time making use of the whitened time series: Fig. 4. There are visible differences at the sides with respect to the previous figures but the main oscillations at the center are still all similar.
+
+This confirms the hypothesis that the sign of these glitches is always the same, possibly reinforcing the claim in the main entry that these are originated by a zeroed sample in some filter output related to DARM.
+
+EDIT:  the y-axis label in Fig. 2 and 3 is wrong. These signals are not whitened and they have strain units (x 10^-19).
+
+Images attached to this comment
+61945_1696889699_Stacked_sinGauss.png 61945_1696890511_Stacked_glitches_bandpassed_20-1024.png 61945_1696891030_Stacked_glitches_bandpassed_20-100.png 61945_1696891339_Stacked_glitches.png
+Non-image files attached to this comment
+ Glitch_triggers_25minutes.txt
+Detector Characterisation (Glitches)
+fiori - 11:24 Friday 06 October 2023 (61912)  
+25-minute glitches, some PD signals
+Just a naive observation of some signals related to one of these periodic glitches: that occurring on Sept 29, 07:31:42 UTC.
+
+As shown in the attached figure, the glitch is seen in DARM and B1* photodiodes, but apparently not in oher longitudinal dof. Also apparently (since I might not have selected the relevant channels) it is not seen in B1p* signals, nor in B1s* (not shown here). To me this looks a bit strange, but this a non-expert point of view :-)
+
+Images attached to this report
+61912_1696583682_glitch_somePDsignals.PNG
+Detector Characterisation (Broadband noise)
+direnzo, fiori, nardecchia, tringali - 17:37 Friday 29 September 2023 (61837)  
+25-minute glitches investigation - Switch off of the heating belt power supply
+To investigate the annoying 25-minute-period glitches, first documented in the logbook entry #59763, we performed today the switch off of the power supply of the input towers' heating belts.
+
+In the logbook entry #60599, it was noticed that the rate of these glitches was (anti)correlated with the temperature at the bottom of the North Input tower (V1:INF_NI_BOTTOM_TE1) and, in turn, of the voltage applied to the heating belt mounted there. This was thought to be a hint that the noise source of these glitches was affected by the controls of this heating belt. This was thought to be a hint that the controls of this heating belt were affecting the noise source of these glitches. Today, Maria and Ilaria switched off the power supplies of the NI and WI heating belts, located in the TCS room (pictures 1 and 2), from 10:36 to 10:44 UTC.
+
+Inferring from the rate of glitches during the past hours of lock (Fig.3, with the histogram of the time distance between two consecutive glitches), we forecasted the occurrence of a glitch between 10:38 and 10:45 UTC. If the Heating Belts power supply was the cause of these glitches, turning that off would have not produced any glitch at the expected time. Unfortunately, the glitch occurred nonetheless at 10:42:12 UTC... Refer to the glitchgram in Fig. 4, where each rectangle corresponds to the duration and bandwidth of the Omicron glitch trigger (cluster) at that time. Figure 5 shows the Q-transform of that glitch, together with the data whiten time series.
+
+An analysis of this result should be carried out. We should decide if it is appropriate to repeat the test, and conclusions should be drawn from the results obtained so far to predict the next actions to investigate these glitches.
+
+Images attached to this report
+61837_1695998970_Untitled_1.jpg 61837_1695998973_Untitled_2.jpg 61837_1695998978_Distance_Hrec_hoft_16384Hz_Sep.png 61837_1695998984_Rectanglegram_V1_Hrec_hoft_16384Hz_1379973618.png 61837_1696001623_Glitch_example_Sep.png
+Detector Characterisation (Glitches)
+Paoletti - 11:18 Tuesday 12 September 2023 (61597)  
+Comment to On a possible thermal origin of the offending 25-minute period glitches (60143)
+Glitches are still present, with a somewhat reduced timing now (~23m). They create a drop in the BNS range of up to a couple of Mpc.
+
+We have installed magnetometers at every possible point in the CEB (but we also have them in all other buildings), finding no correlation.
+
+Also in the mains monitors: no correlation.       And nothing to do with CEB thermal changes.
+
+The channel that is a nice flag for these glitches is:
+
+DQ_BRMSMonHrec_BRMS_HREC_HOFT_FREQ_BAND_85_95_Hrec_hoft_16384Hz
+
+(updated every second)
+
+Images attached to this comment
+61597_1694507789_Cattura.PNG
+Detector Characterisation (Glitches)
+direnzo - 17:05 Monday 19 June 2023 (60599)  
+Comment to On a possible thermal origin of the offending 25-minute period glitches (60143)
+A quick (inconclusive) update about the ongoing investigation of the annoying 25-minute glitches. Following the outcome of the previous entry, and the feedback from ENV people, I investigated the correlation of the series of distances between two consecutive glitches and some INF_* and ENV_* channels related to the NI and WI towers, and in particular with the heating belts.
+
+Figure 1: (anti)correlation of the temperature in the correspondence of the North Input Heating Belt (blue, reverse y-axis) and the series of glitch distances (orange). In the bottom plot, the time series of the voltage signal used to power up the belt. The oscillations of the two time series appear to be well synchronized during the entire month of data inspected.
+
+Figure 2: same as above but for the Heating Belt on the West Input tower. The correlation is lower than that for NI.
+
+Figure 3: same as in the entry above, (anti)correlation of the INF_TCS_NI_RH_TE channel and the series of glitch distances. The jump at around April 27, which led to a reduction of 2 minutes in the rate of glitches and a difference in temperature by about 0.4°C is not well understood yet.
+
+From these plots, it seems evident that the source that generates the glitches, though unknown yet, is affected by the temperature in the area of the NI Heating Belt.
+
+ 
+
+Images attached to this comment
+60599_1687185033_Glitch_dist-INF_NI_BOTTOM_TE1_correlation.png 60599_1687185039_Glitch_dist-INF_WI_BOTTOM_TE1_correlation.png 60599_1687185062_Glitch_dist-INF_TCS_NI_RH_TE_correlation.png
+Detector Characterisation (Glitches)
+mwas - 17:14 Monday 08 May 2023 (60146)  
+Comment to On a possible thermal origin of the offending 25-minute period glitches (60143)
+This is interesting. It could mean that the glitches are related to the heating belts that control the NI/WI towers temperature to change the mirror temperature and etalon effect. From what I can see WI heating belt was in operation since Jan 30, and the sensitivity at that time was not sufficient to see these kind of transient.
+
+Do we have any monitoring of the curent in the heating belts that could detect these glitches?
+
+A time consuming test would be to switch off the heating belts of NI and WI for a few hours and see if the glitches in h(t) disappear. That will probably mistune the etalon effect for a long time, so best to do it in the day or two before the intervention inside vacuum on WI.
+
+Detector Characterisation (Glitches)
+direnzo - 15:46 Monday 08 May 2023 (60143)  
+On a possible thermal origin of the offending 25-minute period glitches
+The rate of the offending loud glitches in Hrec and DARM reported in the logbook entry #59763 is changing over time. The time distance between two consecutive glitches used to be of about 28 minutes on the 12th of April, but now is less than 25 minutes; refer to Fig.1 here in comparison to the first figure of logbook entry #59791. In addition to that, there are always oscillations of the order of 1.5 minutes in the distance between consecutive glitches.
+
+In this logbook entry, I report the investigation of the evolution of the average distance between consecutive glitches over 20 days of data. To insulate these glitches, I filtered the omicron triggers for V1:Hrec_hoft_16384Hz to have a frequency at peak lower than 90 Hz and SNR greater than 40. Then, I constructed the time series of their distances, linearly interpolating the gaps, corresponding to periods when the interferometer was unlocked. I considered outliers (corresponding to glitches of another origin, not filtered with the previous criterion) and discarded all the triggers following more than 5 Median Absolute Deviations (MADs) away from the 6h moving median of the previous time series. Nor the 5 MADs criterion or the duration of the sliding window to compute the median play a crucial role in the results.
+
+The time distance between consecutive glitches (not outliers) and their 6h moving median are represented by the dots and the continuous orange line in Fig. 2 and Fig. 3.
+
+Then, I computed the brute force correlation of the moving median time series with all the temperature channels from the trend frame. The most interesting result is a quite evident anticorrelation (Pearson coefficient -40%) of the distance of these glitches with the INF_TCS_NI_RH_TE channel, represented by the blue line in Fig. 2 (NOTICE that the y axis has been reversed).
+
+Instead, the correlation is not as marked with other ENV_CEB_TE channels (Pearson coef. -20%): the general increase of temperature in the last 20 days is anticorrelated with an overall reduction of the distance between consecutive glitches. However, the daily modulation of the temperature in CEB seems to be off-sync with respect to the peaks in the moving median time series. Refer to Fig. 3.
+
+In the attachments, a text file with the list of the 100 most correlated channels.
+
+This analysis points to a (indirect) thermal origin of these glitches, not due to a timed device (the rate is too uneven) and only partially to the overall temperature changes in CEB. The TCS subsystem seems to witness the cause of these glitches.
+
+ 
+
+ 
+
+Images attached to this report
+60143_1683551447_Distance_Hrec_hoft_16384Hz_May.png 60143_1683552538_Glitch_dist-INF_TCS_NI_RH_TE_correlation.png 60143_1683552544_Glitch_dist-ENV_CEB_N_TE_correlation.png
+Non-image files attached to this report
+ corralations_TE-dist.txt
+Comments to this report:
+mwas - 17:14 Monday 08 May 2023 (60146)  
+This is interesting. It could mean that the glitches are related to the heating belts that control the NI/WI towers temperature to change the mirror temperature and etalon effect. From what I can see WI heating belt was in operation since Jan 30, and the sensitivity at that time was not sufficient to see these kind of transient.
+
+Do we have any monitoring of the curent in the heating belts that could detect these glitches?
+
+A time consuming test would be to switch off the heating belts of NI and WI for a few hours and see if the glitches in h(t) disappear. That will probably mistune the etalon effect for a long time, so best to do it in the day or two before the intervention inside vacuum on WI.
+
+direnzo - 17:05 Monday 19 June 2023 (60599)  
+A quick (inconclusive) update about the ongoing investigation of the annoying 25-minute glitches. Following the outcome of the previous entry, and the feedback from ENV people, I investigated the correlation of the series of distances between two consecutive glitches and some INF_* and ENV_* channels related to the NI and WI towers, and in particular with the heating belts.
+
+Figure 1: (anti)correlation of the temperature in the correspondence of the North Input Heating Belt (blue, reverse y-axis) and the series of glitch distances (orange). In the bottom plot, the time series of the voltage signal used to power up the belt. The oscillations of the two time series appear to be well synchronized during the entire month of data inspected.
+
+Figure 2: same as above but for the Heating Belt on the West Input tower. The correlation is lower than that for NI.
+
+Figure 3: same as in the entry above, (anti)correlation of the INF_TCS_NI_RH_TE channel and the series of glitch distances. The jump at around April 27, which led to a reduction of 2 minutes in the rate of glitches and a difference in temperature by about 0.4°C is not well understood yet.
+
+From these plots, it seems evident that the source that generates the glitches, though unknown yet, is affected by the temperature in the area of the NI Heating Belt.
+
+ 
+
+Images attached to this comment
+60599_1687185033_Glitch_dist-INF_NI_BOTTOM_TE1_correlation.png 60599_1687185039_Glitch_dist-INF_WI_BOTTOM_TE1_correlation.png 60599_1687185062_Glitch_dist-INF_TCS_NI_RH_TE_correlation.png
+Paoletti - 11:18 Tuesday 12 September 2023 (61597)  
+Glitches are still present, with a somewhat reduced timing now (~23m). They create a drop in the BNS range of up to a couple of Mpc.
+
+We have installed magnetometers at every possible point in the CEB (but we also have them in all other buildings), finding no correlation.
+
+Also in the mains monitors: no correlation.       And nothing to do with CEB thermal changes.
+
+The channel that is a nice flag for these glitches is:
+
+DQ_BRMSMonHrec_BRMS_HREC_HOFT_FREQ_BAND_85_95_Hrec_hoft_16384Hz
+
+(updated every second)
+
+Images attached to this comment
+61597_1694507789_Cattura.PNG
+
+
+

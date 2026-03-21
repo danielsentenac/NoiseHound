@@ -1,18 +1,20 @@
 """
-zoom_asc_sr_ty.py — High-resolution zoom + periodogram for V1:ASC_SR_TY_ERR_mean.
+zoom_asc_sr_ty.py — Periodogram zoom for any ITF ASC channel.
 
-Extracts the channel at 1-second resolution for two reference weeks:
-  BEFORE: 2025-11-24 – 2025-12-01  (active glitch period, 2 weeks before shutdown)
-  AFTER:  2026-01-12 – 2026-01-19  (post-relock, 4 days after ITF back)
+Produces a 3-row plot comparing:
+  Row 0 — Pre-baffle  LOW_NOISE_3         (SR misaligned, glitches present)
+  Row 1 — Post-baffle LOW_NOISE_3         (SR misaligned, same config, glitches gone?)
+  Row 2 — Post-baffle LOW_NOISE_3_ALIGNED (SR aligned, probe glitch/mystery-noise coupling)
 
-For each window:
-  - Time series at 5-minute averages
-  - Lomb-Scargle periodogram (periods 5 min – 3 h)
-  - Highlights the ~25-min glitch recurrence period
+Lock states (V1:META_ITF_LOCK_index):
+  134 = ACQUIRE_LOW_NOISE_3       135 = LOW_NOISE_3
+  144 = ACQUIRE_LOW_NOISE_3_ALIGNED  145 = LOW_NOISE_3_ALIGNED
 
 Usage (on CCA):
-    python scripts/zoom_asc_sr_ty.py \
-        --output outputs/zoom_asc_sr_ty.png \
+    python scripts/zoom_asc_sr_ty.py \\
+        --channel   V1:ASC_SR_TY_ERR_mean \\
+        --ylabel    "SR TY error [rad]" \\
+        --output    outputs/zoom_asc_sr_ty.png \\
         --stage-dir /tmp/nh_zoom_sr
 """
 from __future__ import annotations
@@ -28,7 +30,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-# astropy degC patch (same as other scripts)
+# astropy degC patch
 try:
     import astropy.units.quantity as _aq
     from astropy.units import dimensionless_unscaled as _dless
@@ -45,15 +47,19 @@ except Exception:
 
 GPS_EPOCH  = pd.Timestamp("1980-01-06", tz="UTC")
 HPSS_BASE  = "cchpss0:/hpss/in2p3.fr/group/virgo/DATA/trend"
-CHANNEL    = "V1:ASC_SR_TY_ERR_mean"   # default; overridden by --channel arg
-GLITCH_PERIOD_MIN = 25.0   # known ~25-min glitch recurrence
+CHANNEL      = "V1:ASC_SR_TY_ERR_mean"
+LOCK_CHANNEL = "V1:META_ITF_LOCK_index"
+GLITCH_PERIOD_MIN = 25.0
 
-# Two reference windows (GPS)
-WINDOWS = {
-    "Before shutdown\n(24 Nov – 01 Dec 2025)": (1448323200, 1448928000),  # 7 days
-    "After relock — quiet period\n(01 Feb – 08 Feb 2026)": (1454284800, 1454889600),  # 7 days
-}
-BIN_MIN = 5   # 5-minute averages for time series
+# GPS windows
+GPS_BEFORE = (1448323200, 1448928000)   # 24 Nov – 01 Dec 2025 (pre-baffle)
+GPS_AFTER  = (1452456000, 1458000000)   # 14 Jan – 20 Mar 2026 (post-baffle, wide)
+
+# Lock index ranges per state
+LN3         = (133.0, 136.0)   # LOW_NOISE_3 (SR misaligned)
+LN3_ALIGNED = (143.0, 146.0)   # LOW_NOISE_3_ALIGNED (SR aligned)
+
+BIN_MIN = 5   # 5-minute averages
 
 
 def gps_to_dt(gps):
@@ -75,14 +81,19 @@ def stage(gps_day: int, stage_dir: Path) -> Optional[Path]:
 
 def extract_window(gps_start: int, gps_end: int,
                    stage_dir: Path,
-                   channel: str = CHANNEL) -> Optional[pd.DataFrame]:
-    """Extract channel at 1-s resolution for [gps_start, gps_end), binned to BIN_MIN."""
+                   channel: str = CHANNEL,
+                   lock_range: Optional[tuple] = None) -> Optional[pd.DataFrame]:
+    """Extract channel for [gps_start, gps_end), binned to BIN_MIN minutes.
+
+    If lock_range=(lo, hi) is given, also reads V1:META_ITF_LOCK_index and
+    keeps only 5-min bins where the mean lock index is in [lo, hi].
+    """
     from gwpy.timeseries import TimeSeries
 
     day_start = (gps_start // 86400) * 86400
     day_end   = (gps_end   // 86400) * 86400
 
-    times, vals = [], []
+    times, vals, locks = [], [], []
     for gps_day in range(day_start, day_end + 86400, 86400):
         gwf = stage(gps_day, stage_dir)
         if gwf is None:
@@ -93,8 +104,16 @@ def extract_window(gps_start: int, gps_end: int,
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 ts = TimeSeries.read(str(gwf), channel, start=t0, end=t1)
-            times.append(np.asarray(ts.times.value, float))
-            vals.append(np.asarray(ts.value, float))
+            t_arr = np.asarray(ts.times.value, float)
+            v_arr = np.asarray(ts.value, float)
+            times.append(t_arr)
+            vals.append(v_arr)
+            if lock_range is not None:
+                try:
+                    lk = TimeSeries.read(str(gwf), LOCK_CHANNEL, start=t0, end=t1)
+                    locks.append(np.asarray(lk.value, float))
+                except Exception:
+                    locks.append(np.full(len(t_arr), np.nan))
         except Exception as e:
             print(f"  read failed {gps_day}: {e}", flush=True)
 
@@ -104,67 +123,97 @@ def extract_window(gps_start: int, gps_end: int,
     t = np.concatenate(times)
     v = np.concatenate(vals)
     df = pd.DataFrame({"gps": t, "val": v})
+    if lock_range is not None and locks:
+        df["lock"] = np.concatenate(locks)
 
     # Bin to BIN_MIN-minute averages
     bin_s = BIN_MIN * 60
     df["bin"] = (df["gps"] // bin_s) * bin_s
-    binned = df.groupby("bin")["val"].mean().reset_index()
-    binned.columns = ["gps", "val"]
-    return binned
+
+    if lock_range is not None and "lock" in df.columns:
+        agg = df.groupby("bin").agg(val=("val", "mean"), lock=("lock", "mean")).reset_index()
+        agg.columns = ["gps", "val", "lock"]
+        lo, hi = lock_range
+        n_total = len(agg)
+        agg = agg[(agg["lock"] >= lo) & (agg["lock"] <= hi)].drop(columns="lock")
+        n_kept = len(agg)
+        print(f"  lock filter [{lo:.0f},{hi:.0f}]: {n_kept}/{n_total} 5-min bins "
+              f"({100*n_kept/max(n_total,1):.1f}%)", flush=True)
+        if n_kept < 20:
+            print("  WARNING: very few bins in this lock state", flush=True)
+            return None
+        return agg.rename(columns={"bin": "gps"}) if "bin" in agg.columns else agg
+    else:
+        binned = df.groupby("bin")["val"].mean().reset_index()
+        binned.columns = ["gps", "val"]
+        return binned
 
 
 def lombscargle(gps: np.ndarray, val: np.ndarray,
                 period_min_range=(5.0, 180.0)):
     """Return (periods_min, power) Lomb-Scargle normalised to unit variance."""
     from astropy.timeseries import LombScargle
-    t_s   = gps - gps[0]
-    y     = val - np.nanmean(val)
-    mask  = np.isfinite(y)
+    t_s = gps - gps[0]
+    y   = val - np.nanmean(val)
+    mask = np.isfinite(y)
     t_s, y = t_s[mask], y[mask]
     freq_min = 1.0 / (period_min_range[1] * 60)
     freq_max = 1.0 / (period_min_range[0] * 60)
-    freq = np.linspace(freq_min, freq_max, 5000)
-    ls   = LombScargle(t_s, y)
-    power = ls.power(freq)
-    periods = 1.0 / freq / 60.0   # in minutes
-    return periods, power
+    freq  = np.linspace(freq_min, freq_max, 5000)
+    power = LombScargle(t_s, y).power(freq)
+    return 1.0 / freq / 60.0, power   # periods in minutes
 
 
 def plot(output: str, stage_dir: str,
-         channel: str = CHANNEL, ylabel: Optional[str] = None) -> None:
+         channel: str = CHANNEL, ylabel: Optional[str] = None,
+         after_gps: Optional[tuple] = None) -> None:
     sd = Path(stage_dir)
     sd.mkdir(parents=True, exist_ok=True)
 
-    fig = plt.figure(figsize=(14, 10))
+    after_start, after_end = after_gps if after_gps else GPS_AFTER
+
+    from astropy.time import Time as AstroTime
+    def fmt(gps): return AstroTime(gps, format="gps").strftime("%d %b %Y")
+
+    windows = [
+        # (label, gps_start, gps_end, lock_range, color)
+        ("Pre-baffle — LOW_NOISE_3 (SR misaligned)\n"
+         f"({fmt(GPS_BEFORE[0])} – {fmt(GPS_BEFORE[1])})",
+         GPS_BEFORE[0], GPS_BEFORE[1], LN3, "tab:blue"),
+
+        ("Post-baffle — LOW_NOISE_3 (SR misaligned)\n"
+         f"({fmt(after_start)} – {fmt(after_end)}, locked only)",
+         after_start, after_end, LN3, "tab:orange"),
+
+        ("Post-baffle — LOW_NOISE_3_ALIGNED (SR aligned)\n"
+         f"({fmt(after_start)} – {fmt(after_end)}, locked only)",
+         after_start, after_end, LN3_ALIGNED, "tab:green"),
+    ]
+
+    fig = plt.figure(figsize=(14, 15))
     fig.suptitle(f"{channel} — zoom & periodogram\n"
-                 f"Before vs after SR baffle installation (Christmas 2025 shutdown)",
+                 f"Before vs after SR baffle (Christmas 2025) — by lock state",
                  fontsize=11)
-    gs = GridSpec(2, 2, figure=fig, hspace=0.45, wspace=0.35)
+    gs = GridSpec(3, 2, figure=fig, hspace=0.55, wspace=0.35)
 
-    colors = ["tab:blue", "tab:orange"]
-    data = {}
-
-    for idx, (label, (gps_start, gps_end)) in enumerate(WINDOWS.items()):
+    for idx, (label, gps_start, gps_end, lock_range, color) in enumerate(windows):
         print(f"\n[{label.splitlines()[0]}]", flush=True)
-        df = extract_window(gps_start, gps_end, sd, channel=channel)
+        df = extract_window(gps_start, gps_end, sd, channel=channel,
+                            lock_range=lock_range)
         if df is None or len(df) < 10:
             print("  No data.", flush=True)
             continue
-        data[label] = df
-        color = colors[idx]
         dt = gps_to_dt(df["gps"].values)
 
-        # Time series
         ax_ts = fig.add_subplot(gs[idx, 0])
         ax_ts.plot(dt.values, df["val"].values, lw=0.7, color=color)
-        ax_ts.set_title(label, fontsize=9)
+        ax_ts.set_title(label, fontsize=8)
         ax_ts.set_ylabel(ylabel or channel.split(":")[-1], fontsize=8)
         ax_ts.xaxis.set_major_formatter(
             plt.matplotlib.dates.DateFormatter("%d %b\n%H:%M"))
         ax_ts.tick_params(axis="x", labelsize=7)
         ax_ts.grid(alpha=0.25)
 
-        # Periodogram
         ax_pg = fig.add_subplot(gs[idx, 1])
         periods, power = lombscargle(df["gps"].values, df["val"].values)
         ax_pg.plot(periods, power, lw=0.8, color=color)
@@ -172,7 +221,7 @@ def plot(output: str, stage_dir: str,
                       label=f"~{GLITCH_PERIOD_MIN:.0f} min")
         ax_pg.set_xlabel("Period [min]", fontsize=8)
         ax_pg.set_ylabel("LS power", fontsize=8)
-        ax_pg.set_title(f"Periodogram — {label.splitlines()[0]}", fontsize=9)
+        ax_pg.set_title(f"Periodogram — {label.splitlines()[0]}", fontsize=8)
         ax_pg.legend(fontsize=7)
         ax_pg.grid(alpha=0.25)
         ax_pg.set_xlim(5, 180)
@@ -188,15 +237,23 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--output",    default="outputs/zoom_asc_sr_ty.png")
     p.add_argument("--stage-dir", default="/tmp/nh_zoom_sr")
-    p.add_argument("--channel",   default=None,
-                   help="Override channel (default: V1:ASC_SR_TY_ERR_mean)")
-    p.add_argument("--ylabel",    default=None,
-                   help="Y-axis label for time-series panels")
+    p.add_argument("--channel",   default=None)
+    p.add_argument("--ylabel",    default=None)
+    p.add_argument("--after-gps-start", type=int, default=None,
+                   help="GPS start of post-baffle search window (default: 14 Jan 2026)")
+    p.add_argument("--after-gps-end",   type=int, default=None,
+                   help="GPS end of post-baffle search window (default: 01 Mar 2026)")
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
+    after_gps = None
+    if args.after_gps_start and args.after_gps_end:
+        after_gps = (args.after_gps_start, args.after_gps_end)
+    elif args.after_gps_start or args.after_gps_end:
+        raise SystemExit("ERROR: provide both --after-gps-start and --after-gps-end")
     plot(args.output, args.stage_dir,
          channel=args.channel or CHANNEL,
-         ylabel=args.ylabel)
+         ylabel=args.ylabel,
+         after_gps=after_gps)
