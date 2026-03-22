@@ -6,11 +6,12 @@
 #SBATCH -t 03:00:00
 #SBATCH -o /pbs/home/s/sentenac/NOISEHOUND/slurm-nh-sr-pos-%j.out
 
-# Extract V1:ASC_SR_TY_mean and V1:ASC_SR_TX_mean from trend GWF
+# Extract SR marionette setpoint channels from trend GWF
 # for the disappearance epoch: Oct 2025 – Apr 2026.
+# Channels: SAT_SR_MAR_TY_SET / SAT_SR_MAR_TX_SET
+# (marionette angular setpoints — directly encode the LN3 vs LN3_ALIGNED step)
 # Bins to 1-h averages, saves outputs/sr_pos_epoch.csv
-# Sanity check: SR actual angular position should show clear step
-# between LN3 (tilted, pre-Christmas) and LN3_ALIGNED (post-Christmas).
+# Expected: TX steps from ~+6 to ~-757 at Christmas shutdown.
 
 set -euo pipefail
 
@@ -41,7 +42,7 @@ GPS_START     = 1443657600   # 2025-10-01
 GPS_END       = 1459468800   # 2026-04-01
 BIN_S         = 3600         # 1-h bins
 
-CHANNELS = ["V1:ASC_SR_TY_mean", "V1:ASC_SR_TX_mean"]
+CHANNELS = ["V1:SAT_SR_MAR_TY_SET", "V1:SAT_SR_MAR_TX_SET"]
 
 from gwpy.timeseries import TimeSeries
 
@@ -79,7 +80,7 @@ for gps_day in range(day_start, day_end + 86400, 86400):
             bins  = (t_arr // BIN_S).astype(int) * BIN_S
             df_ch = (pd.DataFrame({"gps_bin": bins, "val": v_arr})
                        .groupby("gps_bin")["val"].mean())
-            key = "sr_ty_mean" if "TY" in ch else "sr_tx_mean"
+            key = "sr_mar_ty_set" if "TY" in ch else "sr_mar_tx_set"
             for gps_bin, val in df_ch.items():
                 records.append({"gps_bin": int(gps_bin), key: val})
             ok = True

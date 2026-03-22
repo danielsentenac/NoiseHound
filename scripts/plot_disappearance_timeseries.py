@@ -412,12 +412,12 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax = axes[10]
     if sr_pos is not None:
         sr_dt = gps_to_dt(sr_pos["gps_bin"].values)
-        if "sr_ty_mean" in sr_pos.columns:
-            ax.plot(sr_dt.values, sr_pos["sr_ty_mean"].values,
-                    lw=0.9, color="tab:blue", label="V1:ASC_SR_TY_mean")
-        if "sr_tx_mean" in sr_pos.columns:
-            ax.plot(sr_dt.values, sr_pos["sr_tx_mean"].values,
-                    lw=0.9, color="tab:orange", label="V1:ASC_SR_TX_mean")
+        if "sr_mar_ty_set" in sr_pos.columns:
+            ax.plot(sr_dt.values, sr_pos["sr_mar_ty_set"].values,
+                    lw=0.9, color="tab:blue", label="V1:SAT_SR_MAR_TY_SET")
+        if "sr_mar_tx_set" in sr_pos.columns:
+            ax.plot(sr_dt.values, sr_pos["sr_mar_tx_set"].values,
+                    lw=0.9, color="tab:orange", label="V1:SAT_SR_MAR_TX_SET")
     else:
         # fallback: ERR channels from binned data
         for col, lab, color in [
@@ -426,8 +426,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
             if col in df.columns:
                 ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
     decorate(ax)
-    ax.set_ylabel("[rad]", fontsize=9)
-    ax.set_title("SR actual angular position — LN3 (tilted) vs LN3_ALIGNED", fontsize=9)
+    ax.set_ylabel("[arb]", fontsize=9)
+    ax.set_title("SR marionette setpoint (TY/TX) — LN3 vs LN3_ALIGNED", fontsize=9)
     ax.set_xlabel("Date", fontsize=9)
 
     fig.autofmt_xdate(rotation=20)
@@ -446,7 +446,7 @@ def parse_args():
     p.add_argument("--triggers",  required=True)
     p.add_argument("--itf-lock",  default="")
     p.add_argument("--sr-pos",    default="",
-                   help="CSV with gps_bin, sr_ty_mean, sr_tx_mean")
+                   help="CSV with gps_bin, sr_mar_ty_set, sr_mar_tx_set")
     p.add_argument("--output",
                    default="usecases/25-minute-glitch/disappearance_timeseries.png")
     return p.parse_args()
