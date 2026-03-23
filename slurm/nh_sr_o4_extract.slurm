@@ -58,6 +58,8 @@ BIN_S     = 3600   # 1-h bins
 CHANNELS = {
     "V1:SAT_SR_MAR_TX_SET":              "sr_mar_tx_set",
     "V1:ASC_SR_TY_B1p_mag_10Hz_FS_mean": "asc_sr_ty_b1p_mag",
+    "V1:Sc_SR_MIR_TX_mean":              "sc_sr_mir_tx",
+    "V1:Sc_SR_MIR_TY_mean":              "sc_sr_mir_ty",
 }
 
 def stage(gps_day: int) -> Path | None:
