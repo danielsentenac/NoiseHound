@@ -28,7 +28,7 @@ WORKDIR="$HOME/NOISEHOUND"
 IGWN_PYTHON="${IGWN_PYTHON:-/cvmfs/software.igwn.org/conda/envs/igwn/bin/python}"
 GPS_START="${GPS_START:-1364774400}"
 GPS_END="${GPS_END:-1388534400}"
-STAGE_DIR="/tmp/nh_sr_o4_${SLURM_JOB_ID:-local}_$$"
+export STAGE_DIR="/tmp/nh_sr_o4_${SLURM_JOB_ID:-local}"
 mkdir -p "$STAGE_DIR"
 
 echo "=== SR O4 extraction started $(date -u '+%Y-%m-%d %H:%M:%SZ') ==="
