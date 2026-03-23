@@ -102,13 +102,16 @@ def main():
               np.percentile(tx[np.isfinite(tx)], 99.5))
     print(f"TX range (0.5–99.5 pct): {x_clip[0]:.1f} – {x_clip[1]:.1f}")
 
+    # Fractional year for colour coding
+    year_frac = 1980 + gps / (365.25 * 86400)
+
     # ── Plot ────────────────────────────────────────────────────────────────
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure(figsize=(18, 5))
     fig.suptitle(
         "25-min glitch SNR vs SR marionette TX setpoint (V1:SAT_SR_MAR_TX_SET) — full O4",
         fontsize=11, y=1.01
     )
-    gs = GridSpec(1, 3, figure=fig, wspace=0.38)
+    gs = GridSpec(1, 4, figure=fig, wspace=0.42)
 
     panel(fig.add_subplot(gs[0, 0]), tx, snr,
           "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
@@ -127,6 +130,24 @@ def main():
         panel(fig.add_subplot(gs[0, 2]), tx, snr,
               "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
               "Glitch SNR (fallback)", "tab:purple", x_clip)
+
+    # ── Panel 4: SNR vs TX coloured by time ────────────────────────────────
+    ax4 = fig.add_subplot(gs[0, 3])
+    mask = (tx >= x_clip[0]) & (tx <= x_clip[1]) & np.isfinite(snr)
+    sc = ax4.scatter(tx[mask], snr[mask], c=year_frac[mask], cmap="plasma",
+                     s=2, alpha=0.3, rasterized=True)
+    # Binned median overlay
+    cx, med, p25, p75, _ = binned_stats(tx[mask], snr[mask], n_bins=40)
+    ax4.plot(cx, med, color="white", lw=2.5)
+    ax4.plot(cx, med, color="black", lw=1.5, label="median")
+    cb = fig.colorbar(sc, ax=ax4, pad=0.02)
+    cb.set_label("Year", fontsize=8)
+    cb.ax.tick_params(labelsize=7)
+    ax4.set_xlabel("V1:SAT_SR_MAR_TX_SET [arb]", fontsize=9)
+    ax4.set_ylabel("SNR", fontsize=9)
+    ax4.set_title("SNR vs TX — coloured by time", fontsize=9)
+    ax4.tick_params(labelsize=8)
+    ax4.legend(fontsize=7)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
