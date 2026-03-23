@@ -105,18 +105,18 @@ def main():
     # ── Plot ────────────────────────────────────────────────────────────────
     fig = plt.figure(figsize=(15, 5))
     fig.suptitle(
-        "25-min glitch properties vs SR marionette TX setpoint (V1:SAT_SR_MAR_TX_SET) — full O4",
+        "25-min glitch SNR vs SR marionette TX setpoint (V1:SAT_SR_MAR_TX_SET) — full O4",
         fontsize=11, y=1.01
     )
     gs = GridSpec(1, 3, figure=fig, wspace=0.38)
 
-    panel(fig.add_subplot(gs[0, 0]), tx, center_f,
-          "V1:SAT_SR_MAR_TX_SET [arb]", "Center frequency [Hz]",
-          "Glitch center frequency", "tab:blue", x_clip)
+    panel(fig.add_subplot(gs[0, 0]), tx, snr,
+          "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
+          "Glitch SNR", "tab:blue", x_clip)
 
-    panel(fig.add_subplot(gs[0, 1]), tx, bandwidth,
-          "V1:SAT_SR_MAR_TX_SET [arb]", "Bandwidth (fend−fstart) [Hz]",
-          "Glitch bandwidth", "tab:orange", x_clip)
+    panel(fig.add_subplot(gs[0, 1]), tx, np.log10(snr),
+          "V1:SAT_SR_MAR_TX_SET [arb]", "log₁₀(SNR)",
+          "Glitch SNR (log scale)", "tab:orange", x_clip)
 
     valid_b1p = np.isfinite(b1p_mag) & (b1p_mag > 0)
     if valid_b1p.sum() > 100:
@@ -126,7 +126,7 @@ def main():
     else:
         panel(fig.add_subplot(gs[0, 2]), tx, snr,
               "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
-              "Glitch SNR", "tab:purple", x_clip)
+              "Glitch SNR (fallback)", "tab:purple", x_clip)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
