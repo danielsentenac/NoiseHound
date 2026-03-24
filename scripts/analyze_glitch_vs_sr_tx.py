@@ -55,7 +55,8 @@ def binned_stats(x: np.ndarray, y: np.ndarray, n_bins: int = 40):
             np.array(p25), np.array(p75), np.array(counts))
 
 
-def panel(ax, x, y, xlabel, ylabel, title, color, x_clip=None):
+def panel(ax, x, y, x_label, ylabel, title, color, x_clip=None):
+    xlabel = x_label
     if x_clip is not None:
         mask = (x >= x_clip[0]) & (x <= x_clip[1]) & np.isfinite(y)
         x, y = x[mask], y[mask]
@@ -69,7 +70,7 @@ def panel(ax, x, y, xlabel, ylabel, title, color, x_clip=None):
     ax.plot(cx, med, color=color, lw=2, label="median")
     ax.fill_between(cx, p25, p75, color=color, alpha=0.25, label="IQR")
 
-    ax.set_xlabel("V1:SAT_SR_MAR_TX_SET [arb]", fontsize=9)
+    ax.set_xlabel(x_label, fontsize=9)
     ax.set_ylabel(ylabel, fontsize=9)
     ax.set_title(title, fontsize=9)
     ax.tick_params(labelsize=8)
@@ -80,18 +81,26 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glitches", required=True)
     ap.add_argument("--sr-csv",   required=True)
+    ap.add_argument("--x-col",    default="sr_mar_tx_set",
+                    help="Column name in SR CSV to use as X axis")
+    ap.add_argument("--x-label",  default=None,
+                    help="X axis label (default: auto from --x-col)")
     ap.add_argument("--output",   default="usecases/25-minute-glitch/glitch_vs_sr_tx.png")
     args = ap.parse_args()
+
+    x_col   = args.x_col
+    x_label = args.x_label or f"V1:{x_col} [arb]"
 
     # ── Load ────────────────────────────────────────────────────────────────
     gl = pd.read_csv(args.glitches).sort_values("time").reset_index(drop=True)
     sr = pd.read_csv(args.sr_csv).sort_values("gps_bin").reset_index(drop=True)
-    sr["sr_mar_tx_set"] = sr["sr_mar_tx_set"].ffill().bfill()
+    if "sr_mar_tx_set" in sr.columns:
+        sr["sr_mar_tx_set"] = sr["sr_mar_tx_set"].ffill().bfill()
     print(f"Glitches: {len(gl)}   SR bins: {len(sr)}")
 
     # ── Compute properties ──────────────────────────────────────────────────
     gps = gl["time"].values
-    tx       = lookup(gps, sr, "sr_mar_tx_set")
+    tx       = lookup(gps, sr, x_col)
     b1p_mag  = lookup(gps, sr, "asc_sr_ty_b1p_mag") if "asc_sr_ty_b1p_mag" in sr.columns else np.full(len(gps), np.nan)
     center_f = (gl["fstart"].values + gl["fend"].values) / 2
     bandwidth= gl["fend"].values - gl["fstart"].values
@@ -100,7 +109,7 @@ def main():
     # Restrict to main cluster (exclude extreme outliers)
     x_clip = (np.percentile(tx[np.isfinite(tx)], 0.5),
               np.percentile(tx[np.isfinite(tx)], 99.5))
-    print(f"TX range (0.5–99.5 pct): {x_clip[0]:.1f} – {x_clip[1]:.1f}")
+    print(f"X range (0.5–99.5 pct): {x_clip[0]:.1f} – {x_clip[1]:.1f}")
 
     # Fractional year for colour coding
     year_frac = 1980 + gps / (365.25 * 86400)
@@ -108,27 +117,27 @@ def main():
     # ── Plot ────────────────────────────────────────────────────────────────
     fig = plt.figure(figsize=(18, 5))
     fig.suptitle(
-        "25-min glitch SNR vs SR marionette TX setpoint (V1:SAT_SR_MAR_TX_SET) — full O4",
+        f"25-min glitch SNR vs {x_label} — full O4",
         fontsize=11, y=1.01
     )
     gs = GridSpec(1, 4, figure=fig, wspace=0.42)
 
     panel(fig.add_subplot(gs[0, 0]), tx, snr,
-          "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
+          x_label, "SNR",
           "Glitch SNR", "tab:blue", x_clip)
 
     panel(fig.add_subplot(gs[0, 1]), tx, np.log10(snr),
-          "V1:SAT_SR_MAR_TX_SET [arb]", "log₁₀(SNR)",
+          x_label, "log₁₀(SNR)",
           "Glitch SNR (log scale)", "tab:orange", x_clip)
 
     valid_b1p = np.isfinite(b1p_mag) & (b1p_mag > 0)
     if valid_b1p.sum() > 100:
         panel(fig.add_subplot(gs[0, 2]), tx, np.log10(b1p_mag + 1e-12),
-              "V1:SAT_SR_MAR_TX_SET [arb]", "log₁₀(ASC_SR_TY_B1p_mag) [arb]",
+              x_label, "log₁₀(ASC_SR_TY_B1p_mag) [arb]",
               "SR B1p angular amplitude", "tab:purple", x_clip)
     else:
         panel(fig.add_subplot(gs[0, 2]), tx, snr,
-              "V1:SAT_SR_MAR_TX_SET [arb]", "SNR",
+              x_label, "SNR",
               "Glitch SNR (fallback)", "tab:purple", x_clip)
 
     # ── Panel 4: SNR vs TX coloured by time ────────────────────────────────
@@ -143,7 +152,7 @@ def main():
     cb = fig.colorbar(sc, ax=ax4, pad=0.02)
     cb.set_label("Year", fontsize=8)
     cb.ax.tick_params(labelsize=7)
-    ax4.set_xlabel("V1:SAT_SR_MAR_TX_SET [arb]", fontsize=9)
+    ax4.set_xlabel(x_label, fontsize=9)
     ax4.set_ylabel("SNR", fontsize=9)
     ax4.set_title("SNR vs TX — coloured by time", fontsize=9)
     ax4.tick_params(labelsize=8)
