@@ -105,8 +105,11 @@ def make_stacked_plot(win_lo, win_hi, suffix, xtick_step):
         data_win = norm[mask]
         ax.plot(t_arr[mask], data_win, color=color, lw=0.8, alpha=0.9)
         ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.7)
-        # Shade the baseline region used for normalisation
-        ax.axvspan(BASELINE_T0, BASELINE_T1, color="lightblue", alpha=0.15, zorder=0)
+        # Shade the baseline region only if it overlaps the current window
+        bl_lo = max(BASELINE_T0, win_lo)
+        bl_hi = min(BASELINE_T1, win_hi)
+        if bl_lo < bl_hi:
+            ax.axvspan(bl_lo, bl_hi, color="lightblue", alpha=0.15, zorder=0)
         ax.set_ylabel(label, fontsize=7.5, rotation=0, ha="right",
                       va="center", labelpad=5)
         ax.tick_params(axis="y", labelsize=6)
