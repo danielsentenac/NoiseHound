@@ -331,3 +331,95 @@ out_ov = OUT_DIR / f"asc_glitch_envelope_overlay_{GLITCH_GPS}.png"
 fig_ov.savefig(out_ov, dpi=150, bbox_inches="tight")
 plt.close(fig_ov)
 print(f"Saved → {out_ov}")
+
+# ── Peak-time timeline (lollipop chart) ───────────────────────────────────────
+# For every channel in OVERLAY_CHANNELS, compute the Hilbert envelope peak
+# time (ms) within ±500 ms of catalog GPS and plot as horizontal lollipop.
+# Channels are sorted by peak time so lead/lag pattern is immediate.
+TIMELINE_WIN = 0.5   # ±500 ms search window
+
+peak_records = []
+for label, col, color, lw in OVERLAY_CHANNELS:
+    if col not in traces:
+        continue
+    t_arr, v_arr, fs, *_ = traces[col]
+    mask = (t_arr >= glitch_t - TIMELINE_WIN) & (t_arr <= glitch_t + TIMELINE_WIN)
+    t_seg = t_arr[mask] - glitch_t
+    v_seg = v_arr[mask]
+    if len(v_seg) < 4:
+        continue
+    env = np.abs(hilbert(v_seg))
+    n_smooth = max(1, int(round(ENV_SMOOTH_MS * 1e-3 * fs)))
+    if n_smooth > 1:
+        env = np.convolve(env, np.ones(n_smooth) / n_smooth, mode="same")
+    peak_t_ms = t_seg[np.argmax(env)] * 1e3
+    # classify sharpness: DARM_CORR is "sharp", all ASC are "broad"
+    sharp = (col == "V1:LSC_DARM_CORR")
+    subsystem = ("LSC" if col.startswith("V1:LSC") else
+                 "ASC ERR" if col.endswith("_ERR") else "ASC CORR")
+    peak_records.append((peak_t_ms, label, col, color, sharp, subsystem))
+
+# sort by peak time
+peak_records.sort(key=lambda x: x[0])
+
+fig_tl, ax_tl = plt.subplots(figsize=(11, max(5, len(peak_records) * 0.55 + 1.5)))
+fig_tl.subplots_adjust(left=0.28, right=0.88, top=0.88, bottom=0.12)
+
+# subsystem marker shapes
+markers = {"LSC": "D", "ASC ERR": "o", "ASC CORR": "s"}
+subsys_labels_added = set()
+
+for i, (peak_ms, label, col, color, sharp, subsys) in enumerate(peak_records):
+    mkr = markers[subsys]
+    ms  = 12 if sharp else 9
+    # stem line from t=0 to peak
+    ax_tl.plot([0, peak_ms], [i, i], color=color, lw=1.5, alpha=0.7)
+    # marker at peak
+    leg_label = subsys if subsys not in subsys_labels_added else "_nolegend_"
+    subsys_labels_added.add(subsys)
+    ax_tl.scatter(peak_ms, i, color=color, s=ms**2, marker=mkr,
+                  zorder=5, label=leg_label,
+                  edgecolors="black" if sharp else "none", linewidths=1.2)
+    # numeric annotation
+    ax_tl.text(peak_ms + (8 if peak_ms >= 0 else -8), i,
+               f"{peak_ms:+.0f} ms",
+               va="center", ha="left" if peak_ms >= 0 else "right",
+               fontsize=8, color=color)
+
+# channel labels on y-axis
+ax_tl.set_yticks(range(len(peak_records)))
+ax_tl.set_yticklabels([r[1] for r in peak_records], fontsize=9)
+
+# color y-tick labels to match trace color
+for ytl, rec in zip(ax_tl.get_yticklabels(), peak_records):
+    ytl.set_color(rec[3])
+
+ax_tl.axvline(0, color="crimson", lw=2, ls="--", alpha=0.9, label="catalog GPS (t = 0)")
+ax_tl.axvspan(-TIMELINE_WIN * 1e3, 0, alpha=0.04, color="steelblue")
+ax_tl.axvspan(0, TIMELINE_WIN * 1e3, alpha=0.04, color="tomato")
+ax_tl.text(-TIMELINE_WIN * 1e3 * 0.97, len(peak_records) - 0.3,
+           "← leads DARM", fontsize=8, color="steelblue", ha="left")
+ax_tl.text(TIMELINE_WIN * 1e3 * 0.97, len(peak_records) - 0.3,
+           "lags DARM →", fontsize=8, color="tomato", ha="right")
+
+xt_tl = np.arange(-500, 501, 100)
+ax_tl.set_xticks(xt_tl)
+ax_tl.set_xticklabels([f"{v:+.0f}" for v in xt_tl], fontsize=9)
+ax_tl.set_xlim(-TIMELINE_WIN * 1e3 * 1.15, TIMELINE_WIN * 1e3 * 1.15)
+ax_tl.set_xlabel("Hilbert envelope peak time relative to catalog GPS  (ms)", fontsize=10)
+ax_tl.grid(axis="x", ls=":", alpha=0.4)
+ax_tl.legend(fontsize=8, loc="lower right", framealpha=0.8,
+             title="subsystem / shape", title_fontsize=7)
+
+fig_tl.suptitle(
+    f"25-min glitch — ENVELOPE PEAK TIMES per mirror/DOF\n"
+    f"GPS {GLITCH_GPS}  ({glitch_utc.strftime('%Y-%m-%d %H:%M:%S UTC')})   "
+    f"Hilbert |BP 30–55 Hz|, {ENV_SMOOTH_MS} ms smooth, ±{int(TIMELINE_WIN*1e3)} ms window\n"
+    f"Diamond = LSC (sharp), circle = ASC ERR, square = ASC CORR  |  "
+    f"Black edge = impulsive (DARM only)",
+    fontsize=9, fontweight="bold")
+
+out_tl = OUT_DIR / f"asc_glitch_peak_times_{GLITCH_GPS}.png"
+fig_tl.savefig(out_tl, dpi=150, bbox_inches="tight")
+plt.close(fig_tl)
+print(f"Saved → {out_tl}")
