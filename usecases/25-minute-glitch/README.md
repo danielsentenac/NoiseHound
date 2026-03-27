@@ -426,7 +426,7 @@ The 200 ms zoom confirms this picture:
 
 ![Bandpass-filtered ASC/LSC channels — ±100 ms zoom](asc_glitch_filtered_1415578745_200ms.png)
 
-DARM_CORR grows from near-baseline at t = −100 ms to a peak at t ≈ −20 ms and then decays. The ASC channels oscillate with roughly constant amplitude throughout the ±100 ms window. SR TY err (red, largest ASC signal) shows no corresponding amplitude spike at t = 0.
+DARM_CORR is near-baseline for t < −50 ms, then grows rapidly and peaks just **after** t = 0 (the Hilbert peak search finds +3 ms from catalog GPS), then decays. The ASC channels oscillate with roughly constant amplitude throughout the ±100 ms window. SR TY err (red, largest ASC signal) shows no corresponding amplitude spike at t = 0.
 
 #### Amplitude envelope overlay
 
