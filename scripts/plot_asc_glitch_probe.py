@@ -89,6 +89,8 @@ def plot_panel(ax, groups, df_win, title, glitch_t, lw=0.8, alpha=0.9):
     ax.set_yticks(yticks)
     ax.set_yticklabels(ylabels, fontsize=7)
     ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.8, label="glitch")
+    ax.legend(fontsize=6.5, loc="upper right", framealpha=0.7,
+              ncol=2, handlelength=1.2, handletextpad=0.4, borderpad=0.4)
     ax.set_title(title, fontsize=9, loc="left")
     ax.grid(axis="x", ls=":", alpha=0.4)
     ax.tick_params(axis="x", labelsize=8)

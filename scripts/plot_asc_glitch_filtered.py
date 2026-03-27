@@ -129,14 +129,16 @@ for win, suffix in [(0.5, "1s"), (0.10, "200ms"), (0.025, "50ms")]:
             v_plot = v_arr[mask]
             if len(t_plot) < 2:
                 continue
-            ax.plot(t_plot, v_plot + offset, lw=0.9, color=color, alpha=0.9)
+            ax.plot(t_plot, v_plot + offset, lw=0.9, color=color, alpha=0.9, label=label)
             yticks.append(offset)
             ylabels.append(label)
             offset += max(8, np.percentile(np.abs(v_plot), 99) * 2 + 2)
 
         ax.set_yticks(yticks)
         ax.set_yticklabels(ylabels, fontsize=7.5)
-        ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.9)
+        ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.9, label="catalog GPS")
+        ax.legend(fontsize=6.5, loc="upper right", framealpha=0.7,
+                  ncol=2, handlelength=1.2, handletextpad=0.4, borderpad=0.4)
         ax.set_title(PANEL_TITLES[panel_key], fontsize=9, loc="left")
         ax.grid(axis="x", ls=":", alpha=0.4)
         ax.tick_params(axis="x", labelsize=8)
@@ -219,7 +221,8 @@ for ax, panel_key in zip(axes_env, PANELS_ORDER):
             env_norm = env
         # Find envelope peak time (for annotation)
         peak_t = t_seg[np.argmax(env_norm)]
-        ax.plot(t_seg, env_norm + offset, lw=1.2, color=color, alpha=0.9)
+        ax.plot(t_seg, env_norm + offset, lw=1.2, color=color, alpha=0.9,
+                label=f"{label}  ({peak_t*1e3:+.0f} ms)")
         ax.annotate(f"{peak_t*1e3:+.1f} ms", xy=(peak_t, env_norm.max() + offset),
                     xytext=(3, 2), textcoords="offset points",
                     fontsize=6, color=color, clip_on=True)
@@ -230,6 +233,8 @@ for ax, panel_key in zip(axes_env, PANELS_ORDER):
     ax.set_yticks(yticks)
     ax.set_yticklabels(ylabels, fontsize=7.5)
     ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.9, label="catalog GPS")
+    ax.legend(fontsize=6.5, loc="upper right", framealpha=0.7,
+              ncol=2, handlelength=1.2, handletextpad=0.4, borderpad=0.4)
     ax.set_title(PANEL_TITLES[panel_key].replace("bandpassed", "envelope |Hilbert|, smoothed")
                  .replace("30–55 Hz", f"30–55 Hz, {ENV_SMOOTH_MS} ms smooth"),
                  fontsize=9, loc="left")
