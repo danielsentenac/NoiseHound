@@ -110,9 +110,13 @@ glitch_utc = GPS_EPOCH + pd.to_timedelta(glitch_t, unit="s")
 
 PANELS_ORDER = ["LSC", "ASC_ERR", "ASC_CORR"]
 
+# x-axis tick spacing per window: (window_s, tick_step_ms)
+XTICK_STEP = {0.5: 100, 0.10: 10, 0.025: 5}
+
 for win, suffix in [(0.5, "1s"), (0.10, "200ms"), (0.025, "50ms")]:
     t0 = glitch_t - win
     t1 = glitch_t + win
+    use_ms = win <= 0.10   # plot in ms for zoomed windows
 
     fig, axes = plt.subplots(3, 1, figsize=(16, 12), sharex=True)
     fig.subplots_adjust(hspace=0.08, top=0.93, bottom=0.06, left=0.16, right=0.97)
@@ -125,7 +129,8 @@ for win, suffix in [(0.5, "1s"), (0.10, "200ms"), (0.025, "50ms")]:
                 continue
             t_arr, v_arr, fs, *_ = traces[col]
             mask = (t_arr >= t0) & (t_arr <= t1)
-            t_plot = t_arr[mask] - glitch_t
+            t_rel = t_arr[mask] - glitch_t
+            t_plot = t_rel * 1e3 if use_ms else t_rel
             v_plot = v_arr[mask]
             if len(t_plot) < 2:
                 continue
@@ -134,6 +139,13 @@ for win, suffix in [(0.5, "1s"), (0.10, "200ms"), (0.025, "50ms")]:
             ylabels.append(label)
             offset += max(8, np.percentile(np.abs(v_plot), 99) * 2 + 2)
 
+        # explicit x ticks at round ms (or s) values
+        step = XTICK_STEP[win]
+        win_plot = win * 1e3 if use_ms else win
+        xt = np.arange(-win_plot, win_plot + step * 0.01, step)
+        ax.set_xticks(xt)
+        ax.set_xticklabels([f"{v:+.0f}" for v in xt], fontsize=8)
+
         ax.set_yticks(yticks)
         ax.set_yticklabels(ylabels, fontsize=7.5)
         ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.9, label="catalog GPS")
@@ -141,14 +153,15 @@ for win, suffix in [(0.5, "1s"), (0.10, "200ms"), (0.025, "50ms")]:
                   ncol=2, handlelength=1.2, handletextpad=0.4, borderpad=0.4)
         ax.set_title(PANEL_TITLES[panel_key], fontsize=9, loc="left")
         ax.grid(axis="x", ls=":", alpha=0.4)
-        ax.tick_params(axis="x", labelsize=8)
         ax.set_ylabel("norm. units + offset", fontsize=7)
 
-    axes[-1].set_xlabel(f"Time relative to catalog GPS {glitch_t:.4f} (s)", fontsize=9)
+    unit = "ms" if use_ms else "s"
+    axes[-1].set_xlabel(
+        f"Time relative to catalog GPS {glitch_t:.4f}  ({unit})", fontsize=9)
     fig.suptitle(
         f"25-min glitch — BANDPASSED 30–55 Hz — GPS {GLITCH_GPS}  "
         f"({glitch_utc.strftime('%Y-%m-%d %H:%M:%S UTC')})\n"
-        f"Window ±{win}s",
+        f"Window ±{win*1e3:.0f} ms",
         fontsize=10, fontweight="bold", y=0.98)
 
     out = OUT_DIR / f"asc_glitch_filtered_{GLITCH_GPS}_{suffix}.png"
@@ -221,9 +234,10 @@ for ax, panel_key in zip(axes_env, PANELS_ORDER):
             env_norm = env
         # Find envelope peak time (for annotation)
         peak_t = t_seg[np.argmax(env_norm)]
-        ax.plot(t_seg, env_norm + offset, lw=1.2, color=color, alpha=0.9,
+        t_ms = t_seg * 1e3
+        ax.plot(t_ms, env_norm + offset, lw=1.2, color=color, alpha=0.9,
                 label=f"{label}  ({peak_t*1e3:+.0f} ms)")
-        ax.annotate(f"{peak_t*1e3:+.1f} ms", xy=(peak_t, env_norm.max() + offset),
+        ax.annotate(f"{peak_t*1e3:+.1f} ms", xy=(peak_t*1e3, env_norm.max() + offset),
                     xytext=(3, 2), textcoords="offset points",
                     fontsize=6, color=color, clip_on=True)
         yticks.append(offset + 0.5)
@@ -238,12 +252,14 @@ for ax, panel_key in zip(axes_env, PANELS_ORDER):
     ax.set_title(PANEL_TITLES[panel_key].replace("bandpassed", "envelope |Hilbert|, smoothed")
                  .replace("30–55 Hz", f"30–55 Hz, {ENV_SMOOTH_MS} ms smooth"),
                  fontsize=9, loc="left")
+    xt_env = np.arange(-ENV_WIN * 1e3, ENV_WIN * 1e3 + 100.01, 100)
+    ax.set_xticks(xt_env)
+    ax.set_xticklabels([f"{v:+.0f}" for v in xt_env], fontsize=8)
     ax.grid(axis="x", ls=":", alpha=0.4)
-    ax.tick_params(axis="x", labelsize=8)
     ax.set_ylabel("norm. envelope + offset", fontsize=7)
     ax.set_ylim(bottom=0)
 
-axes_env[-1].set_xlabel(f"Time relative to catalog GPS {glitch_t:.4f} (s)", fontsize=9)
+axes_env[-1].set_xlabel(f"Time relative to catalog GPS {glitch_t:.4f}  (ms)", fontsize=9)
 fig_env.suptitle(
     f"25-min glitch — AMPLITUDE ENVELOPE (Hilbert, 30–55 Hz BP) — GPS {GLITCH_GPS}  "
     f"({glitch_utc.strftime('%Y-%m-%d %H:%M:%S UTC')})\n"
@@ -300,6 +316,9 @@ ax_ov.axvline(0, color="crimson", lw=2, ls="--", alpha=0.9, label="catalog GPS")
 ax_ov.set_xlabel("Time relative to catalog GPS (ms)", fontsize=10)
 ax_ov.set_ylabel("Normalised amplitude envelope  (peak = 1)", fontsize=9)
 ax_ov.set_xlim(-OVL_WIN * 1e3, OVL_WIN * 1e3)
+xt_ov = np.arange(-OVL_WIN * 1e3, OVL_WIN * 1e3 + 50.01, 50)
+ax_ov.set_xticks(xt_ov)
+ax_ov.set_xticklabels([f"{v:+.0f}" for v in xt_ov], fontsize=9)
 ax_ov.set_ylim(0, 1.15)
 ax_ov.grid(ls=":", alpha=0.4)
 ax_ov.legend(fontsize=8, ncol=2, loc="upper left")

@@ -71,14 +71,14 @@ def normalise(series, robust=True):
         sigma = v.std() if v.std() > 0 else 1.0
     return (series - med) / sigma
 
-def plot_panel(ax, groups, df_win, title, glitch_t, lw=0.8, alpha=0.9):
-    """Plot normalised channels on one axes."""
+def plot_panel(ax, groups, df_win, title, glitch_t, lw=0.8, alpha=0.9, scale=1.0):
+    """Plot normalised channels on one axes. scale=1e3 for ms x-axis."""
     offset = 0
     yticks, ylabels = [], []
     for label, col, color in groups:
         if col not in df_win.columns:
             continue
-        t = df_win.index.values - glitch_t   # seconds relative to glitch
+        t = (df_win.index.values - glitch_t) * scale
         y = normalise(df_win[col])
         if y.isna().all():
             continue
@@ -95,33 +95,48 @@ def plot_panel(ax, groups, df_win, title, glitch_t, lw=0.8, alpha=0.9):
     ax.grid(axis="x", ls=":", alpha=0.4)
     ax.tick_params(axis="x", labelsize=8)
 
+PROBE_XTICK_STEP = {(1.0, 1.0): 500, (0.10, 0.10): 10, (0.025, 0.025): 5}
+
 def make_figure(win_before, win_after, suffix):
     t0 = glitch_t - win_before
     t1 = glitch_t + win_after
     df_win = df.loc[t0:t1].copy()
+    use_ms = win_before <= 0.10
 
     n_panels = 3
     fig, axes = plt.subplots(n_panels, 1, figsize=(16, 4 * n_panels), sharex=True)
     fig.subplots_adjust(hspace=0.10, top=0.93, bottom=0.07, left=0.16, right=0.97)
 
+    # build time arrays in the right unit for each panel function
+    scale = 1e3 if use_ms else 1.0
+
     plot_panel(axes[0], LSC_CHANS,      df_win,
                "LSC length error signals (DARM / MICH / PRCL / SRCL / CARM)",
-               glitch_t)
+               glitch_t, scale=scale)
 
     plot_panel(axes[1], ASC_ERR_CHANS,  df_win,
                "ASC angular error signals — BS, PR, SR",
-               glitch_t)
+               glitch_t, scale=scale)
 
     plot_panel(axes[2], ASC_CORR_CHANS, df_win,
                "ASC angular correction output — NI, WI, NE, WE  (no direct ERR available)",
-               glitch_t)
+               glitch_t, scale=scale)
 
-    axes[-1].set_xlabel("Time relative to glitch (s)", fontsize=9)
+    # explicit x ticks
+    step = PROBE_XTICK_STEP.get((win_before, win_after), 100)
+    win_plot = win_before * scale
+    xt = np.arange(-win_plot, win_plot + step * 0.01, step)
+    for ax in axes:
+        ax.set_xticks(xt)
+        ax.set_xticklabels([f"{v:+.0f}" for v in xt], fontsize=8)
+
+    unit = "ms" if use_ms else "s"
+    axes[-1].set_xlabel(f"Time relative to catalog GPS {glitch_t:.4f}  ({unit})", fontsize=9)
 
     glitch_utc = GPS_EPOCH + pd.to_timedelta(glitch_t, unit="s")
     fig.suptitle(
-        f"25-min glitch propagation — GPS {glitch_t}  ({glitch_utc.strftime('%Y-%m-%d %H:%M:%S UTC')})\n"
-        f"Window: −{win_before}s to +{win_after}s   |   All traces: normalised (zero-mean, unit robust-σ) + offset",
+        f"25-min glitch propagation — GPS {glitch_t:.4f}  ({glitch_utc.strftime('%Y-%m-%d %H:%M:%S UTC')})\n"
+        f"Window: −{win_before*1e3:.0f} ms to +{win_after*1e3:.0f} ms   |   All traces: normalised + offset",
         fontsize=10, fontweight="bold", y=0.98)
 
     out = OUT_DIR / f"asc_glitch_probe_{GLITCH_GPS}_{suffix}.png"
