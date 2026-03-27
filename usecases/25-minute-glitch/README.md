@@ -473,6 +473,40 @@ The ASC envelope peak times are scattered randomly across ±500 ms with no syste
 | `asc_glitch_envelope_1415578745.png` | Per-mirror Hilbert envelope, 3-panel |
 | `asc_glitch_envelope_overlay_1415578745.png` | Overlay of key channels, all normalised to peak = 1 |
 
+#### Tower propagation study — 30-second window
+
+To identify which mirror responds first, the original ±5 s probe (already in-glitch at t = −5.9 s) was replaced with a 30-second window centered 12 s **before** the catalog GPS (GPS 1415578718–1415578748). This captures the full onset. The reference channel `V1:Hrec_hoft_16384Hz` (16384 Hz, downsampled to 4096 Hz) was added alongside all tower ERR and CORR signals. Bandpass was widened to 20–150 Hz to match the actual broadband glitch character. Each trace is normalised to its pre-glitch RMS (baseline window t = −27 to −22 s).
+
+Three stacked plots are produced (30 s overview, 7 s zoom, 3 s zoom), with one row per channel, background colour-coded by group (ref=gray, ERR=orange, CORR=green), and a crimson dashed line at the catalog GPS (t = 0).
+
+**Key findings:**
+
+1. **SR TX ERR dominates absolutely.** It is elevated across the entire 30-second window and completely dwarfs all other ERR and CORR channels. In the 30 s overview it builds from t ≈ −25 s and peaks well before t = 0. This is the primary angular driver — the SR mirror is already oscillating at large amplitude while h(t) is still quiet.
+
+2. **SR TX ERR leads h(t).** The SR TX ERR amplitude is highest in the early part of the window (t < −5 s); h(t) peaks at t = 0 (catalog GPS). The angular excitation precedes the strain glitch.
+
+3. **DARM_CORR is flat throughout.** The glitch is visible in h(t) (reconstructed strain) but absent in DARM_CORR (longitudinal actuator). This means the glitch couples into the strain estimate via an angular–optical path, not through the longitudinal DARM servo. This is the direct time-domain confirmation of the coupling-change scenario.
+
+4. **NI and WI CORR channels are essentially silent.** The input mirrors (NI, WI) are not driving the glitch. Their CORR outputs show no significant elevation.
+
+5. **NE TX/TY and WE TX CORR show small oscillations.** Consistent with the arm cavities reacting to a common mode angular perturbation, not driving it.
+
+6. **BS and PR ERR channels** show modulated oscillations at much smaller amplitude than SR, consistent with being secondary cavity responses.
+
+These results confirm and sharpen the conclusion of the earlier 10-second probe: the SR mirror carries a large continuous angular oscillation at 20–150 Hz that **precedes** the h(t) glitch. The transient glitch in strain is a coupling event (the transfer function SR_angle → DARM transiently increases), not a sudden onset of SR angular motion.
+
+![Tower propagation — 30 s overview](tower_propagation_1415578733_30s.png)
+
+![Tower propagation — 7 s zoom](tower_propagation_1415578733_7s.png)
+
+![Tower propagation — 3 s zoom](tower_propagation_1415578733_3s.png)
+
+| File | Description |
+|------|-------------|
+| `slurm/nh_tower_glitch_probe.slurm` | 30-second probe; stages `V-raw-1415578700-100.gwf`; outputs `outputs/tower_glitch_probe_1415578733.csv` (182 821 samples × 20 channels) |
+| `scripts/plot_tower_propagation.py` | Stacked waveform plot; 20–150 Hz bandpass; 3 figures (30 s, 7 s, 3 s windows) |
+| `tower_propagation_1415578733_30s/7s/3s.png` | Tower propagation stacked plots |
+
 ---
 
 ## 5 — Working Hypotheses
