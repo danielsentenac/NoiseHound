@@ -418,13 +418,9 @@ One pre-Christmas glitch (GPS 1415578745.894531, 2024-11-14 00:19:05 UTC, SNR �
 
 **Bandpass-filtered waveforms** (`asc_glitch_filtered_1415578745_1s.png`, `_200ms.png`, `_50ms.png`):
 
-![Bandpass-filtered ASC/LSC channels — ±1 s window](asc_glitch_filtered_1415578745_1s.png)
-
 The 1-second window reveals the dominant structure: **all ASC channels (SR, PR, BS, NI, WI, NE, WE) show a persistent ~40 Hz oscillation that is present both before and after the glitch.** This is the 40 Hz angular eigenmode of the Virgo cavities, continuously excited throughout the ±0.5 s window. DARM_CORR (black) shows a sharp, localised spike at t = 0 that is qualitatively different from the ASC behaviour.
 
 The 200 ms zoom confirms this picture:
-
-![Bandpass-filtered ASC/LSC channels — ±100 ms zoom](asc_glitch_filtered_1415578745_200ms.png)
 
 DARM_CORR is near-baseline for t < −50 ms, then grows rapidly and peaks just **after** t = 0 (the Hilbert peak search finds +3 ms from catalog GPS), then decays. The ASC channels oscillate with roughly constant amplitude throughout the ±100 ms window. SR TY err (red, largest ASC signal) shows no corresponding amplitude spike at t = 0.
 
@@ -469,7 +465,6 @@ The ASC envelope peak times are scattered randomly across ±500 ms with no syste
 | `scripts/plot_asc_glitch_probe.py` | Broadband (unfiltered) 3-panel plot at 2 s, 200 ms, 50 ms |
 | `scripts/plot_asc_glitch_filtered.py` | Bandpass (30–55 Hz) + Hilbert envelope + overlay plots |
 | `asc_glitch_probe_1415578745_2s/200ms/50ms.png` | Broadband waveforms |
-| `asc_glitch_filtered_1415578745_1s/200ms/50ms.png` | Bandpass-filtered waveforms |
 | `asc_glitch_envelope_1415578745.png` | Per-mirror Hilbert envelope, 3-panel |
 | `asc_glitch_envelope_overlay_1415578745.png` | Overlay of key channels, all normalised to peak = 1 |
 
@@ -514,17 +509,10 @@ Three stacked plots are produced (30 s overview, 7 s zoom, 3 s zoom), with one r
 
 These results confirm and sharpen the conclusion of the earlier 10-second probe: the SR mirror carries a large continuous angular oscillation at 20–150 Hz that **precedes** the h(t) glitch. The transient glitch in strain is a coupling event (the transfer function SR_angle → DARM transiently increases), not a sudden onset of SR angular motion.
 
-![Tower propagation — 30 s overview](tower_propagation_1415578733_30s.png)
-
-![Tower propagation — 7 s zoom](tower_propagation_1415578733_7s.png)
-
-![Tower propagation — 3 s zoom](tower_propagation_1415578733_3s.png)
-
 | File | Description |
 |------|-------------|
 | `slurm/nh_tower_glitch_probe.slurm` | 30-second probe; stages `V-raw-1415578700-100.gwf`; outputs `outputs/tower_glitch_probe_1415578733.csv` (182 821 samples × 20 channels) |
 | `scripts/plot_tower_propagation.py` | Stacked waveform plot; 20–150 Hz bandpass; 3 figures (30 s, 7 s, 3 s windows) |
-| `tower_propagation_1415578733_30s/7s/3s.png` | Tower propagation stacked plots |
 
 ---
 
