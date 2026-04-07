@@ -473,6 +473,25 @@ The ASC envelope peak times are scattered randomly across ±500 ms with no syste
 | `asc_glitch_envelope_1415578745.png` | Per-mirror Hilbert envelope, 3-panel |
 | `asc_glitch_envelope_overlay_1415578745.png` | Overlay of key channels, all normalised to peak = 1 |
 
+#### Additional comparison figures
+
+The following figures were also used to interpret the raw-data propagation study in the broader detector context:
+
+| File | Description |
+|------|-------------|
+| `slide6.png` | The original presentation slide used as the visual reference for the cryotrap-leak / diaphragm-installation comparison. |
+| `glitch_response_1415579346_2s_exact.png` | Exact 2-second raw glitch-response plot for a second pre-Christmas event, used as a cross-check that the time-domain behaviour seen in the main Step 9 example is reproducible. |
+| `slide6_cryotrap_focus_strict.png` | Hourly slide-6-style `B1p/Hrec/thermal` summary with the strict aligned-like mask; used to compare the raw-data event study with the long-timescale cryotrap-leak and diaphragm-installation evolution. |
+| `slide6_cryotrap_focus_strict_1hz.png` | Dense 1 Hz version of the same strict slide-6 reconstruction; used to compare the sparse hourly cloud with the underlying point density. |
+
+![Original slide 6 reference](slide6.png)
+
+![Exact 2 s glitch response cross-check](glitch_response_1415579346_2s_exact.png)
+
+![Strict slide-6 reconstruction (hourly)](slide6_cryotrap_focus_strict.png)
+
+![Strict slide-6 reconstruction (1 Hz)](slide6_cryotrap_focus_strict_1hz.png)
+
 #### Tower propagation study — 30-second window
 
 To identify which mirror responds first, the original ±5 s probe (already in-glitch at t = −5.9 s) was replaced with a 30-second window centered 12 s **before** the catalog GPS (GPS 1415578718–1415578748). This captures the full onset. The reference channel `V1:Hrec_hoft_16384Hz` (16384 Hz, downsampled to 4096 Hz) was added alongside all tower ERR and CORR signals. Bandpass was widened to 20–150 Hz to match the actual broadband glitch character. Each trace is normalised to its pre-glitch RMS (baseline window t = −27 to −22 s).
@@ -637,9 +656,6 @@ During the April 2026 follow-up, a dedicated plotting workflow was added to comp
 
 ### Main outputs
 
-- `usecases/25-minute-glitch/slide6_cryotrap_focus_proxy.png`
-- `usecases/25-minute-glitch/slide6_cryotrap_focus_strict.png`
-- `usecases/25-minute-glitch/slide6_cryotrap_focus_uniform_lockmode145_approx.png`
 - `usecases/25-minute-glitch/slide6_cryotrap_focus_proxy_1hz.png`
 - `usecases/25-minute-glitch/slide6_cryotrap_focus_strict_1hz.png`
 
@@ -674,12 +690,12 @@ Hourly cached figures (run from the repository root):
 cd /home/sentenac/NOISEHOUND
 
 python scripts/plot_slide6_cryotrap_focus.py \
-  --output usecases/25-minute-glitch/slide6_cryotrap_focus_proxy.png
+  --output usecases/25-minute-glitch/<your_hourly_proxy_png>.png
 
 python scripts/plot_slide6_cryotrap_focus.py \
   --alignment-mode strict \
   --reference-alignment-mode strict \
-  --output usecases/25-minute-glitch/slide6_cryotrap_focus_strict.png
+  --output usecases/25-minute-glitch/<your_hourly_strict_png>.png
 
 python scripts/plot_slide6_cryotrap_focus.py \
   --lock-csv outputs/itf_lock_hourly_mode_approx_from_mean.csv \
@@ -691,7 +707,7 @@ python scripts/plot_slide6_cryotrap_focus.py \
   --strict-lock-high 145 \
   --fixed-b1p-70 145 \
   --fixed-b1p-50 75 \
-  --output usecases/25-minute-glitch/slide6_cryotrap_focus_uniform_lockmode145_approx.png
+  --output usecases/25-minute-glitch/<your_uniform_mask_png>.png
 ```
 
 1 Hz CCA rerender wrapper:
