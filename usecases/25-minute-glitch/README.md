@@ -619,3 +619,89 @@ Report URL: https://scientists.virgo-gw.eu/DataAnalysis/Excavator/test/half_hour
 Both tools independently identify the same LSC/DARM family as the dominant per-event correlators across different epochs (Apr 2023 vs Jan 2025) and different algorithms. BPC_Y_COUPLING tops EXCAVATor while IMC_LINE tops NOISEHOUND — both are DARM channels from the same control loop; the ordering difference reflects the different ranking metrics (gain vs z-score).
 
 Two channels appear in EXCAVATor but not in the NOISEHOUND top 20: ENV_CEB_UPS_CURR_R (CEB electrical supply — first per-event evidence for a mains coupling) and SBE_SNEB_GEO_GRWE/GRNS (North End Bench geophones — mechanical activity at the NE suspension). Both have been added to the Step 4 channel list (`rate_correlation_direct.py`), together with SWEB equivalents as arm-asymmetry controls.
+
+## Appendix D — Slide 6 cryotrap-focus reconstruction
+
+During the April 2026 follow-up, a dedicated plotting workflow was added to compare the presentation slide `VIR-0254A-26`, especially the `B1p carrier` evolution around the two diaphragm installations and the cryogenic-trap-leak period.
+
+### Scripts
+
+- `scripts/plot_slide6_cryotrap_focus.py`
+  Builds the cached/hourly version from merged CSV files already present under `outputs/`. This is the cheap path for layout and annotation changes.
+- `scripts/plot_slide6_cryotrap_focus_1hz.py`
+  Builds the dense 1 Hz version directly from Virgo trend GWF files staged from HPSS on CCA. This script does **not** cache an intermediate 1 Hz CSV/Parquet table: every rerender rereads the full Oct 2025 – Feb 2026 daily trend files.
+- `scripts/extract_itf_lock_hourly_states.py`
+  Computes hourly summaries of `V1:META_ITF_LOCK_index` from 1 Hz trend files: `lock_mode`, `mode_frac`, `frac_145`, `frac_144_145`, and `frac_143_146`.
+- `scripts/extract_ni_laser_temps.py`
+  Extracts `V1:TCS_NI_TE_CO2Laser` and `V1:TCS_NI_TE_AUXLaser` into a merged hourly CSV.
+
+### Main outputs
+
+- `usecases/25-minute-glitch/slide6_cryotrap_focus_proxy.png`
+- `usecases/25-minute-glitch/slide6_cryotrap_focus_strict.png`
+- `usecases/25-minute-glitch/slide6_cryotrap_focus_uniform_lockmode145_approx.png`
+- `usecases/25-minute-glitch/slide6_cryotrap_focus_proxy_1hz.png`
+- `usecases/25-minute-glitch/slide6_cryotrap_focus_strict_1hz.png`
+
+### Mask definitions used in the slide-6 study
+
+- `proxy`
+  Broad post-Christmas lock selection (`ITF_LOCK >= 100` in the current workflow).
+- `strict`
+  Narrow post-Christmas aligned-like selection based on the metatron lock index.
+- `uniform full-period mask`
+  Same strict rule applied over the whole plotted window, used to test the hypothesis that the presentation used a single `SR aligned` definition across the full period.
+
+### Important caveat
+
+The `uniform full-period` metatron-based aligned hypothesis does **not** reproduce the presentation semantics:
+
+- in the current hourly lock summary, the pre-Christmas period contains no hours with `lock_mode ≈ 145`
+- therefore a strict full-period `ITF_LOCK == 145` mask removes the entire pre-Christmas cloud
+- this shows that slide 6 cannot be interpreted as a simple `metatron aligned = 145` selection over the full period
+
+In other words, the slide’s `SR aligned` population is likely defined by a more optics-specific condition than the bare metatron lock state.
+
+### Practical note
+
+If only labels, legends, or annotations need to change, prefer the hourly cached workflow in `plot_slide6_cryotrap_focus.py`. The 1 Hz workflow is intentionally reserved for cases where the point density itself matters, because it is much more expensive to rerender.
+
+### Regeneration commands
+
+Hourly cached figures (run from the repository root):
+
+```bash
+cd /home/sentenac/NOISEHOUND
+
+python scripts/plot_slide6_cryotrap_focus.py \
+  --output usecases/25-minute-glitch/slide6_cryotrap_focus_proxy.png
+
+python scripts/plot_slide6_cryotrap_focus.py \
+  --alignment-mode strict \
+  --reference-alignment-mode strict \
+  --output usecases/25-minute-glitch/slide6_cryotrap_focus_strict.png
+
+python scripts/plot_slide6_cryotrap_focus.py \
+  --lock-csv outputs/itf_lock_hourly_mode_approx_from_mean.csv \
+  --lock-mask-field lock_mode_approx \
+  --uniform-mask \
+  --alignment-mode strict \
+  --reference-alignment-mode strict \
+  --strict-lock-low 145 \
+  --strict-lock-high 145 \
+  --fixed-b1p-70 145 \
+  --fixed-b1p-50 75 \
+  --output usecases/25-minute-glitch/slide6_cryotrap_focus_uniform_lockmode145_approx.png
+```
+
+1 Hz CCA rerender wrapper:
+
+```bash
+cd /pbs/home/s/sentenac/NOISEHOUND
+
+sbatch --export=ALL,ALIGNMENT_MODE=proxy,REFERENCE_ALIGNMENT_MODE=proxy \
+  slurm/nh_slide6_cryotrap_1hz_plot.slurm
+
+sbatch --export=ALL,ALIGNMENT_MODE=strict,REFERENCE_ALIGNMENT_MODE=strict \
+  slurm/nh_slide6_cryotrap_1hz_plot.slurm
+```
