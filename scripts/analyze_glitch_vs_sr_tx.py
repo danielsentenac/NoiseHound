@@ -104,7 +104,9 @@ def main():
     b1p_mag  = lookup(gps, sr, "asc_sr_ty_b1p_mag") if "asc_sr_ty_b1p_mag" in sr.columns else np.full(len(gps), np.nan)
     center_f = (gl["fstart"].values + gl["fend"].values) / 2
     bandwidth= gl["fend"].values - gl["fstart"].values
-    snr      = gl["snr"].values
+    snr      = gl["amplitude"].values
+    q_vals   = gl["q"].values
+    Q_MIN    = np.percentile(q_vals, 5)   # ~minimum tile Q
 
     # Restrict to main cluster (exclude extreme outliers)
     x_clip = (np.percentile(tx[np.isfinite(tx)], 0.5),
@@ -115,15 +117,15 @@ def main():
     year_frac = 1980 + gps / (365.25 * 86400)
 
     # ── Plot ────────────────────────────────────────────────────────────────
-    fig = plt.figure(figsize=(22, 5))
-    fig.suptitle(f"25-min glitch SNR & rate vs {x_label} — full O4", fontsize=11, y=1.01)
-    gs = GridSpec(1, 5, figure=fig, wspace=0.42)
+    fig = plt.figure(figsize=(27, 5))
+    fig.suptitle(f"25-min glitch amplitude, duration & rate vs {x_label} — full O4", fontsize=11, y=1.01)
+    gs = GridSpec(1, 6, figure=fig, wspace=0.42)
 
     panel(fig.add_subplot(gs[0, 0]), tx, snr,
-          x_label, "SNR", "Glitch SNR", "tab:blue", x_clip)
+          x_label, "amplitude (strain)", "Glitch amplitude", "tab:blue", x_clip)
 
     panel(fig.add_subplot(gs[0, 1]), tx, np.log10(snr),
-          x_label, "log₁₀(SNR)", "Glitch SNR (log scale)", "tab:orange", x_clip)
+          x_label, "log₁₀(amplitude)", "Glitch amplitude (log scale)", "tab:orange", x_clip)
 
     valid_b1p = np.isfinite(b1p_mag) & (b1p_mag > 0)
     if valid_b1p.sum() > 100:
@@ -132,9 +134,9 @@ def main():
               "SR B1p angular amplitude", "tab:purple", x_clip)
     else:
         panel(fig.add_subplot(gs[0, 2]), tx, snr,
-              x_label, "SNR", "Glitch SNR (fallback)", "tab:purple", x_clip)
+              x_label, "amplitude (strain)", "Glitch amplitude (fallback)", "tab:purple", x_clip)
 
-    # ── Panel 4: SNR vs TX coloured by time ────────────────────────────────
+    # ── Panel 4: amplitude vs TX coloured by time ───────────────────────────
     ax4 = fig.add_subplot(gs[0, 3])
     mask = (tx >= x_clip[0]) & (tx <= x_clip[1]) & np.isfinite(snr)
     sc = ax4.scatter(tx[mask], snr[mask], c=year_frac[mask], cmap="plasma",
@@ -146,13 +148,39 @@ def main():
     cb.set_label("Year", fontsize=8)
     cb.ax.tick_params(labelsize=7)
     ax4.set_xlabel(x_label, fontsize=9)
-    ax4.set_ylabel("SNR", fontsize=9)
-    ax4.set_title("SNR vs TX — coloured by time", fontsize=9)
+    ax4.set_ylabel("amplitude (strain)", fontsize=9)
+    ax4.set_title("Amplitude vs TX — coloured by time", fontsize=9)
     ax4.tick_params(labelsize=8)
     ax4.legend(fontsize=7)
 
-    # ── Panel 5: glitch RATE vs TX — full range including LN3_ALIGNED ──────
+    # ── Panel 5: glitch Q-factor (duration proxy) vs TX ────────────────────
     ax5 = fig.add_subplot(gs[0, 4])
+    mask5 = (tx >= x_clip[0]) & (tx <= x_clip[1]) & np.isfinite(q_vals)
+    tx5, q5 = tx[mask5], q_vals[mask5]
+    # binned median Q
+    cx5, med5, p25_5, p75_5, _ = binned_stats(tx5, q5, n_bins=40)
+    ax5.plot(cx5, med5, color="tab:green", lw=2, label="median Q")
+    ax5.fill_between(cx5, p25_5, p75_5, color="tab:green", alpha=0.25, label="IQR")
+    # fraction of glitches above minimum Q (i.e., 'extended' glitches)
+    ax5b = ax5.twinx()
+    edges5 = np.linspace(x_clip[0], x_clip[1], 41)
+    centres5 = (edges5[:-1] + edges5[1:]) / 2
+    n_all5,   _ = np.histogram(tx5, bins=edges5)
+    n_ext5,   _ = np.histogram(tx5[q5 > Q_MIN * 1.01], bins=edges5)
+    frac5 = np.where(n_all5 > 0, n_ext5 / n_all5, np.nan)
+    ax5b.plot(centres5, frac5, color="darkgreen", lw=1.2, ls="--", label="frac Q>Qmin")
+    ax5b.set_ylabel("Fraction Q > Q_min", fontsize=8, color="darkgreen")
+    ax5b.tick_params(axis="y", labelsize=7, colors="darkgreen")
+    ax5.set_xlabel(x_label, fontsize=9)
+    ax5.set_ylabel("Q-factor", fontsize=9)
+    ax5.set_title("Glitch Q-factor vs TX\n(duration proxy)", fontsize=9)
+    ax5.tick_params(labelsize=8)
+    lines5, labs5 = ax5.get_legend_handles_labels()
+    lines5b, labs5b = ax5b.get_legend_handles_labels()
+    ax5.legend(lines5 + lines5b, labs5 + labs5b, fontsize=6)
+
+    # ── Panel 6: glitch RATE vs TX — full range including LN3_ALIGNED ──────
+    ax6 = fig.add_subplot(gs[0, 5])
     tx_all = sr[x_col].values
     tx_edges = np.linspace(np.nanpercentile(tx_all, 0.1),
                            np.nanpercentile(tx_all, 99.9), 50)
@@ -161,11 +189,11 @@ def main():
     rate = np.where(hours_per_bin > 0,
                     glitch_per_bin / hours_per_bin * 24, np.nan)  # glitches/day
     centres = (tx_edges[:-1] + tx_edges[1:]) / 2
-    ax5.bar(centres, rate, width=np.diff(tx_edges), color="tab:red", alpha=0.7)
-    ax5.set_xlabel(x_label, fontsize=9)
-    ax5.set_ylabel("Glitch rate [/day]", fontsize=9)
-    ax5.set_title("Glitch rate vs TX\n(full range incl. LN3_ALIGNED)", fontsize=9)
-    ax5.tick_params(labelsize=8)
+    ax6.bar(centres, rate, width=np.diff(tx_edges), color="tab:red", alpha=0.7)
+    ax6.set_xlabel(x_label, fontsize=9)
+    ax6.set_ylabel("Glitch rate [/day]", fontsize=9)
+    ax6.set_title("Glitch rate vs TX\n(full range incl. LN3_ALIGNED)", fontsize=9)
+    ax6.tick_params(labelsize=8)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)

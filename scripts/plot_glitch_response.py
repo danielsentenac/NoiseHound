@@ -20,7 +20,7 @@ from pathlib import Path
 
 WORKDIR          = Path(__file__).parent.parent
 GLITCH_GPS       = 1415578745
-GLITCH_GPS_EXACT = 1415578745.894531   # catalog Omicron peak
+GLITCH_GPS_EXACT = 1415578745.894531   # Omicron peak GPS
 CSV              = WORKDIR / "outputs" / f"asc_glitch_probe_{GLITCH_GPS}.csv"
 OUT_DIR          = WORKDIR / "usecases" / "25-minute-glitch"
 GPS_EPOCH        = pd.Timestamp("1980-01-06", tz="UTC")
@@ -60,15 +60,23 @@ def get_fs(col):
 # ── Extract and filter all needed channels ─────────────────────────────────
 DARM_COL = "V1:LSC_DARM_CORR"
 
-ASC_CORR_CHANS = [
-    ("NI TX", "V1:ASC_NI_TX_CORR", "tab:blue"),
-    ("NI TY", "V1:ASC_NI_TY_CORR", "steelblue"),
-    ("WI TX", "V1:ASC_WI_TX_CORR", "tab:orange"),
-    ("WI TY", "V1:ASC_WI_TY_CORR", "goldenrod"),
-    ("NE TX", "V1:ASC_NE_TX_CORR", "tab:green"),
-    ("NE TY", "V1:ASC_NE_TY_CORR", "limegreen"),
-    ("WE TX", "V1:ASC_WE_TX_CORR", "tab:red"),
-    ("WE TY", "V1:ASC_WE_TY_CORR", "salmon"),
+ASC_TOWERS = [
+    ("NI", [
+        ("V1:ASC_NI_TX_CORR", "tab:blue"),
+        ("V1:ASC_NI_TY_CORR", "steelblue"),
+    ]),
+    ("WI", [
+        ("V1:ASC_WI_TX_CORR", "tab:orange"),
+        ("V1:ASC_WI_TY_CORR", "goldenrod"),
+    ]),
+    ("NE", [
+        ("V1:ASC_NE_TX_CORR", "tab:green"),
+        ("V1:ASC_NE_TY_CORR", "limegreen"),
+    ]),
+    ("WE", [
+        ("V1:ASC_WE_TX_CORR", "tab:red"),
+        ("V1:ASC_WE_TY_CORR", "salmon"),
+    ]),
 ]
 
 t_all = df.index.values
@@ -93,19 +101,22 @@ darm_rms_bl = np.std(darm_bp[mask_bl]) if mask_bl.any() else 1.0
 darm_bp_norm = darm_bp / darm_rms_bl
 
 # ── ASC CORR envelopes (normalised to baseline) ───────────────────────────────
-asc_traces = []
-for label, col, color in ASC_CORR_CHANS:
-    if col not in df.columns:
-        print(f"  Missing: {col}")
-        continue
-    v = df[col].fillna(0).values.astype(float)
-    fs = get_fs(col)
-    bp = bandpass(v, fs)
-    env = envelope(bp, fs)
-    bl_mask = (t_rel_all >= BASELINE_START) & (t_rel_all <= BASELINE_END)
-    bl_mean = env[bl_mask].mean() if bl_mask.any() else 1.0
-    env_norm = env / bl_mean if bl_mean > 0 else env
-    asc_traces.append((label, col, color, t_rel_all, bp, env_norm, fs))
+asc_towers_traces = []   # list of (tower_label, [(col, color, t_arr, env_norm), ...])
+for tower_label, chans in ASC_TOWERS:
+    tower_traces = []
+    for col, color in chans:
+        if col not in df.columns:
+            print(f"  Missing: {col}")
+            continue
+        v = df[col].fillna(0).values.astype(float)
+        fs = get_fs(col)
+        bp = bandpass(v, fs)
+        env = envelope(bp, fs)
+        bl_mask = (t_rel_all >= BASELINE_START) & (t_rel_all <= BASELINE_END)
+        bl_mean = env[bl_mask].mean() if bl_mask.any() else 1.0
+        env_norm = env / bl_mean if bl_mean > 0 else env
+        tower_traces.append((col, color, t_rel_all, env_norm))
+    asc_towers_traces.append((tower_label, tower_traces))
 
 # ── Plotting ──────────────────────────────────────────────────────────────────
 for win in WINDOWS:
@@ -117,47 +128,44 @@ for win in WINDOWS:
     mask_win = (t_rel_all >= -win) & (t_rel_all <= win)
     t_plot   = t_rel_all[mask_win] * scale
 
-    fig, axes = plt.subplots(3, 1, figsize=(16, 10), sharex=True)
-    fig.subplots_adjust(hspace=0.08, top=0.91, bottom=0.08, left=0.10, right=0.97)
+    n_rows = 2 + len(asc_towers_traces)   # DARM waveform + DARM envelope + one per tower
+    fig, axes = plt.subplots(n_rows, 1, figsize=(16, 3 * n_rows), sharex=True)
+    fig.subplots_adjust(hspace=0.08, top=0.93, bottom=0.06, left=0.13, right=0.97)
 
     # ── Panel 1: DARM waveform ────────────────────────────────────────────────
     ax1 = axes[0]
     ax1.plot(t_plot, darm_bp_norm[mask_win],
-             color="black", lw=0.8, alpha=0.9, label="DARM_CORR (30–55 Hz)")
+             color="black", lw=0.8, alpha=0.9, label="V1:LSC_DARM_CORR (30–55 Hz)")
     ax1.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.8)
-    ax1.set_ylabel("Amplitude\n(units of pre-glitch RMS)", fontsize=9)
-    ax1.set_title("DARM_CORR — bandpassed 30–55 Hz waveform", fontsize=9, loc="left")
+    ax1.set_ylabel("Amplitude\n(pre-glitch RMS)", fontsize=9)
+    ax1.set_title("V1:LSC_DARM_CORR — bandpassed 30–55 Hz waveform", fontsize=9, loc="left")
     ax1.legend(fontsize=8, loc="upper right")
     ax1.grid(axis="x", ls=":", alpha=0.4)
 
     # ── Panel 2: DARM envelope ────────────────────────────────────────────────
     ax2 = axes[1]
     ax2.plot(t_plot, darm_env_norm[mask_win],
-             color="black", lw=1.5, alpha=0.9, label="DARM_CORR envelope")
+             color="black", lw=1.5, alpha=0.9, label="V1:LSC_DARM_CORR envelope")
     ax2.axhline(1.0, color="black", lw=0.8, ls=":", alpha=0.5, label="baseline = 1")
     ax2.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.8, label="catalog GPS")
-    ax2.set_ylabel("Envelope\n(× pre-glitch mean)", fontsize=9)
-    ax2.set_title("DARM_CORR — Hilbert amplitude envelope  (1.0 = pre-glitch level)", fontsize=9, loc="left")
+    ax2.set_ylabel("Envelope\n(× pre-glitch)", fontsize=9)
+    ax2.set_title("V1:LSC_DARM_CORR — Hilbert envelope  (1.0 = pre-glitch level)", fontsize=9, loc="left")
     ax2.legend(fontsize=8, loc="upper right")
     ax2.grid(axis="x", ls=":", alpha=0.4)
 
-    # ── Panel 3: ASC CORR envelopes ───────────────────────────────────────────
-    ax3 = axes[2]
-    for label, col, color, t_arr, bp, env_norm, fs in asc_traces:
-        # ASC channels may be at different sample rate → use their own time array
-        asc_mask = (t_arr >= -win) & (t_arr <= win)
-        ax3.plot(t_arr[asc_mask] * scale, env_norm[asc_mask],
-                 color=color, lw=1.2, alpha=0.8, label=label)
-    ax3.axhline(1.0, color="gray", lw=0.8, ls=":", alpha=0.6, label="baseline = 1")
-    ax3.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.8)
-    ax3.set_ylabel("Envelope\n(× pre-glitch mean)", fontsize=9)
-    ax3.set_title(
-        "ASC mirror correction outputs — Hilbert envelopes normalised to pre-glitch baseline\n"
-        "Flat at 1.0 → no glitch response   |   Spike → correction reacted",
-        fontsize=9, loc="left")
-    ax3.legend(fontsize=7.5, loc="upper right", ncol=2,
-               handlelength=1.2, handletextpad=0.4, borderpad=0.4)
-    ax3.grid(axis="x", ls=":", alpha=0.4)
+    # ── One panel per tower ───────────────────────────────────────────────────
+    for i, (tower_label, tower_traces) in enumerate(asc_towers_traces):
+        ax = axes[2 + i]
+        for col, color, t_arr, env_norm in tower_traces:
+            asc_mask = (t_arr >= -win) & (t_arr <= win)
+            ax.plot(t_arr[asc_mask] * scale, env_norm[asc_mask],
+                    color=color, lw=1.2, alpha=0.9, label=col)
+        ax.axhline(1.0, color="gray", lw=0.8, ls=":", alpha=0.6)
+        ax.axvline(0, color="crimson", lw=1.5, ls="--", alpha=0.8)
+        ax.set_ylabel("Envelope\n(× pre-glitch)", fontsize=9)
+        ax.set_title(f"{tower_label} — ASC CORR Hilbert envelope", fontsize=9, loc="left")
+        ax.legend(fontsize=8, loc="upper right", handlelength=1.5)
+        ax.grid(axis="x", ls=":", alpha=0.4)
 
     # ── Shared x-axis ─────────────────────────────────────────────────────────
     xtick_step = {4.0: 1000, 1.0: 200, 0.20: 50}.get(win, 100)
