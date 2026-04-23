@@ -1,0 +1,18 @@
+# FP + DARM/ASC coupling candidates — round 2
+# format: CHANNEL COLOR
+V1:Hrec_hoft_16384Hz                        black
+V1:LSC_DARM_ERR                             dimgray
+V1:LSC_DARM_CORR                            tab:blue
+V1:LSC_NI_CORR                              tab:olive
+V1:LSC_NE_CORR                              tab:green
+V1:LSC_WI_CORR                              yellowgreen
+V1:LSC_WE_CORR                              limegreen
+V1:LSC_DARM_PSTAB0_COUPLING_100Hz          tab:orange
+V1:LSC_DARM_SIB1_LINE_mag_100Hz            sienna
+V1:Sc_WI_FF50HZ_PHASE                      magenta
+V1:ASC_SR_TY_DCP_mag_B1_I_10Hz             tab:red
+V1:ASC_DIFFp_TY_DCP_mag_B1_I_10Hz         crimson
+V1:ASC_DIFFp_TY_DCP_mag_B1_Q_10Hz         salmon
+V1:ASC_DIFFp_TY_DCP_mag_B1_phi0_10Hz      tab:purple
+V1:LSC_DARM_BPC_TY_COUPLING_100Hz         deepskyblue
+V1:Sc_WI_FF50HZ_G_ERR                      teal

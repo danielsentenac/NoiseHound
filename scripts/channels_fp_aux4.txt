@@ -1,0 +1,21 @@
+# FP + DARM/ASC coupling candidates — round 4: add HF DCP channels from scan
+# format: CHANNEL COLOR
+V1:Hrec_hoft_16384Hz                        black
+V1:LSC_DARM_ERR                             dimgray
+V1:LSC_DARM_CORR                            tab:blue
+V1:LSC_NI_CORR                              tab:olive
+V1:LSC_NE_CORR                              tab:green
+V1:LSC_WI_CORR                              yellowgreen
+V1:LSC_WE_CORR                              limegreen
+V1:LSC_DARM_PSTAB0_COUPLING_100Hz          tab:orange
+V1:ASC_SR_TY_DCP_HF_B1p_I_10Hz            gold
+V1:ASC_SR_TY_DCP_HF_B1p_Q_10Hz            darkorange
+V1:ASC_SR_TX_DCP_HF_B1p_I_10Hz            orangered
+V1:ASC_SR_TX_DCP_HF_B1p_Q_10Hz            firebrick
+V1:ASC_SR_TY_DCP_mag_B1_I_10Hz             tab:red
+V1:ASC_SR_TX_DCP_mag_B1_I_10Hz             crimson
+V1:ASC_SR_TX                                salmon
+V1:ASC_SR_TY                                tab:purple
+V1:ASC_DIFFp_TY_DCP_mag_B1_I_10Hz         deepskyblue
+V1:ASC_DIFFp_TY_DCP_mag_B1_Q_10Hz         steelblue
+V1:LSC_DARM_BPC_TY_COUPLING_100Hz         magenta

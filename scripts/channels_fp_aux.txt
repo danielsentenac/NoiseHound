@@ -1,0 +1,19 @@
+# Focused FP + aux candidate channels
+# format: CHANNEL COLOR
+V1:Hrec_hoft_16384Hz        black
+V1:LSC_DARM_ERR             dimgray
+V1:LSC_DARM_CORR            tab:blue
+V1:LSC_NI_CORR              tab:olive
+V1:LSC_NE_CORR              tab:green
+V1:LSC_WI_CORR              yellowgreen
+V1:LSC_WE_CORR              limegreen
+V1:LSC_Etalon_INPOWER       tab:orange
+V1:LSC_Etalon_NI_RH_IN      sienna
+V1:LSC_Etalon_WI_RH_IN      peru
+V1:ENV_NEB_UPS_VOLT_R_2000Hz    tab:red
+V1:ENV_CEB_UPS_VOLT_R_2000Hz    crimson
+V1:ENV_CEB_UPS_CURR_R_2000Hz    salmon
+V1:SBE_SNEB_GEO_GRWE_raw_500Hz  tab:purple
+V1:TCS_NI_CO2_PWRLAS        deepskyblue
+V1:Sc_WI_FF50HZ_P_ERR       magenta
+V1:SQB1_Cam1_FitWaistY      teal
