@@ -84,6 +84,40 @@ def load_data(binned_csv: str, step4_dir: str) -> pd.DataFrame:
     return df4
 
 
+def compute_state_spans(lock: pd.DataFrame,
+                        lo: float, hi: float,
+                        gap_tol_s: float = 7200.0):
+    """Return list of (start_dt, end_dt) for contiguous runs where
+    lock_mean ∈ [lo, hi], merging gaps ≤ gap_tol_s."""
+    sel = lock[(lock["lock_mean"] >= lo) & (lock["lock_mean"] <= hi)].copy()
+    if sel.empty:
+        return []
+    sel = sel.sort_values("gps_bin")
+    bins = sel["gps_bin"].values
+    spans = []
+    seg_start = bins[0]
+    seg_end   = bins[0] + 3600
+    for b in bins[1:]:
+        if b - seg_end <= gap_tol_s:
+            seg_end = b + 3600
+        else:
+            spans.append((gps_to_dt(seg_start), gps_to_dt(seg_end)))
+            seg_start = b
+            seg_end   = b + 3600
+    spans.append((gps_to_dt(seg_start), gps_to_dt(seg_end)))
+    return spans
+
+
+def load_sr_pos(sr_pos_csv: str) -> Optional[pd.DataFrame]:
+    if not sr_pos_csv or not Path(sr_pos_csv).exists():
+        print(f"  SR position CSV not found: {sr_pos_csv}")
+        return None
+    df = pd.read_csv(sr_pos_csv)
+    df = df[(df.gps_bin >= EPOCH_START_GPS) & (df.gps_bin < EPOCH_END_GPS)]
+    print(f"SR pos bins: {len(df)}")
+    return df
+
+
 def load_lock(itf_lock_csv: str) -> Optional[pd.DataFrame]:
     if not itf_lock_csv or not Path(itf_lock_csv).exists():
         print(f"  ITF lock CSV not found: {itf_lock_csv}")
@@ -139,10 +173,11 @@ def find_outage_markers(lock: pd.DataFrame) -> Tuple[Optional[float], Optional[f
 
 
 def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
-         itf_lock_csv: str, output: str) -> None:
+         itf_lock_csv: str, sr_pos_csv: str, output: str) -> None:
 
-    df   = load_data(binned_csv, step4_dir)
-    lock = load_lock(itf_lock_csv)
+    df     = load_data(binned_csv, step4_dir)
+    lock   = load_lock(itf_lock_csv)
+    sr_pos = load_sr_pos(sr_pos_csv)
     dt   = gps_to_dt(df["gps_bin"].values)
 
     # Recurrence — fallback when lock data unavailable
@@ -169,6 +204,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     daq_recovery_dt = gps_to_dt(daq_recovery_gps) if daq_recovery_gps else None
     itf_relock_dt   = gps_to_dt(itf_relock_gps)   if itf_relock_gps   else None
 
+    # LN3 / LN3_ALIGNED spans for analysis context
+    ln3_spans         = compute_state_spans(lock, 133, 136) if lock is not None else []
+    ln3_aligned_spans = compute_state_spans(lock, 143, 146) if lock is not None else []
+
     xfmt = DateFormatter("%b %Y")
 
     def decorate(ax, legend=True):
@@ -189,6 +228,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
             ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--",
                        label="ITF first relock")
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
+        for s, e in ln3_spans:
+            ax.axvspan(s, e, color="tab:orange", alpha=0.12, zorder=0)
+        for s, e in ln3_aligned_spans:
+            ax.axvspan(s, e, color="tab:green",  alpha=0.18, zorder=0)
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.25)
         if legend:
@@ -205,6 +248,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
         ax.axvline(last_trig_dt, color="crimson", lw=1.2, ls="--")
         if itf_relock_dt is not None:
             ax.axvline(itf_relock_dt, color="tab:green", lw=1.1, ls="--")
+        for s, e in ln3_spans:
+            ax.axvspan(s, e, color="tab:orange", alpha=0.35, zorder=2)
+        for s, e in ln3_aligned_spans:
+            ax.axvspan(s, e, color="tab:green",  alpha=0.50, zorder=2)
         ax.xaxis.set_major_formatter(xfmt)
         ax.grid(alpha=0.15)
         kw = dict(fontsize=10, va="center", ha="left", rotation=0,
@@ -235,8 +282,10 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
                     color="darkgreen", **kw)
         # Legend patches
         handles = [
-            Patch(fc="gold",   alpha=0.7, label="SR tower opening (Christmas)"),
-            Patch(fc="tomato", alpha=0.6, label="General power outage (~10-day recovery)"),
+            Patch(fc="gold",       alpha=0.7, label="SR tower opening (Christmas)"),
+            Patch(fc="tomato",     alpha=0.6, label="General power outage (~10-day recovery)"),
+            Patch(fc="tab:orange", alpha=0.5, label="LOW_NOISE_3 (SR misaligned)"),
+            Patch(fc="tab:green",  alpha=0.6, label="LOW_NOISE_3_ALIGNED (SR aligned)"),
         ]
         if daq_recovery_dt is not None:
             handles.append(Patch(fc="grey", alpha=0.7, label="DAQ down (no data)"))
@@ -246,7 +295,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     fig, axes = plt.subplots(11, 1, figsize=(16, 32), sharex=True,
                              gridspec_kw={"height_ratios": [0.7]+[1]*10})
     fig.suptitle("Glitch rate and thermal channels: Oct 2025 – Apr 2026",
-                 fontsize=13)
+                 fontsize=13, y=1.002)
 
     # ── Panel 0: event timeline ───────────────────────────────────────────────
     draw_timeline(axes[0])
@@ -291,8 +340,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     # ── Panel 3: tower bottom temperatures ───────────────────────────────────
     ax = axes[3]
     for col, lab, color in [
-            ("V1:INF_NI_BOTTOM_TE1", "NI tower bottom TE1 [°C]  ★", "tab:orange"),
-            ("V1:INF_WI_BOTTOM_TE1", "WI tower bottom TE1 [°C]",    "tab:red")]:
+            ("V1:INF_NI_BOTTOM_TE1", "V1:INF_NI_BOTTOM_TE1", "tab:orange"),
+            ("V1:INF_WI_BOTTOM_TE1", "V1:INF_WI_BOTTOM_TE1", "tab:red")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -301,8 +350,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     # ── Panel 4: NI/WI CO2 bench ambient temperatures ─────────────────────────
     ax = axes[4]
     for col, lab, color in [
-            ("V1:ENV_TCS_CO2_NI_TE", "NI CO2 bench ambient TE [°C]", "tab:blue"),
-            ("V1:ENV_TCS_CO2_WI_TE", "WI CO2 bench ambient TE [°C]", "tab:cyan")]:
+            ("V1:ENV_TCS_CO2_NI_TE", "V1:ENV_TCS_CO2_NI_TE", "tab:blue"),
+            ("V1:ENV_TCS_CO2_WI_TE", "V1:ENV_TCS_CO2_WI_TE", "tab:cyan")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -311,8 +360,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     # ── Panel 5: mirror coil temperatures ────────────────────────────────────
     ax = axes[5]
     for col, lab, color in [
-            ("V1:INF_NI_MIR_COIL_UL_TE", "NI mirror coil UL TE [°C]", "tab:blue"),
-            ("V1:INF_WI_MIR_COIL_DR_TE", "WI mirror coil DR TE [°C]", "tab:purple")]:
+            ("V1:INF_NI_MIR_COIL_UL_TE", "V1:INF_NI_MIR_COIL_UL_TE", "tab:blue"),
+            ("V1:INF_WI_MIR_COIL_DR_TE", "V1:INF_WI_MIR_COIL_DR_TE", "tab:purple")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -321,8 +370,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     # ── Panel 6: ring heater setpoints ───────────────────────────────────────
     ax = axes[6]
     for col, lab, color in [
-            ("V1:LSC_Etalon_NI_RH_SET_mean", "NI ring heater setpoint [W]", "tab:green"),
-            ("V1:LSC_Etalon_WI_RH_SET_mean", "WI ring heater setpoint [W]", "tab:olive")]:
+            ("V1:LSC_Etalon_NI_RH_SET_mean", "V1:LSC_Etalon_NI_RH_SET_mean", "tab:green"),
+            ("V1:LSC_Etalon_WI_RH_SET_mean", "V1:LSC_Etalon_WI_RH_SET_mean", "tab:olive")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -331,8 +380,8 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     # ── Panel 7: CO2 laser body temperatures ─────────────────────────────────
     ax = axes[7]
     for col, lab, color in [
-            ("V1:TCS_NI_TE_CO2Laser", "NI CO2 laser body TE [°C]", "tab:green"),
-            ("V1:TCS_WI_TE_CO2Laser", "WI CO2 laser body TE [°C]", "tab:olive")]:
+            ("V1:TCS_NI_TE_CO2Laser", "V1:TCS_NI_TE_CO2Laser", "tab:green"),
+            ("V1:TCS_WI_TE_CO2Laser", "V1:TCS_WI_TE_CO2Laser", "tab:olive")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, color=color, lw=0.8, label=lab)
     decorate(ax)
@@ -342,7 +391,7 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     ax = axes[8]
     if "V1:ENV_CEB_UPS_CURR_R_mean" in df.columns:
         ax.plot(dt.values, df["V1:ENV_CEB_UPS_CURR_R_mean"].values,
-                color="tab:red", lw=0.6, label="CEB UPS current R [A]")
+                color="tab:red", lw=0.6, label="V1:ENV_CEB_UPS_CURR_R_mean")
     decorate(ax)
     ax.set_ylabel("[A]", fontsize=9)
 
@@ -351,28 +400,38 @@ def plot(binned_csv: str, step4_dir: str, triggers_csv: str,
     #       INF_TCS_SR_CHROCC_TE_IntHeater (~-301°C, disconnected sensor) excluded.
     ax = axes[9]
     for col, lab, color in [
-            ("V1:INF_SR_MIR_COIL_UL_TE", "SR mirror coil UL TE [°C]",      "tab:brown"),
-            ("V1:INF_TCS_SR_RH_TE",      "SR ring heater thermistor [°C]", "tab:pink")]:
+            ("V1:INF_SR_MIR_COIL_UL_TE", "V1:INF_SR_MIR_COIL_UL_TE", "tab:brown"),
+            ("V1:INF_TCS_SR_RH_TE",      "V1:INF_TCS_SR_RH_TE",      "tab:pink")]:
         if col in df.columns:
             ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
     decorate(ax)
     ax.set_ylabel("[°C]", fontsize=9)
     ax.set_title("SR tower temperatures", fontsize=9)
 
-    # ── Panel 10: SR ASC alignment errors ────────────────────────────────────
+    # ── Panel 10: SR actual angular position (TY and TX) ─────────────────────
     ax = axes[10]
-    for col, lab, color in [
-            ("V1:ASC_SR_TY_ERR_mean", "SR TY alignment error", "tab:blue"),
-            ("V1:ASC_SR_TX_ERR_mean", "SR TX alignment error", "tab:orange")]:
-        if col in df.columns:
-            ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
+    if sr_pos is not None:
+        sr_dt = gps_to_dt(sr_pos["gps_bin"].values)
+        if "sr_mar_ty_set" in sr_pos.columns:
+            ax.plot(sr_dt.values, sr_pos["sr_mar_ty_set"].values,
+                    lw=0.9, color="tab:blue", label="V1:SAT_SR_MAR_TY_SET")
+        if "sr_mar_tx_set" in sr_pos.columns:
+            ax.plot(sr_dt.values, sr_pos["sr_mar_tx_set"].values,
+                    lw=0.9, color="tab:orange", label="V1:SAT_SR_MAR_TX_SET")
+    else:
+        # fallback: ERR channels from binned data
+        for col, lab, color in [
+                ("V1:ASC_SR_TY_ERR_mean", "SR TY ERR (fallback)", "tab:blue"),
+                ("V1:ASC_SR_TX_ERR_mean", "SR TX ERR (fallback)", "tab:orange")]:
+            if col in df.columns:
+                ax.plot(dt.values, df[col].values, lw=0.8, label=lab, color=color)
     decorate(ax)
-    ax.set_ylabel("[rad]", fontsize=9)
-    ax.set_title("SR ASC alignment errors (baffle hypothesis)", fontsize=9)
+    ax.set_ylabel("[arb]", fontsize=9)
+    ax.set_title("SR marionette setpoint (TY/TX) — LN3 vs LN3_ALIGNED", fontsize=9)
     ax.set_xlabel("Date", fontsize=9)
 
     fig.autofmt_xdate(rotation=20)
-    fig.tight_layout()
+    fig.tight_layout(rect=[0, 0, 1, 1])
     out = Path(output)
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -386,6 +445,8 @@ def parse_args():
     p.add_argument("--step4-dir", required=True)
     p.add_argument("--triggers",  required=True)
     p.add_argument("--itf-lock",  default="")
+    p.add_argument("--sr-pos",    default="",
+                   help="CSV with gps_bin, sr_mar_ty_set, sr_mar_tx_set")
     p.add_argument("--output",
                    default="usecases/25-minute-glitch/disappearance_timeseries.png")
     return p.parse_args()
@@ -393,4 +454,5 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    plot(args.binned, args.step4_dir, args.triggers, args.itf_lock, args.output)
+    plot(args.binned, args.step4_dir, args.triggers, args.itf_lock,
+         args.sr_pos, args.output)
