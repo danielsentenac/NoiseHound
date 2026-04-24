@@ -22,5 +22,5 @@ python scripts/plot_top10_candidates.py \
     --gps        "$GPS" \
     --window     15 \
     --guard      30 \
-    --n          18 \
+    --n          23 \
     --output     "$OUT"
