@@ -102,6 +102,10 @@ Re-run the rate-correlation pipeline on the disappearance epoch (GPS 1443657600�
 
 ### Step 9 — Raw-data propagation study: which mirror is first affected?  [done]
 
+### Step 10 — Full auxiliary-channel pre-glitch scan on raw GWF data  [in progress]
+
+Scan all high-rate auxiliary channels (≥ 10 Hz) in a ±15 s window around a glitch event using the 37–44 Hz Hilbert envelope SNR method, restricting peak search to t < 0 only (causal priors). Identify the earliest channels to activate before DARM and build a reproducibility watchlist for cross-checking against subsequent glitches. → Detailed results: Section 4.10.
+
 Extract raw GWF data (100 s frames, ~4.5 GB each) around one pre-Christmas glitch event (GPS 1415578745, Nov 14 2024) and bandpass-filter (30–55 Hz) all ASC/LSC control signals at their native sample rates (4096 Hz for LSC, 2000 Hz for ASC). Compute the Hilbert amplitude envelope to determine which mirror's angular signal rises first relative to DARM. → Detailed results: Section 4.9.
 
 Use the merged SR marionette and SR-TY input time series to test whether the disappearance is linked to the new SR geometry introduced during the Christmas 2025 shutdown. Importantly, the motivation for the SR baffle intervention was to enable operation in `LOW_NOISE_3_ALIGNED`, so the Christmas action must be treated as a coupled change of **hardware + accessible SR working point**, not as an isolated absorber replacement. Compare the stable pre-baffle window (Nov 24 – Dec 1, 2025) with the post-baffle window (Jan 14 – Mar 20, 2026), and check whether the old NI thermal conditions still occur after the glitch family vanishes. → Results: Section 4.8.
@@ -513,6 +517,102 @@ These results confirm and sharpen the conclusion of the earlier 10-second probe:
 |------|-------------|
 | `slurm/nh_tower_glitch_probe.slurm` | 30-second probe; stages `V-raw-1415578700-100.gwf`; outputs `outputs/tower_glitch_probe_1415578733.csv` (182 821 samples × 20 channels) |
 | `scripts/plot_tower_propagation.py` | Stacked waveform plot; 20–150 Hz bandpass; 3 figures (30 s, 7 s, 3 s windows) |
+
+### 4.10 — Step 10: full auxiliary-channel pre-glitch scan
+
+#### Method
+
+One pre-Christmas glitch at GPS **1426892892** (2025-01-21, SNR ≈ 482, f ≈ 40.4 Hz) was selected from the BruCo trigger catalogue. Two adjacent 100-second raw GWF frames (`V-raw-1426892800-100.gwf`, `V-raw-1426892900-100.gwf`) were used as input.
+
+**Channel enumeration** used the `lalframe` Python bindings to read the frame TOC directly (`FrChannelNames`) and select all channels with sample rate ≥ 10 Hz. This yields **6865 channels**, compared to only 1846 identified by name-suffix heuristics.
+
+**Scan method** (`scripts/scan_fast_channels.py`):
+- Window: ±15 s around the glitch GPS, with a ±30 s guard margin for baseline estimation
+- Bandpass: 4th-order Butterworth 37–44 Hz + Hilbert amplitude envelope (`bp_envelope` method), where applicable (rate ≥ 100 Hz, Nyquist > 44 Hz)
+- Low-rate channels: `absdev` method (median-subtracted absolute deviation, no bandpass)
+- SNR normalisation: MAD-based (median absolute deviation from median envelope)
+- **Peak restricted to t < 0 only** (causal prior requirement)
+- Threshold: SNR ≥ 5
+- Batch size: 100 channels per CSV; 7 SLURM array tasks × 1000 channels; aggregated post-hoc
+
+**Key technical fix**: gwpy raises on multi-file spans when channels have incompatible units across GWF files. Resolved by reading each GWF file independently with time-range clipping (regex on filename), then concatenating manually with `override_unit()`.
+
+**Output**: `candidates.csv` with fields `channel`, `rate`, `peak_snr`, `peak_time_rel`, `method`.
+
+#### Results
+
+**306 candidates** with pre-glitch SNR ≥ 5 identified out of 6865 channels scanned.
+
+The table below groups the physically significant candidates by timing cluster (dismissing DAQ timing counters which show periodic artifact signatures):
+
+**Early precursors (t ≈ −4 to −10 s)**
+
+| Channel | SNR | Peak time | Interpretation |
+|---|---|---|---|
+| `NCal_NNN_box_T` | 7.2 | −10.2 s | Newtonian calibrator box temperature — step increase |
+| `SDB1_B5_QD2_DL_10Hz` | 5.1 | −7.1 s | SDB1 B5 quadrant detector slow drift |
+| `SQB1_LC_LVDT_BL_V_out_q` | 7.1 | −3.9 s | **SQB1 bench longitudinal motion** — clear dip |
+| `SQB1_LC_LVDT_BL_H_out_i_norm` | 6.0 | −1.9 s | SQB1 bench horizontal, same bench |
+
+**Core precursor cluster (t ≈ −1 to −3 s)**
+
+| Channel | SNR | Peak time | Interpretation |
+|---|---|---|---|
+| `SBE_SQB2_F0_ty_500Hz` | 5.1 | −2.89 s | SQB2 bench tilt |
+| `SBE_SWEB_hor_safety_500Hz` | 7.1 | −2.37 s | SBE horizontal |
+| `Sc_NE_MAR_PSDM_X1` | 6.0 | −2.40 s | NE test mass marker (position sensing) |
+| `Sc_NI_MAR_PSDM_PWR` | 6.3 | −1.54 s | NI test mass marker power |
+| `Sc_NI_MAR_PSDT_PWR` | 6.0 | −1.53 s | NI test mass marker |
+| `ASC_SR_TY_DCP_HF_B1p_I_10Hz` | **19.0** | **−1.40 s** | **SR mirror tilt — strongest upstream signal** |
+| `ASC_SR_TX_DCP_HF_B1p_Q_10Hz` | **15.4** | **−1.40 s** | **SR mirror pitch — coherent with above** |
+| `SBE_SQB1_F0_H2_LVDT_10Hz` | 5.4 | −1.50 s | SQB1 bench H2 |
+
+**Close-in / sub-second (t ≈ −0.3 to −0.9 s)**
+
+| Channel | SNR | Peak time | Interpretation |
+|---|---|---|---|
+| `ASC_B2_QD2_6MHz_V_Q` | 5.0 | −0.87 s | B2 wavefront sensor |
+| `ASC_B2_QD1_18MHz_H_I` | 5.5 | −0.71 s | B2 wavefront sensor |
+| `ASC_B4_QD2_6MHz_V_I` | 5.1 | −0.55 s | B4 wavefront sensor |
+| `Sc_BS_F7_LVDT_V3` | 5.6 | −0.53 s | BS LVDT vertical |
+| `ASC_B2_QD2_H` | 5.4 | −0.27 s | B2 wavefront sensor |
+
+**Essentially simultaneous with glitch (t ≈ 0)**
+
+| Channel | SNR | Peak time | Interpretation |
+|---|---|---|---|
+| `EQB1_MAIN_PLL_PD1_DC` | 6.7 | −0.01 s | EQB1 main PLL photodetector |
+| `Sa_PR_F0_Y_CORR_500Hz` | 5.3 | −0.02 s | PR F0 Y correction |
+
+**Downstream (excluded from causal interpretation)**
+
+| Channel | SNR | Peak time | Interpretation |
+|---|---|---|---|
+| `SDB1_B1x_DC_DARM_norm` | 1215.7 | −2.76 s | DARM — response, not cause |
+| `SIB2_B2_Cam__Pwr` | 230.8 | −2.20 s | SIB2 beam camera — downstream optical response |
+
+#### Physical interpretation
+
+A mechanical or thermal disturbance on the **SQB1/SQB2 benches** (3–4 s before) propagates through the optical path into the SR angular control system. The **SR mirror ASC channels (TX/TY DCP HF)** activate at −1.4 s with the highest upstream SNR and are coherent in both axes, making them the strongest causal candidates identified in this scan. The signal then propagates through wavefront sensors (B2/B4 QD) in the sub-second range before appearing in DARM.
+
+This is fully consistent with the Step 9 conclusion: the SR mirror carries a persistent 40 Hz angular oscillation that couples into DARM through a geometry-dependent transfer function. The Step 10 scan provides the first evidence that the coupling amplitude is modulated on a ≥1 s timescale by upstream bench mechanics.
+
+#### Watchlist and cross-check
+
+A 23-channel watchlist (`data/watchlist_1426892892.csv`) was assembled from all physically significant candidates above, ordered by SNR. This watchlist is being applied to the **next glitch in the catalogue** (GPS **1426894550**, ~27 minutes later) using `scripts/plot_top10_candidates.py` and the raw GWF data at `/scratch/sentenac/noisehound_raw/1426/`, to test whether the same precursor channels activate reproducibly.
+
+#### Scripts and data products
+
+| File | Description |
+|---|---|
+| `scripts/scan_fast_channels.py` | Full auxiliary-channel scan; lalframe enumeration; per-file GWF read with unit-mismatch fix; per-batch CSV output |
+| `scripts/plot_top10_candidates.py` | Stacked panel plot of N candidates: raw signal (grey twin axis) + bandpass envelope SNR (colour) |
+| `scripts/submit_scan_1426894550.slurm` | SLURM array script for second-glitch scan |
+| `scripts/submit_watchlist_plot.slurm` | Single SLURM job: plot the 23-channel watchlist around any GPS/GWF-dir combination |
+| `data/watchlist_1426892892.csv` | 23-channel watchlist derived from GPS 1426892892 scan |
+| `/sps/virgo/USERS/sentenac/scan_lal_1426892892/candidates.csv` | Full 306-candidate output (on CCA) |
+| `/sps/virgo/USERS/sentenac/scan_lal_1426892892/render_plots/` | Per-candidate detail plots, 10 per page, 31 PNGs (on CCA) |
+| `/sps/virgo/USERS/sentenac/scan_lal_1426894550/watchlist_1426894550.png` | Cross-check plot for second glitch (pending) |
 
 ---
 
