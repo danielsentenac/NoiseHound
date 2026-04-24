@@ -151,23 +151,55 @@ def read_batch(
     t1: float,
 ) -> dict:
     """Read all channels in one TimeSeriesDict pass. Returns dict channel→TimeSeries.
-    Falls back to per-channel reads if the batch fails (e.g. unit mismatch across channels).
-    """
-    from gwpy.timeseries import TimeSeries, TimeSeriesDict
-    src = [str(f) for f in gwf_files]
-    try:
-        tsd = TimeSeriesDict.read(src, channels, start=t0, end=t1)
-        return dict(tsd)
-    except Exception as exc:
-        log(f"  Batch read failed ({exc}); falling back to per-channel reads ...")
 
+    When multiple GWF files are needed, gwpy fails if a channel has incompatible
+    units across files (unit mismatch on append). We avoid this by reading each
+    file separately and concatenating manually with unit override.
+    """
+    from gwpy.timeseries import TimeSeriesDict
+
+    files = [str(f) for f in gwf_files]
+
+    # Fast path: single file, no concatenation needed
+    if len(files) == 1:
+        return dict(TimeSeriesDict.read(files, channels, start=t0, end=t1))
+
+    # Read each GWF file independently, clipping the time range to that file's
+    # actual coverage so gwpy doesn't raise on partial-span requests
+    parts = []
+    for gwf_f, f in zip(gwf_files, files):
+        m = re.search(r"V-raw-(\d+)-(\d+)\.gwf$", gwf_f.name)
+        if m:
+            fs, fd = float(m.group(1)), float(m.group(2))
+            ft0, ft1 = max(t0, fs), min(t1, fs + fd)
+        else:
+            ft0, ft1 = t0, t1
+        try:
+            part = TimeSeriesDict.read([f], channels, start=ft0, end=ft1)
+            parts.append(dict(part))
+        except Exception as exc:
+            log(f"  Warning: failed to read {gwf_f.name}: {exc}")
+            parts.append({})
+
+    # Manually concatenate segments, bypassing gwpy unit check on append
     result = {}
     for ch in channels:
-        try:
-            ts = TimeSeries.read(src, ch, start=t0, end=t1)
-            result[ch] = ts
-        except Exception as exc:
-            result[ch] = {"_chan_error": str(exc)}
+        segments = [p[ch] for p in parts if ch in p]
+        if not segments:
+            result[ch] = {"_chan_error": "not found in any GWF file"}
+            continue
+        ts = segments[0]
+        for seg in segments[1:]:
+            try:
+                ts = ts.append(seg, gap="pad", inplace=False)
+            except Exception:
+                # Unit mismatch: strip unit from the incoming segment and retry
+                try:
+                    seg.override_unit(ts.unit)
+                    ts = ts.append(seg, gap="pad", inplace=False)
+                except Exception:
+                    pass  # keep whatever we have from the first file
+        result[ch] = ts
     return result
 
 
