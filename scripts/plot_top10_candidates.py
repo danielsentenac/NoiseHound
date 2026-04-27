@@ -162,8 +162,6 @@ def main():
     for idx, (ax, row) in enumerate(zip(axes, top)):
         ch    = row["channel"]
         rate  = int(row["rate"])
-        snr_v = float(row["peak_snr"])
-        t_pk  = float(row["peak_time_rel"])
         color = colors[idx % len(colors)]
 
         if ch not in tsd:
@@ -182,14 +180,14 @@ def main():
         rng = np.percentile(np.abs(raw), 99)
         raw_norm = raw / rng if rng > 0 else raw
 
-        # Envelope SNR (full window for baseline, trim to display)
+        # Compute SNR from this glitch's data (full window for baseline, trim to display)
         env_full = envelope(values, rate)
         if env_full is not None:
             snr_full = snr_norm(env_full)
             snr_disp = snr_full[disp]
-            ax.plot(t_rel, snr_disp, color=color, lw=1.0, label="SNR (bp env)")
+            method = "bp_env"
+            ax.plot(t_rel, snr_disp, color=color, lw=1.0)
             ax.set_ylabel("SNR", fontsize=7)
-            # raw on twin axis
             ax2 = ax.twinx()
             ax2.plot(t_rel, raw_norm, color="silver", lw=0.5, alpha=0.7, zorder=0)
             ax2.set_ylabel("raw (norm)", fontsize=6, color="silver")
@@ -197,14 +195,26 @@ def main():
             ax2.set_ylim(-4, 4)
         else:
             snr_disp = snr_norm(np.abs(raw - np.median(raw)))
-            ax.plot(t_rel, snr_disp, color=color, lw=1.0, label="SNR (absdev)")
+            method = "absdev"
+            ax.plot(t_rel, snr_disp, color=color, lw=1.0)
             ax.set_ylabel("SNR", fontsize=7)
+
+        # Recompute peak time and SNR from t < 0 region of this glitch
+        pre_mask = t_rel < 0.0
+        if pre_mask.sum() >= 2:
+            pre_peak_idx = int(np.argmax(snr_disp[pre_mask]))
+            peak_idx = int(np.where(pre_mask)[0][pre_peak_idx])
+            t_pk  = float(t_rel[peak_idx])
+            snr_v = float(snr_disp[peak_idx])
+        else:
+            t_pk  = float(row["peak_time_rel"])
+            snr_v = float(row["peak_snr"])
 
         ax.axvline(0,    color="black", lw=0.8, alpha=0.5)
         ax.axvline(t_pk, color=color,  lw=1.0, ls="--", alpha=0.8)
         ax.axhline(5,    color="black", lw=0.5, ls=":", alpha=0.4)
 
-        label = f"#{idx+1}  {ch.replace('V1:','')}   SNR={snr_v:.1f}  t={t_pk:+.2f}s  {rate}Hz  [{row['method']}]"
+        label = f"#{idx+1}  {ch.replace('V1:','')}   SNR={snr_v:.1f}  t={t_pk:+.2f}s  {rate}Hz  [{method}]"
         ax.text(0.01, 0.90, label, transform=ax.transAxes, fontsize=7.5,
                 va="top", color=color, fontweight="bold")
 
