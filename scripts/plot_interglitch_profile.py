@@ -103,6 +103,10 @@ def parse_args():
     p.add_argument("--glitch-times", type=str,  required=True,
                    help="Comma-separated GPS times of consecutive glitches")
     p.add_argument("--output",       type=Path, default=None)
+    p.add_argument("--checkpoint-dir", type=Path, default=None,
+                   help="Directory for per-interval .npy checkpoints (enables resume)")
+    p.add_argument("--plot-only",    action="store_true",
+                   help="Skip data reading, load all checkpoints and plot")
     p.add_argument("--scan-window",  type=float, default=15.0,
                    help="Highlight this many seconds before glitch [default 15]")
     p.add_argument("--smooth",       type=float, default=30.0,
@@ -129,51 +133,76 @@ def main():
         ", ".join(f"{t1 - t0:.0f}s" for t0, t1 in intervals))
 
     channels = [r["channel"] for r in rows]
+    rows_by_channel = {r["channel"]: r for r in rows}
+
+    out = args.output or Path("interglitch_profile.png")
+    ckpt_dir = args.checkpoint_dir or out.parent
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
 
     # Per-channel list of (tau_array_1Hz, amp_array_1Hz) for each interval
     channel_traces = {r["channel"]: [] for r in rows}
-    rows_by_channel = {r["channel"]: r for r in rows}
 
-    for i, (t_prev, t_next) in enumerate(intervals):
-        log(f"Interval {i + 1}: {t_prev:.0f} → {t_next:.0f}")
-        gwf_files = find_gwf_files(args.gwf_dir, t_prev, t_next)
-        if not gwf_files:
-            log("  No GWF files — skipping")
-            continue
-        log(f"  {len(gwf_files)} GWF files (processing one at a time) ...")
-
-        # Accumulate 1 Hz chunks per channel — never hold full interval in RAM
-        interval_chunks = {ch: ([], []) for ch in channels}
-
-        for gwf_f in gwf_files:
-            m = re.search(r"V-raw-(\d+)-(\d+)\.gwf$", gwf_f.name)
-            if m:
-                fs, fd = float(m.group(1)), float(m.group(2))
-                ft0, ft1 = max(t_prev, fs), min(t_next, fs + fd)
-            else:
-                ft0, ft1 = t_prev, t_next
-
-            file_result = read_and_process_file(
-                gwf_f, channels, ft0, ft1, rows_by_channel)
-
-            for ch, (tau_1hz, amp_1hz) in file_result.items():
-                interval_chunks[ch][0].append(tau_1hz)
-                interval_chunks[ch][1].append(amp_1hz)
-
-        log("  Done.")
-
-        for ch in channels:
-            tau_parts, amp_parts = interval_chunks[ch]
-            if not tau_parts:
+    if not args.plot_only:
+        for i, (t_prev, t_next) in enumerate(intervals):
+            ckpt_file = ckpt_dir / f"interglitch_ckpt_{i}.npy"
+            if ckpt_file.exists():
+                log(f"Interval {i + 1}: checkpoint found, skipping data read")
                 continue
-            tau_cat = np.concatenate(tau_parts)
-            amp_cat = np.concatenate(amp_parts)
-            # Sort (files should be in order, but just in case)
-            order = np.argsort(tau_cat)
-            tau_cat, amp_cat = tau_cat[order], amp_cat[order]
-            # Express as τ relative to next glitch
-            tau_rel = tau_cat - t_next
-            channel_traces[ch].append((tau_rel, amp_cat))
+
+            log(f"Interval {i + 1}: {t_prev:.0f} → {t_next:.0f}")
+            gwf_files = find_gwf_files(args.gwf_dir, t_prev, t_next)
+            if not gwf_files:
+                log("  No GWF files — skipping")
+                continue
+            log(f"  {len(gwf_files)} GWF files (processing one at a time) ...")
+
+            # Accumulate 1 Hz chunks per channel — never hold full interval in RAM
+            interval_chunks = {ch: ([], []) for ch in channels}
+
+            for gwf_f in gwf_files:
+                m = re.search(r"V-raw-(\d+)-(\d+)\.gwf$", gwf_f.name)
+                if m:
+                    fs, fd = float(m.group(1)), float(m.group(2))
+                    ft0, ft1 = max(t_prev, fs), min(t_next, fs + fd)
+                else:
+                    ft0, ft1 = t_prev, t_next
+
+                file_result = read_and_process_file(
+                    gwf_f, channels, ft0, ft1, rows_by_channel)
+
+                for ch, (tau_1hz, amp_1hz) in file_result.items():
+                    interval_chunks[ch][0].append(tau_1hz)
+                    interval_chunks[ch][1].append(amp_1hz)
+
+            log("  Done. Assembling and saving checkpoint ...")
+            interval_data = {}
+            for ch in channels:
+                tau_parts, amp_parts = interval_chunks[ch]
+                if not tau_parts:
+                    continue
+                tau_cat = np.concatenate(tau_parts)
+                amp_cat = np.concatenate(amp_parts)
+                order = np.argsort(tau_cat)
+                tau_cat, amp_cat = tau_cat[order], amp_cat[order]
+                tau_rel = tau_cat - t_next
+                interval_data[ch] = (tau_rel, amp_cat)
+
+            np.save(ckpt_file, interval_data)
+            log(f"  Checkpoint saved: {ckpt_file}")
+
+    # Load all checkpoints and merge into channel_traces
+    loaded = 0
+    for i in range(len(intervals)):
+        ckpt_file = ckpt_dir / f"interglitch_ckpt_{i}.npy"
+        if not ckpt_file.exists():
+            log(f"Interval {i + 1}: no checkpoint found — skipped in plot")
+            continue
+        interval_data = np.load(ckpt_file, allow_pickle=True).item()
+        for ch in channels:
+            if ch in interval_data:
+                channel_traces[ch].append(interval_data[ch])
+        loaded += 1
+    log(f"Loaded {loaded} checkpoint(s) for plotting")
 
     # --- Plot ---
     import matplotlib
@@ -245,7 +274,6 @@ def main():
     axes[-1].set_xlabel("Time relative to next glitch  τ  [s]", fontsize=9)
     fig.tight_layout(rect=[0, 0, 1, 1.0])
 
-    out = args.output or Path("interglitch_profile.png")
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150, bbox_inches="tight")
     plt.close(fig)
