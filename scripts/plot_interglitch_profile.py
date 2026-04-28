@@ -41,41 +41,35 @@ def find_gwf_files(gwf_dir, t0, t1):
     return files
 
 
-def read_channels(gwf_files, channels, t0, t1):
+def read_and_process_file(gwf_file, channels, ft0, ft1, rows_by_channel):
+    """Read one GWF file, immediately compute 1 Hz amplitude proxy per channel.
+    Returns dict: channel -> (tau_1hz_array, amp_1hz_array) relative to ft1.
+    Never accumulates raw high-rate data across files — keeps memory at O(one file).
+    """
     from gwpy.timeseries import TimeSeriesDict
-    files = [str(f) for f in gwf_files]
-    if len(files) == 1:
-        return dict(TimeSeriesDict.read(files, channels, start=t0, end=t1))
-    parts = []
-    for gwf_f, f in zip(gwf_files, files):
-        m = re.search(r"V-raw-(\d+)-(\d+)\.gwf$", gwf_f.name)
-        if m:
-            fs, fd = float(m.group(1)), float(m.group(2))
-            ft0, ft1 = max(t0, fs), min(t1, fs + fd)
-        else:
-            ft0, ft1 = t0, t1
-        try:
-            part = TimeSeriesDict.read([f], channels, start=ft0, end=ft1)
-            parts.append(dict(part))
-        except Exception as exc:
-            log(f"  Warning: {gwf_f.name}: {exc}")
-            parts.append({})
+    try:
+        tsd = dict(TimeSeriesDict.read([str(gwf_file)], channels, start=ft0, end=ft1))
+    except Exception as exc:
+        log(f"  Warning: {gwf_file.name}: {exc}")
+        return {}
+
     result = {}
-    for ch in channels:
-        segs = [p[ch] for p in parts if ch in p]
-        if not segs:
+    for ch, row in rows_by_channel.items():
+        if ch not in tsd:
             continue
-        ts = segs[0]
-        for seg in segs[1:]:
-            try:
-                ts = ts.append(seg, gap="pad", inplace=False)
-            except Exception:
-                try:
-                    seg.override_unit(ts.unit)
-                    ts = ts.append(seg, gap="pad", inplace=False)
-                except Exception:
-                    pass
-        result[ch] = ts
+        ts     = tsd[ch]
+        times  = np.asarray(ts.times.value, dtype=np.float64)
+        values = np.asarray(ts.value,       dtype=np.float64)
+        rate   = int(row["rate"])
+        method = row["method"]
+
+        amp = amplitude_proxy(values, rate, method)
+
+        # Downsample to 1 Hz immediately — discard raw
+        tau_1hz = np.arange(np.ceil(times[0]), times[-1], 1.0)
+        amp_1hz = np.interp(tau_1hz, times, amp)
+        result[ch] = (tau_1hz, amp_1hz)
+
     return result
 
 
@@ -138,6 +132,7 @@ def main():
 
     # Per-channel list of (tau_array_1Hz, amp_array_1Hz) for each interval
     channel_traces = {r["channel"]: [] for r in rows}
+    rows_by_channel = {r["channel"]: r for r in rows}
 
     for i, (t_prev, t_next) in enumerate(intervals):
         log(f"Interval {i + 1}: {t_prev:.0f} → {t_next:.0f}")
@@ -145,27 +140,40 @@ def main():
         if not gwf_files:
             log("  No GWF files — skipping")
             continue
-        log(f"  {len(gwf_files)} GWF files, reading {len(channels)} channels ...")
-        tsd = read_channels(gwf_files, channels, t_prev, t_next)
+        log(f"  {len(gwf_files)} GWF files (processing one at a time) ...")
+
+        # Accumulate 1 Hz chunks per channel — never hold full interval in RAM
+        interval_chunks = {ch: ([], []) for ch in channels}
+
+        for gwf_f in gwf_files:
+            m = re.search(r"V-raw-(\d+)-(\d+)\.gwf$", gwf_f.name)
+            if m:
+                fs, fd = float(m.group(1)), float(m.group(2))
+                ft0, ft1 = max(t_prev, fs), min(t_next, fs + fd)
+            else:
+                ft0, ft1 = t_prev, t_next
+
+            file_result = read_and_process_file(
+                gwf_f, channels, ft0, ft1, rows_by_channel)
+
+            for ch, (tau_1hz, amp_1hz) in file_result.items():
+                interval_chunks[ch][0].append(tau_1hz)
+                interval_chunks[ch][1].append(amp_1hz)
+
         log("  Done.")
 
-        for row in rows:
-            ch = row["channel"]
-            if ch not in tsd:
+        for ch in channels:
+            tau_parts, amp_parts = interval_chunks[ch]
+            if not tau_parts:
                 continue
-            ts = tsd[ch]
-            times  = np.asarray(ts.times.value, dtype=np.float64)
-            values = np.asarray(ts.value,       dtype=np.float64)
-            rate   = int(row["rate"])
-            method = row["method"]
-
-            amp = amplitude_proxy(values, rate, method)
-            tau = times - t_next  # τ < 0, zero at next glitch
-
-            # Resample to 1 Hz for uniform stacking
-            tau_1hz = np.arange(np.ceil(tau[0]), 0.5, 1.0)
-            amp_1hz = np.interp(tau_1hz, tau, amp, left=np.nan, right=np.nan)
-            channel_traces[ch].append((tau_1hz, amp_1hz))
+            tau_cat = np.concatenate(tau_parts)
+            amp_cat = np.concatenate(amp_parts)
+            # Sort (files should be in order, but just in case)
+            order = np.argsort(tau_cat)
+            tau_cat, amp_cat = tau_cat[order], amp_cat[order]
+            # Express as τ relative to next glitch
+            tau_rel = tau_cat - t_next
+            channel_traces[ch].append((tau_rel, amp_cat))
 
     # --- Plot ---
     import matplotlib
@@ -205,8 +213,8 @@ def main():
         tau_grid = np.arange(np.ceil(tau_min), 0.5, 1.0)
 
         stacked = []
-        for tau_1hz, amp_1hz in traces:
-            amp_interp = np.interp(tau_grid, tau_1hz, amp_1hz,
+        for tau_rel, amp in traces:
+            amp_interp = np.interp(tau_grid, tau_rel, amp,
                                    left=np.nan, right=np.nan)
             stacked.append(amp_interp)
             ax.plot(tau_grid, amp_interp, color="#cccccc", lw=0.7,
